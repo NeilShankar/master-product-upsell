@@ -92,6 +92,8 @@ app.prepare().then(() => {
       const responseJson = await shopInfo.json();
       var results = JSON.parse(JSON.stringify(responseJson));
 
+      await delay(2000)
+
       ctx.body = await results["shop"]["shop_owner"]
       
     }

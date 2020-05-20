@@ -10,6 +10,7 @@ import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
 import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
+import TextField from '@material-ui/core/TextField';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
@@ -24,22 +25,16 @@ import LiveHelpIcon from '@material-ui/icons/LiveHelp';
 import AppsIcon from '@material-ui/icons/Apps';
 import AccountBoxIcon from '@material-ui/icons/AccountBox';
 import Paper from '@material-ui/core/Paper';
-import Avatar from '@material-ui/core/Avatar';
-import RemoveRedEyeOutlinedIcon from '@material-ui/icons/RemoveRedEyeOutlined';
 import Grid from '@material-ui/core/Grid';
 import LinearProgress from '@material-ui/core/LinearProgress';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons'
-import Card from '@material-ui/core/Card';
-import CardActions from '@material-ui/core/CardActions';
-import CardContent from '@material-ui/core/CardContent';
-import DropdownMenu from '../components/dashboard/dropdownMenu'
-import DateRange from '../components/dashboard/dateRange'
-import ProGrid from '../components/dashboard/productGrid'
-import Container from '@material-ui/core/Container';
-import axios from 'axios'
-import { Line, Bar } from "react-chartjs-2";
 import NoSsr from '@material-ui/core/NoSsr';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+// import Debut from '../templates/TemplatePreviews/debut'
+
 
 var AnalysisType = "Overall"
 const ColorLinearProgress = withStyles({
@@ -266,8 +261,14 @@ export default function Dashboard() {
     prevOpen.current = MenuOpen;
   }, [MenuOpen]);
 
+  const [designTheme, setDesignTheme] = React.useState('10');
+
+  const handleChange = (event) => {
+    setDesignTheme(event.target.value);
+  };
+
   return (
-    <NoSsr>
+  <NoSsr>
     <div className={classes.root}>
       <CssBaseline />
       <ColorLinearProgress style={{ display: "none", margin: "0", position: "fixed", top: "0px", width: "100%", zIndex: "9999" }} className={classes.margin} />
@@ -380,70 +381,74 @@ export default function Dashboard() {
       </Drawer>
       <main className={classes.content}>
         <div className={classes.toolbar} />       
-        <Typography variant="h5" gutterBottom>
-            Hello!
-        </Typography>
-        <br />
-        <Grid container spacing={3}>
-        <Grid item xs>
-          <Paper elevation={20} style={{ background: "#fff" }} className={classes.paper}>
-              Impressions<br/><br/>
-              <Typography style={{ fontWeight: "bold" , color: "black" }} variant="h5">
-                  15k <FontAwesomeIcon style={{ color: "red" }} icon={faArrowDown} />                                  
-              </Typography>           
-          </Paper>
-        </Grid>
-        <Grid item xs>
-          <Paper elevation={20} style={{ background: "#fff" }} className={classes.paper}>
-              Add to Carts<br/><br/>
-              <Typography style={{ fontWeight: "bold" , color: "black" }} variant="h5">
-                  700 <FontAwesomeIcon style={{ color: "green" }} icon={faArrowUp} />
-              </Typography>
-              </Paper>
-        </Grid>
-        <Grid item xs>
-          <Paper elevation={20} style={{ background: "#fff" }} className={classes.paper}>
-              Sales Generated<br/><br/>
-              <Typography style={{ fontWeight: "bold" , color: "black" }} variant="h5">
-                  $1.2k <FontAwesomeIcon style={{ color: "green" }} icon={faArrowUp} />
-              </Typography>
-              </Paper>
-        </Grid>
-      </Grid>
-        <br></br><br></br>
         <Typography variant="h5">
-          {AnalysisType} Performance
-        </Typography>
-        <Typography variant="caption" display="block">
-        Choose from a range of analysis options for your store!
-        </Typography>
+            Frequently Bought Products
+        </Typography>   
+        <Typography variant="caption">
+            Setup configurations for displaying frequently bought products on your Store.
+        </Typography> 
+        <br></br><br></br>
+        <Divider/>
         <br></br>
-        <DropdownMenu />
-        <DateRange style={{ float: "right" }}/>
-        <br></br>
-        <Grid container spacing={3}>
-          <Grid item xs={6}>
-            <Paper elevation={20} style={{ background: "#fff" }} className={classes.paper}>
-              <Line data={data} options={options} legend={legend}/>
-            </Paper>
-          </Grid>
-          <Grid item xs={6}>
-            <Paper elevation={20} style={{ background: "#fff" }} className={classes.paper}>
-              <Bar data={data2} options={options2} legend={legend}/>
-            </Paper>
-          </Grid>
+        <Grid>
+            <Grid item xs={6}> 
+                <Paper style={{ padding: "33px"}} elevation={20}>
+                    <Typography variant="h6">
+                        Display Setup
+                    </Typography> 
+                    <Typography variant="caption">
+                        Include the code below in your product template, wherever you want the frequently bought products to appear! If you need any sort of assistance in doing this please do not hesitate, we recommend if you are not comfortable with editing your theme files, you may contact us to prevent any errors in your theme.
+                    </Typography> 
+                    <br></br><br></br>
+                    <Paper style={{ backgroundColor: "rgb(176, 179, 184)", padding: "11px 24%"}}>
+                        {"{% render 'frequently-bought-products' %}"}
+                    </Paper>
+                </Paper>  
+            </Grid>            
         </Grid>
         <br></br><br></br>
-        <Typography variant="h5">Top Performing Products</Typography>
-        <Typography variant="caption" display="block">
-        View your top 5 performing product bundles.
-        </Typography>
+        <Divider/>
         <br></br>
-        <Container>
-            <ProGrid />
-        </Container>        
+        <Grid>
+            <Grid style={{ height: "44%"}} item xs={6}> 
+                <Paper style={{ padding: "33px"}} elevation={20}>
+                    <Typography variant="h6">
+                        Display Customizations
+                    </Typography>    
+                    <Typography variant="caption">
+                        Now you can configure how the snippet will look in your store, you can choose from our pre-built themes, change the title of the snippet or mix up some colors! If you feel like you need a custom design for your store, please don't hesitate to contact us!
+                    </Typography>      
+                    <br></br><br></br>      
+                    <Typography variant="overline">
+                       Title
+                    </Typography><br></br>
+                    <TextField style={{ width: "100%" }}id="outlined-basic" label="Enter Title Here" variant="outlined" />
+                    <br></br><br></br>
+                    <Typography variant="overline">
+                    Theme
+                    </Typography><br></br>
+                    <FormControl variant="outlined" style={{ width: "100%"}}>
+                    <Select
+                    labelId="demo-simple-select-outlined-label"
+                    id="demo-simple-select-outlined"
+                    value={designTheme}
+                    onChange={handleChange}
+                    >
+                    <MenuItem value={10}>Debut</MenuItem>
+                    </Select>
+                </FormControl>
+                </Paper>  
+            </Grid>   
+            <Grid item style={{ width: "48%", float: "right", marginTop: "-33%" }}>
+                <Paper style={{ padding: "34px" }}elevation={20}>
+                    <Typography variant="h6">
+                        Live Preview
+                    </Typography>
+                </Paper>
+            </Grid>         
+        </Grid>
       </main>
     </div>
-    </NoSsr>
+  </NoSsr>
   );
 }

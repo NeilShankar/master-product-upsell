@@ -1,5 +1,5 @@
 {
-  "name": "shopify-demo-app-node-react",
+  "name": "product-upsell",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -11,15 +11,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Shopify/shopify-demo-app-node-react.git"
+    "url": "git+https://github.com/NeilShankar/master-product-upsell.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Shopify/shopify-demo-app-node-react/issues"
-  },
-  "homepage": "https://github.com/Shopify/shopify-demo-app-node-react#readme",
   "dependencies": {
     "@date-io/date-fns": "^2.6.1",
     "@fortawesome/fontawesome-svg-core": "^1.2.28",
@@ -28,7 +24,6 @@
     "@material-ui/core": "^4.9.14",
     "@material-ui/icons": "^4.9.1",
     "@material-ui/pickers": "^3.2.10",
-    "@material-ui/styles": "^4.9.14",
     "@shopify/app-bridge": "^1.21.4",
     "@shopify/app-bridge-react": "^1.21.4",
     "@shopify/koa-shopify-auth": "^3.1.61",

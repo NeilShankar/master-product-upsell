@@ -47,7 +47,7 @@ export default function ProGrid() {
   return (
     <div className={classes.root}>
       <Grid style={{ width: "43%", height: "50%", float: "right", position: "absolute", right: "2.6%", marginTop: "12px"}}>
-        <Paper style={{ height: "100%", background: "#fff", boxShadow: "0 0 20px 2px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 1px 3px 0px rgba(0,0,0,0.12)" }}className={classes.paper}>
+        <Paper elevation={20} style={{ height: "100%", background: "#fff" }}className={classes.paper}>
           <Doughnut
             data={data}
             options={{
@@ -69,7 +69,7 @@ export default function ProGrid() {
       </Grid>
       <Grid style={{ width: "calc(50% + 13px)" }} container spacing={3}>
         <Grid item xs>
-          <Paper style={{ background: "#fff", boxShadow: "0 0 20px 2px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 1px 3px 0px rgba(0,0,0,0.12)"  }} className={classes.paper}>
+          <Paper elevation={20} style={{ background: "#fff" }} className={classes.paper}>
             <Typography style={{ fontSize: "1em" }} variant="h6">
               Christmas Product Bundle
             </Typography>
@@ -78,7 +78,7 @@ export default function ProGrid() {
       </Grid>
       <Grid style={{ width: "calc(50% + 13px)" }} container spacing={3}>
         <Grid item xs>
-        <Paper style={{ background: "#fff", boxShadow: "0 0 20px 2px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 1px 3px 0px rgba(0,0,0,0.12)"  }} className={classes.paper}>
+        <Paper elevation={20} style={{ background: "#fff" }} className={classes.paper}>
             <Typography style={{ fontSize: "1em" }} variant="h6">
               Diwali Bundle
             </Typography>
@@ -87,7 +87,7 @@ export default function ProGrid() {
       </Grid>
       <Grid style={{ width: "calc(50% + 13px)" }} container spacing={3}>
         <Grid item xs>
-        <Paper style={{ background: "#fff", boxShadow: "0 0 20px 2px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 1px 3px 0px rgba(0,0,0,0.12)"  }} className={classes.paper}>
+        <Paper elevation={20} style={{ background: "#fff" }} className={classes.paper}>
             <Typography style={{ fontSize: "1em" }} variant="h6">
               Thanksgiving Bundle
             </Typography>
@@ -96,7 +96,7 @@ export default function ProGrid() {
       </Grid>
       <Grid style={{ width: "calc(50% + 13px)" }} container spacing={3}>
         <Grid item xs>
-        <Paper style={{ background: "#fff", boxShadow: "0 0 20px 2px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 1px 3px 0px rgba(0,0,0,0.12)"  }} className={classes.paper}>
+        <Paper elevation={20} style={{ background: "#fff" }} className={classes.paper}>
             <Typography style={{ fontSize: "1em" }} variant="h6">
               Halloween Bundle
             </Typography>
@@ -105,7 +105,7 @@ export default function ProGrid() {
       </Grid>
       <Grid style={{ width: "calc(50% + 13px)" }} container spacing={3}>
         <Grid item xs>
-        <Paper style={{ background: "#fff", boxShadow: "0 0 20px 2px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 1px 3px 0px rgba(0,0,0,0.12)"  }} className={classes.paper}>
+        <Paper elevation={20} style={{ background: "#fff" }} className={classes.paper}>
             <Typography style={{ fontSize: "1em" }} variant="h6">
               Birthday Bundle
             </Typography>

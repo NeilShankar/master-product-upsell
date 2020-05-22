@@ -11,6 +11,7 @@ const { ApiVersion } = require('@shopify/koa-shopify-graphql-proxy');
 const Router = require('koa-router');
 const { receiveWebhook, registerWebhook } = require('@shopify/koa-shopify-webhooks');
 const getSubscriptionUrl = require('./server/getSubscriptionUrl');
+const puppeteer = require('puppeteer');
 
 const getRawBody = require('raw-body')
 const crypto = require('crypto')
@@ -27,6 +28,10 @@ const app = next({ dev });
 const handle = app.getRequestHandler();
 
 const cookie = require('cookie');
+
+// Service Handlers
+const updateBundleInfo = require('./services/updateBundleInfo')
+const getBundleInfo = require('./services/getBundleInfo')
 
 const {
   SHOPIFY_API_SECRET_KEY,
@@ -60,44 +65,8 @@ app.prepare().then(() => {
     ctx.res.statusCode = 200;  
     ctx.body = "> Drops API is up and running"
   })
-  .post('/api/:object', async (ctx) => {
-    if (ctx.params.object === "shopUserInfo") {       
-      shopURL = `https://${ctx.session.shop}`
-      const delay = require('delay');
-    
-      var accessT = null
-
-      require('./models/store')
-      const storeModel = mongoose.model('Store')
-
-      storeModel.findOne({ url: shopURL }, async function(err, data) {
-        accessT = await data.accessToken
-      }).catch((e) => {
-        console.log(e)
-      })
-
-      await delay(5000)
-
-      const shopInfo = await fetch(
-        `${shopURL}/admin/api/2020-04/shop.json`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Shopify-Access-Token": accessT,
-          },
-        }
-      );
-    
-      const responseJson = await shopInfo.json();
-      var results = JSON.parse(JSON.stringify(responseJson));
-
-      await delay(2000)
-
-      ctx.body = await results["shop"]["shop_owner"]
-      
-    }
-  })
+  .post('/api/saveBundleInfo', updateBundleInfo)
+  .get('/api/getBundleInfo', getBundleInfo)
 
   router
   .get('/post-product', ctx => {
@@ -108,7 +77,7 @@ app.prepare().then(() => {
 
   // // MongoDB Configurations 
   const mongoose = require('mongoose')
-  mongoose.connect(`mongodb+srv://adminNeil:${process.env.MONGO_DB_PASS}@cluster0-1nthp.gcp.mongodb.net/storesDB?retryWrites=true&w=majority`, {useNewUrlParser: true,  useUnifiedTopology: true });
+  mongoose.connect(`mongodb+srv://adminNeil:${process.env.MONGO_DB_PASS}@cluster0-1nthp.gcp.mongodb.net/storesDB?retryWrites=true&w=majority`, {useNewUrlParser: true,  useUnifiedTopology: true, useFindAndModify: false });
 
   var db = mongoose.connection;
 
@@ -149,7 +118,11 @@ app.prepare().then(() => {
           url: `https://${shop}`,
           accessToken: accessToken,
           FreeShipEnabled: false,
-          FreeShippingThreshold: 0
+          FreeShippingThreshold: 0,
+          BundleConfigs: {
+            Title: 'Frequently Bought Together',
+            Theme: 10
+          }
         })
 
         storeData.save(async function(err, doc) {

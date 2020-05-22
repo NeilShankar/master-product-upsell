@@ -5,10 +5,15 @@ import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import List from '@material-ui/core/List';
+import Skeleton from '@material-ui/lab/Skeleton';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
+import Button from '@material-ui/core/Button';
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert from '@material-ui/lab/Alert';
 import Divider from '@material-ui/core/Divider';
+import SaveIcon from '@material-ui/icons/Save';
 import IconButton from '@material-ui/core/IconButton';
 import TextField from '@material-ui/core/TextField';
 import MenuIcon from '@material-ui/icons/Menu';
@@ -34,7 +39,12 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 // import Debut from '../templates/TemplatePreviews/debut'
+import BundleInstance from '../API-instances/BundleInstance'
+import GetBundleInstance from '../API-instances/BundleGetInstance'
 
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 var AnalysisType = "Overall"
 const ColorLinearProgress = withStyles({
@@ -216,17 +226,51 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Dashboard() {
+export default function FrequentlyBought() {
   const classes = useStyles();
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
+  const [bundleTitle, setBundleTitle] = React.useState('Frequently Bought Products')
+  const [bundleTheme, setBundleTheme] = React.useState(1)
   const anchorRef = React.useRef(null);
   const [MenuOpen, setMenuOpen] = React.useState(false);
+  const [displayProgress, setDisplayProgress] = React.useState('block');
   const bull = <span className={classes.bullet}>•</span>;
+  const [save, saveOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    GetBundleInstance({
+      method: "GET"
+    }).then((res) => {
+      setBundleTitle(res.data.Title)
+      setDesignTheme(res.data.Theme)
+      setDisplayProgress('none')
+    })
+  }, []);
+
+  const saveSuccess = () => {
+    saveOpen(true);
+  };
+
+  const saveClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    saveOpen(false);
+  };
 
   const handleToggle = () => {
     setMenuOpen((prevOpen) => !prevOpen);
   };
+
+  const changeTitle = (e) => {
+    setBundleTitle(e.target.value);
+  }
+
+  const changeTheme = (e) => {
+    setBundleTheme(e.target.value);
+  }
 
   const handleClose = (event) => {
     if (anchorRef.current && anchorRef.current.contains(event.target)) {
@@ -251,6 +295,22 @@ export default function Dashboard() {
     }
   }
 
+  function saveBundleInfo(e) {
+    setDisplayProgress('block')
+    e.preventDefault()
+    BundleInstance({
+      method: 'POST',
+      data: {
+        Title: bundleTitle,
+        Theme: designTheme
+      }
+    }).then((response) => {
+      console.log("Updated")
+      setDisplayProgress('none')
+      saveSuccess()
+    })
+  }  
+
   // return focus to the button when we transitioned from !open -> open
   const prevOpen = React.useRef(MenuOpen);
   React.useEffect(() => {
@@ -271,7 +331,7 @@ export default function Dashboard() {
   <NoSsr>
     <div className={classes.root}>
       <CssBaseline />
-      <ColorLinearProgress style={{ display: "none", margin: "0", position: "fixed", top: "0px", width: "100%", zIndex: "9999" }} className={classes.margin} />
+      <ColorLinearProgress style={{ display: displayProgress, margin: "0", position: "fixed", top: "0px", width: "100%", zIndex: "9999" }} className={classes.margin} />
       <AppBar
         position="fixed"
         className={clsx(classes.appBar, {
@@ -291,7 +351,7 @@ export default function Dashboard() {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap>
-            Dashboard
+            Frequently Bought Products Configuration
           </Typography>
         </Toolbar>
       </AppBar>
@@ -326,30 +386,14 @@ export default function Dashboard() {
             <ListItemText primary={"Dashboard"} />
           </Link>
         </ListItem>      
-        <ListItem button key={"Frequently Bought"}>
-          <Link href="/frequently-bought" color="inherit">
+        <ListItem button key={"Bundles"}>
+          <Link href="/bundles" color="inherit">
             <ListItemIcon><AddShoppingCartIcon /></ListItemIcon>
           </Link>
-          <Link href="/frequently-bought" color="inherit">
-            <ListItemText primary={"Frequently Bought"} />
-          </Link>
-        </ListItem>      
-        <ListItem button key={"Related Products"}>
-          <Link href="/related-products" color="inherit">
-            <ListItemIcon><AppsIcon /></ListItemIcon>
-          </Link>
-          <Link href="/related-products" color="inherit">
-            <ListItemText primary={"Related Products"} />
-          </Link>
-        </ListItem>  
-        <ListItem button key={"Bundles"}>
-          <Link href="/product-bundles" color="inherit">
-            <ListItemIcon><BallotIcon /></ListItemIcon>
-          </Link>
-          <Link href="/product-bundles" color="inherit">
+          <Link href="/bundles" color="inherit">
             <ListItemText primary={"Bundles"} />
           </Link>
-        </ListItem>              
+        </ListItem>           
         </List>
         <Divider />
         <List>
@@ -387,6 +431,9 @@ export default function Dashboard() {
         <Typography variant="caption">
             Setup configurations for displaying frequently bought products on your Store.
         </Typography> 
+        <Button variant="contained" style={{ float: "right" }} onClick={saveBundleInfo} color="primary" startIcon={<SaveIcon />}>
+        Save
+        </Button>
         <br></br><br></br>
         <Divider/>
         <br></br>
@@ -422,7 +469,7 @@ export default function Dashboard() {
                     <Typography variant="overline">
                        Title
                     </Typography><br></br>
-                    <TextField style={{ width: "100%" }}id="outlined-basic" label="Enter Title Here" variant="outlined" />
+                    <TextField style={{ width: "100%" }} id="outlined-basic" label="Enter Title Here" variant="outlined" value={bundleTitle} onChange={changeTitle}/>
                     <br></br><br></br>
                     <Typography variant="overline">
                     Theme
@@ -435,6 +482,7 @@ export default function Dashboard() {
                     onChange={handleChange}
                     >
                     <MenuItem value={10}>Debut</MenuItem>
+                    <MenuItem value={20}>Flow</MenuItem>
                     </Select>
                 </FormControl>
                 </Paper>  
@@ -444,9 +492,19 @@ export default function Dashboard() {
                     <Typography variant="h6">
                         Live Preview
                     </Typography>
+                    <br></br><br></br>
+                    <Skeleton animation="wave" variant="text" />
+                    <Skeleton animation="wave" variant="rect" width={210} height={165} />
+                    <Skeleton animation="wave" variant="text" width={135} height={40} />
+                    <Skeleton animation="wave" variant="text" />
                 </Paper>
             </Grid>         
         </Grid>
+        <Snackbar open={save} autoHideDuration={6000} onClose={saveClose}>
+          <Alert onClose={saveClose} severity="success">
+            Saved Successfully
+          </Alert>
+        </Snackbar>
       </main>
     </div>
   </NoSsr>

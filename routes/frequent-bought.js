@@ -1,4 +1,3 @@
-var bodyParser = require("koa-bodyparser");
 const mongoose = require("mongoose");
 
 require("../models/store");

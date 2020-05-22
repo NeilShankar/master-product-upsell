@@ -325,30 +325,14 @@ export default function Dashboard() {
             <ListItemText primary={"Dashboard"} />
           </Link>
         </ListItem>      
-        <ListItem button key={"Frequently Bought"}>
-          <Link href="/frequently-bought" color="inherit">
+        <ListItem button key={"Bundles"}>
+          <Link href="/bundles" color="inherit">
             <ListItemIcon><AddShoppingCartIcon /></ListItemIcon>
           </Link>
-          <Link href="/frequently-bought" color="inherit">
-            <ListItemText primary={"Frequently Bought"} />
-          </Link>
-        </ListItem>      
-        <ListItem button key={"Related Products"}>
-          <Link href="/related-products" color="inherit">
-            <ListItemIcon><AppsIcon /></ListItemIcon>
-          </Link>
-          <Link href="/related-products" color="inherit">
-            <ListItemText primary={"Related Products"} />
-          </Link>
-        </ListItem>  
-        <ListItem button key={"Bundles"}>
-          <Link href="/product-bundles" color="inherit">
-            <ListItemIcon><BallotIcon /></ListItemIcon>
-          </Link>
-          <Link href="/product-bundles" color="inherit">
+          <Link href="/bundles" color="inherit">
             <ListItemText primary={"Bundles"} />
           </Link>
-        </ListItem>              
+        </ListItem>           
         </List>
         <Divider />
         <List>

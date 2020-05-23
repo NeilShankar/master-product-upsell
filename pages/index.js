@@ -36,6 +36,8 @@ import CardContent from '@material-ui/core/CardContent';
 import DropdownMenu from '../components/dashboard/dropdownMenu'
 import DateRange from '../components/dashboard/dateRange'
 import ProGrid from '../components/dashboard/productGrid'
+import HeaderBar from '../components/dashboard/HeaderBar'
+
 import Container from '@material-ui/core/Container';
 import axios from 'axios'
 import { Line, Bar } from "react-chartjs-2";
@@ -225,9 +227,29 @@ export default function Dashboard() {
   const classes = useStyles();
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
+  // const [metrics, setMetrics] = React.useState({
+  //   views: 0,
+  //   addToCarts: 0,
+  //   sales: ""
+  // });
   const anchorRef = React.useRef(null);
   const [MenuOpen, setMenuOpen] = React.useState(false);
+  const [displayProgress, setDisplayProgress] = React.useState('block');
   const bull = <span className={classes.bullet}>•</span>;
+
+  React.useEffect(() => {
+    setDisplayProgress('none')    
+  }, [])
+
+  // Get Sales Metric
+
+  // React.useEffect(() => {
+  //   GetMetricSales({
+  //     method: "GET"
+  //   }).then((response) => {
+      
+  //   })
+  // }, [])
 
   const handleToggle = () => {
     setMenuOpen((prevOpen) => !prevOpen);
@@ -270,7 +292,7 @@ export default function Dashboard() {
     <NoSsr>
     <div className={classes.root}>
       <CssBaseline />
-      <ColorLinearProgress style={{ display: "none", margin: "0", position: "fixed", top: "0px", width: "100%", zIndex: "9999" }} className={classes.margin} />
+      <ColorLinearProgress style={{ display: displayProgress, margin: "0", position: "fixed", top: "0px", width: "100%", zIndex: "9999" }} className={classes.margin} />
       <AppBar
         position="fixed"
         className={clsx(classes.appBar, {
@@ -364,10 +386,14 @@ export default function Dashboard() {
       </Drawer>
       <main className={classes.content}>
         <div className={classes.toolbar} />       
-        <Typography variant="h5" gutterBottom>
-            Hello!
-        </Typography>
+        <HeaderBar />
         <br />
+        <Divider />
+        <br></br>
+        <Typography variant="h6">
+          Overall Performance
+        </Typography>
+        <br></br>
         <Grid container spacing={3}>
         <Grid item xs>
           <Paper elevation={20} style={{ background: "#fff" }} className={classes.paper}>
@@ -396,7 +422,7 @@ export default function Dashboard() {
       </Grid>
         <br></br><br></br>
         <Typography variant="h5">
-          {AnalysisType} Performance
+          Breakdown Performance
         </Typography>
         <Typography variant="caption" display="block">
         Choose from a range of analysis options for your store!

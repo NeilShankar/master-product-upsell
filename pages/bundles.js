@@ -39,8 +39,51 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 // import Debut from '../templates/TemplatePreviews/debut'
+
+import FormGroup from '@material-ui/core/FormGroup';
+import Switch from '@material-ui/core/Switch';
+
 import BundleInstance from '../API-instances/BundleInstance'
 import GetBundleInstance from '../API-instances/BundleGetInstance'
+import DefaultLivePreview from '../templates/HTML/1'
+import Container from '@material-ui/core/Container';
+
+import GetProductsLive from '../API-instances/BundleLivePreviewProducts'
+
+const AntSwitch = withStyles((theme) => ({
+  root: {
+    width: 28,
+    height: 16,
+    padding: 0,
+    display: 'flex',
+  },
+  switchBase: {
+    padding: 2,
+    color: theme.palette.grey[500],
+    '&$checked': {
+      transform: 'translateX(12px)',
+      color: theme.palette.common.white,
+      '& + $track': {
+        opacity: 1,
+        backgroundColor: theme.palette.primary.main,
+        borderColor: theme.palette.primary.main,
+      },
+    },
+  },
+  thumb: {
+    width: 12,
+    height: 12,
+    boxShadow: 'none',
+  },
+  track: {
+    border: `1px solid ${theme.palette.grey[500]}`,
+    borderRadius: 16 / 2,
+    opacity: 1,
+    backgroundColor: theme.palette.common.white,
+  },
+  checked: {},
+}))(Switch);
+
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -232,8 +275,22 @@ export default function FrequentlyBought() {
   const [open, setOpen] = React.useState(false);
   const [bundleTitle, setBundleTitle] = React.useState('Frequently Bought Products')
   const [bundleTheme, setBundleTheme] = React.useState(1)
+
+  const [ProductTitle, setProductTitle] = React.useState('')
+  const [ProductPrice, setProductPrice] = React.useState('')
+  const [ProductImage, setProductImage] = React.useState('')
+
+  const [Product1Image, setProduct1Image] = React.useState('')
+  const [Product1Price, setProduct1Price] = React.useState('')
+  const [Product1Title, setProduct1Title] = React.useState('')
+
+  const [TotalPrice, setTotalPrice] = React.useState('')
+
+
   const anchorRef = React.useRef(null);
   const [MenuOpen, setMenuOpen] = React.useState(false);
+  const [SkeletonDisplay, setSkeletonDisplay] = React.useState('block');
+  const [PrevDisplay, setPrevDisplay] = React.useState('none');
   const [displayProgress, setDisplayProgress] = React.useState('block');
   const bull = <span className={classes.bullet}>•</span>;
   const [save, saveOpen] = React.useState(false);
@@ -244,9 +301,26 @@ export default function FrequentlyBought() {
     }).then((res) => {
       setBundleTitle(res.data.Title)
       setDesignTheme(res.data.Theme)
-      setDisplayProgress('none')
     })
   }, []);
+
+  
+React.useEffect(() => {
+  GetProductsLive({
+    method: "GET"
+  }).then((response) => {
+    setProductTitle(response.data.ProductTitle)
+    setProductImage(response.data.ProductImage)
+    setProductPrice(response.data.ProductPrice)
+    setProduct1Price(response.data.Product1Price)
+    setProduct1Image(response.data.Product1Image)
+    setProduct1Title(response.data.Product1Title)
+    setTotalPrice(response.data.TotalPrice)
+    setDisplayProgress('none')
+    setSkeletonDisplay('none')
+    setPrevDisplay('block')
+  })
+}, [])
 
   const saveSuccess = () => {
     saveOpen(true);
@@ -310,6 +384,8 @@ export default function FrequentlyBought() {
       saveSuccess()
     })
   }  
+
+  function createLiveMarkup() { return {__html: DefaultLivePreview(bundleTitle, ProductTitle, ProductPrice, ProductImage, Product1Title, Product1Price, Product1Image, TotalPrice)}; };
 
   // return focus to the button when we transitioned from !open -> open
   const prevOpen = React.useRef(MenuOpen);
@@ -436,9 +512,10 @@ export default function FrequentlyBought() {
         </Button>
         <br></br><br></br>
         <Divider/>
-        <br></br>
+        <br></br><br></br><br></br>
         <Grid>
             <Grid item xs={6}> 
+            <br></br>
                 <Paper style={{ padding: "33px"}} elevation={20}>
                     <Typography variant="h6">
                         Display Setup
@@ -489,14 +566,18 @@ export default function FrequentlyBought() {
             </Grid>   
             <Grid item style={{ width: "48%", float: "right", marginTop: "-33%" }}>
                 <Paper style={{ padding: "34px" }}elevation={20}>
-                    <Typography variant="h6">
-                        Live Preview
-                    </Typography>
                     <br></br><br></br>
-                    <Skeleton animation="wave" variant="text" />
-                    <Skeleton animation="wave" variant="rect" width={210} height={165} />
-                    <Skeleton animation="wave" variant="text" width={135} height={40} />
-                    <Skeleton animation="wave" variant="text" />
+                    <Container style={{ display: SkeletonDisplay }}>
+                      <Skeleton animation="wave" variant="text" />
+                      <Skeleton animation="wave" variant="rect" width={210} height={165} />
+                      <Skeleton animation="wave" variant="text" width={135} height={40} />
+                      <Skeleton animation="wave" variant="text" />
+                      <Skeleton animation="wave" variant="text" />
+                      <Skeleton animation="wave" variant="rect" />
+                    </Container>
+                    <Container style={{ display: PrevDisplay }} id="LivePreviewBox" dangerouslySetInnerHTML={createLiveMarkup()}>
+
+                    </Container>
                 </Paper>
             </Grid>         
         </Grid>

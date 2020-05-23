@@ -1,0 +1,254 @@
+@font-face {
+    font-family: Helvetica;
+    font-weight: 700;
+    font-style: normal;
+    src: url("https://fonts.shopifycdn.com/helvetica/helvetica_n7.39bee04bd277a9c4e94e2fd42d53f4e3c0afb8a5.woff2?&hmac=b99c35ba03edd5495ba7af87326d5fe8af5b2363f485475338ae16401b9af50d") format("woff2"), url("https://fonts.shopifycdn.com/helvetica/helvetica_n7.b95359461a6788d5549e702cb2123bc40c227e49.woff?&hmac=684bc7a600f408db705c8f9b90d3d964d22c13a8ce7492386d351a852f30309b") format("woff");
+}
+@font-face {
+    font-family: Helvetica;
+    font-weight: 400;
+    font-style: normal;
+    src: url("https://fonts.shopifycdn.com/helvetica/helvetica_n4.fe093fe9ca22a15354813c912484945a36b79146.woff2?&hmac=64c57d7fee8da8223a0d4856285068c02c248ef210cae57dcd9c3e633375e8a4") format("woff2"), url("https://fonts.shopifycdn.com/helvetica/helvetica_n4.8bddb85c18a0094c427a9bf65dee963ad88de4e8.woff?&hmac=f74109e3105603c8a8cfbd8dec4e8a7e53572346fb96aacec203fc3881ddabf1") format("woff");
+}
+@font-face {
+    font-family: Helvetica;
+    font-weight: 700;
+    font-style: normal;
+    src: url("https://fonts.shopifycdn.com/helvetica/helvetica_n7.39bee04bd277a9c4e94e2fd42d53f4e3c0afb8a5.woff2?&hmac=b99c35ba03edd5495ba7af87326d5fe8af5b2363f485475338ae16401b9af50d") format("woff2"), url("https://fonts.shopifycdn.com/helvetica/helvetica_n7.b95359461a6788d5549e702cb2123bc40c227e49.woff?&hmac=684bc7a600f408db705c8f9b90d3d964d22c13a8ce7492386d351a852f30309b") format("woff");
+}
+@font-face {
+    font-family: Helvetica;
+    font-weight: 700;
+    font-style: normal;
+    src: url("https://fonts.shopifycdn.com/helvetica/helvetica_n7.39bee04bd277a9c4e94e2fd42d53f4e3c0afb8a5.woff2?&hmac=b99c35ba03edd5495ba7af87326d5fe8af5b2363f485475338ae16401b9af50d") format("woff2"), url("https://fonts.shopifycdn.com/helvetica/helvetica_n7.b95359461a6788d5549e702cb2123bc40c227e49.woff?&hmac=684bc7a600f408db705c8f9b90d3d964d22c13a8ce7492386d351a852f30309b") format("woff");
+}
+@font-face {
+    font-family: Helvetica;
+    font-weight: 400;
+    font-style: oblique;
+    src: url("https://fonts.shopifycdn.com/helvetica/helvetica_o4.f9832a0fc1ee8fc5a359636e410d6941e1e4ca03.woff2?&hmac=775a8a34e13ea386c331d51fd5f061993cd3135ce54cc4ed2b9254f3a3be05df") format("woff2"), url("https://fonts.shopifycdn.com/helvetica/helvetica_o4.0063286aec443697ebae04eeb9c78b820f9f7805.woff?&hmac=32c2cf4f29cdfb274d76aeb45a9a8b5c97eb6a9255cc2073ee5c1a85140ad7fe") format("woff");
+}
+@font-face {
+    font-family: Helvetica;
+    font-weight: 700;
+    font-style: oblique;
+    src: url("https://fonts.shopifycdn.com/helvetica/helvetica_o7.215fd4ca1a06214fa01e44328a1992c977700ea2.woff2?&hmac=b7d9523eaf6b1e57f158595303d5e41e66c07d43212d2fbfe8df1f4b7d6c1f79") format("woff2"), url("https://fonts.shopifycdn.com/helvetica/helvetica_o7.b0a2026ae2aa64d060f9ce0ee1b3c3c1aa21bf88.woff?&hmac=97dc9f03549c58cc74feee46ffde68daa822080823ae1159e9cd489daf68bcb9") format("woff");
+}
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+body {
+    margin: 0;
+}
+body, button {
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-size-adjust: 100%;
+}
+a {
+    background-color: transparent;
+}
+img {
+    max-width: 100%;
+    border: 0;
+}
+button {
+    color: inherit;
+    font: inherit;
+    margin: 0;
+}
+button::-moz-focus-inner {
+    border-style: none;
+    padding: 0;
+}
+button:-moz-focusring {
+    outline: 1px dotted ButtonText;
+}
+a, button {
+    touch-action: manipulation;
+}
+.text-center {
+    text-align: center !important;
+}
+body, html {
+    background-color: #fff;
+}
+body, button {
+    font-size: 15px;
+    font-family: Helvetica, "Helvetica Neue", Arial, "Lucida Grande", sans-serif;
+    font-style: normal;
+    font-weight: 400;
+    color: #3a3a3a;
+    line-height: 1.5;
+}
+@media only screen and (max-width: 989px) {
+    button {
+        font-size: 16px;
+   }
+}
+h3, h4, .h4 {
+    margin: 0 0 17.5px;
+    font-family: Helvetica, "Helvetica Neue", Arial, "Lucida Grande", sans-serif;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 1.2;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+h3 {
+    font-size: 1.73333em;
+    text-transform: none;
+    letter-spacing: 0;
+}
+@media only screen and (max-width: 749px) {
+    h3 {
+        font-size: 1.33333em;
+   }
+}
+h4, .h4 {
+    font-size: 1.13333em;
+}
+@media only screen and (max-width: 749px) {
+    h4, .h4 {
+        font-size: 1em;
+   }
+}
+p {
+    color: #333232;
+    margin: 0 0 19.44444px;
+}
+@media only screen and (max-width: 749px) {
+    p {
+        font-size: 0.93333em;
+   }
+}
+p:last-child {
+    margin-bottom: 0;
+}
+a {
+    color: #3a3a3a;
+    text-decoration: none;
+}
+a:not([disabled]):hover, a:focus {
+    color: #606060;
+}
+.btn {
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    display: inline-block;
+    width: auto;
+    text-decoration: none;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    padding: 8px 15px;
+    background-color: #3a3a3a;
+    color: #fff;
+    font-family: Helvetica, "Helvetica Neue", Arial, "Lucida Grande", sans-serif;
+    font-style: normal;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    white-space: normal;
+    font-size: 13px;
+}
+@media only screen and (min-width: 750px) {
+    .btn {
+        padding: 10px 18px;
+   }
+}
+.btn:not([disabled]):hover, .btn:focus {
+    color: #fff;
+    background-color: #606060;
+}
+.btn--secondary-accent {
+    background-color: #fff;
+    color: #3a3a3a;
+    border-color: #3a3a3a;
+}
+.btn--secondary-accent:not([disabled]):hover, .btn--secondary-accent:focus {
+    background-color: #fff;
+    color: #606060;
+    border-color: #606060;
+}
+button {
+    cursor: pointer;
+}
+::-webkit-input-placeholder {
+    color: #000;
+    opacity: 0.6;
+}
+::-moz-placeholder {
+    color: #000;
+    opacity: 0.6;
+}
+:-ms-input-placeholder {
+    color: #000;
+    opacity: 0.6;
+}
+::-ms-input-placeholder {
+    color: #000;
+    opacity: 1;
+}
+.grid-view-item {
+    margin: 0 auto 35px;
+}
+.grid-view-item__title {
+    margin-bottom: 0;
+    color: #3a3a3a;
+}
+@media only screen and (max-width: 749px) {
+    .grid-view-item__title {
+        font-size: 0.93333em;
+   }
+}
+.grid-view-item__link {
+    display: block;
+}
+.plyr.plyr--full-ui.plyr--video:fullscreen .plyr__video-wrapper .plyr.plyr--full-ui.plyr--video:fullscreen .plyr__poster {
+    background-color: #000;
+}
+.product-form__cart-submit {
+    display: block;
+    width: 100%;
+    line-height: 1.4;
+    padding-left: 5px;
+    padding-right: 5px;
+    white-space: normal;
+    margin-top: 0;
+    margin-bottom: 10px;
+    min-height: 44px;
+}
+.price {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+@media only screen and (max-width: 749px) {
+    .price {
+        font-size: 0.93333em;
+   }
+}
+.product-card {
+    position: relative;
+}
+.product-card:hover .product-card__title, .product-card:focus-within .product-card__title {
+    border-bottom-color: #3a3a3a;
+}
+.product-card__title {
+    border-bottom: 1px solid transparent;
+    display: inline;
+    font-family: Helvetica, "Helvetica Neue", Arial, "Lucida Grande", sans-serif;
+    font-style: normal;
+    font-weight: 700;
+}
+
+.container{width:100%;height:200px;margin:auto;padding:10px}.one{height:200px;float:left}.two{margin-left:15%;height:200px;float:right} #snackbar { visibility: hidden; min-width: 250px; margin-left: -125px; background-color: #333; color: #fff; text-align: center; border-radius: 2px; padding: 16px; position: fixed; z-index: 1; left: 50%; bottom: 30px; font-size: 17px; } #snackbar.show { visibility: visible; -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s; animation: fadein 0.5s, fadeout 0.5s 2.5s; } @-webkit-keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} } @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} } @-webkit-keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} } @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} } #snack{min-width: 250px; margin-left: -125px; background-color: #333; color: #fff; text-align: center; border-radius: 2px; padding: 16px; position: fixed; z-index: 1; left: 50%; font-size: 17px;}

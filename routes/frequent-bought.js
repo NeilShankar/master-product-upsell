@@ -8,6 +8,7 @@ const FrequentProduct = async (ctx) => {
   var accessT = "NiL";
   var ShopURI = "";
   var FreeShipIsThere = false;
+  var PageTitle = ""
   var FreeShipping = 0;
   var ShopID = 0
 
@@ -18,6 +19,7 @@ const FrequentProduct = async (ctx) => {
     accessT = shopData.accessToken;
     ShopURI = shopData.url;
     ShopID = shopData._id
+    PageTitle = shopData.BundleConfigs.Title
     if (shopData.FreeShipEnabled === true) {
       FreeShipIsThere = true;
       FreeShipping = shopData.FreeShippingThreshold;
@@ -94,7 +96,7 @@ const FrequentProduct = async (ctx) => {
     FoundImageUrl: pResponseJson.product["image"].src,
     FoundVariantID: vResponseJson.variants[0]["id"],
     Price: vResponseJson.variants[0]["price"],
-    PageTitle: "Frequently Bought Together",
+    PageTitle: PageTitle,
     FreeShipEnable: FreeShipIsThere,
     FreeShippingThres: FreeShipping,
   }; 

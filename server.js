@@ -2,10 +2,12 @@ require('isomorphic-fetch');
 const dotenv = require('dotenv');
 dotenv.config();
 const Koa = require('koa');
+
 const next = require('next');
 const { default: createShopifyAuth } = require('@shopify/koa-shopify-auth');
 const { verifyRequest } = require('@shopify/koa-shopify-auth');
 const session = require('koa-session');
+const Sentry = require('@sentry/node');
 const { default: graphQLProxy } = require('@shopify/koa-shopify-graphql-proxy');
 const { ApiVersion } = require('@shopify/koa-shopify-graphql-proxy');
 const Router = require('koa-router');
@@ -20,7 +22,6 @@ const secretKey = process.env.SHOPIFY_API_SECRET_KEY
 const axios = require('axios');
 const CircularJSON = require('circular-json')
 
-const proxyRoute = require('./server/proxy')
 const postFrequentProduct = require('./routes/frequent-bought')
 const port = parseInt(process.env.PORT, 10) || 3000;
 const dev = process.env.NODE_ENV !== 'production';
@@ -32,6 +33,8 @@ const cookie = require('cookie');
 // Service Handlers
 const updateBundleInfo = require('./services/updateBundleInfo')
 const getBundleInfo = require('./services/getBundleInfo')
+const getProducts = require('./services/getProducts')
+const getStoreInfo = require('./services/getStoreInfo')
 
 const {
   SHOPIFY_API_SECRET_KEY,
@@ -49,7 +52,7 @@ express.use(function(req, res, next) {
   next();
 });
 
-app.prepare().then(() => {
+app.prepare().then(() => {  
 
   var bodyParser = require('koa-bodyparser');
 
@@ -58,6 +61,7 @@ app.prepare().then(() => {
 
   const router = new Router();
   server.use(session({ sameSite: 'none', secure: true }, server));
+
   server.keys = [SHOPIFY_API_SECRET_KEY]; 
 
   router
@@ -67,6 +71,11 @@ app.prepare().then(() => {
   })
   .post('/api/saveBundleInfo', updateBundleInfo)
   .get('/api/getBundleInfo', getBundleInfo)
+  .get('/api/getProducts', getProducts)
+  .get('/api/getStoreInfo', getStoreInfo)
+  .get('/api/currentShop', ctx => {
+    ctx.body = ctx.session.shop
+  })
 
   router
   .get('/post-product', ctx => {
@@ -75,16 +84,19 @@ app.prepare().then(() => {
   })
   .post('/post-product/:id', postFrequentProduct)
 
-  // // MongoDB Configurations 
+  // Sentry
+  Sentry.init({ dsn: 'https://4fd23a47916849a1abc8c822cb6d598f@o397020.ingest.sentry.io/5251173' });
+
+  // MongoDB Configurations 
   const mongoose = require('mongoose')
-  mongoose.connect(`mongodb+srv://adminNeil:${process.env.MONGO_DB_PASS}@cluster0-1nthp.gcp.mongodb.net/storesDB?retryWrites=true&w=majority`, {useNewUrlParser: true,  useUnifiedTopology: true, useFindAndModify: false });
+  mongoose.connect(`${process.env.MONGO_DB_URL}`, {useNewUrlParser: true,  useUnifiedTopology: true, useFindAndModify: false });
 
   var db = mongoose.connection;
 
   db.on("error", console.error.bind(console, "connection error:"));
 
   db.once("open", function() {
-    console.log("Connection To MongoDB Successful!");
+    console.log("Connection To MongoDB Atlas Successful!");
   });
 
   server.use(

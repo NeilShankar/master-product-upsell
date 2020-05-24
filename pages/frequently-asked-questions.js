@@ -427,7 +427,7 @@ React.useEffect(() => {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap>
-            Product Bundles
+            Frequently Asked Questions
           </Typography>
         </Toolbar>
       </AppBar>
@@ -502,89 +502,8 @@ React.useEffect(() => {
       <main className={classes.content}>
         <div className={classes.toolbar} />       
         <Typography variant="h5">
-            Bundles Configuration
+            Frequently Asked Questions
         </Typography>   
-        <Typography variant="caption">
-            Setup configurations for displaying frequently bought products on your Store.
-        </Typography> 
-        <Button variant="contained" style={{ float: "right" }} onClick={saveBundleInfo} color="primary" startIcon={<SaveIcon />}>
-        Save
-        </Button>
-        <br></br><br></br>
-        <Divider/>
-        <br></br><br></br>
-        <Grid>
-            <Grid item xs={6}> 
-                <Paper style={{ padding: "33px"}} elevation={20}>
-                    <Typography variant="h6">
-                        Display Setup
-                    </Typography> 
-                    <Typography variant="caption">
-                        Include the code below in your product template, wherever you want the frequently bought products to appear! If you need any sort of assistance in doing this please do not hesitate, we recommend if you are not comfortable with editing your theme files, you may contact us to prevent any errors in your theme.
-                    </Typography> 
-                    <br></br><br></br>
-                    <Paper variant="outlined" style={{ backgroundColor: "rgb(176, 179, 184)", padding: "11px 23%"}}>
-                        {"{% render 'frequently-bought-products' %}"}
-                    </Paper>
-                </Paper>  
-            </Grid>            
-        </Grid>
-        <br></br><br></br>
-        <Divider/>
-        <br></br>
-        <Grid>
-            <Grid style={{ height: "44%"}} item xs={6}> 
-                <Paper style={{ padding: "33px"}} elevation={20}>
-                    <Typography variant="h6">
-                        Display Customizations
-                    </Typography>    
-                    <Typography variant="caption">
-                        Now you can configure how the snippet will look in your store, you can choose from our pre-built themes and change the title of the snippet! If you feel like you need a custom design for your store, please don't hesitate to contact us!
-                    </Typography>      
-                    <br></br><br></br>      
-                    <Typography variant="overline">
-                       Title
-                    </Typography><br></br>
-                    <TextField style={{ width: "100%" }} id="outlined-basic" label="Enter Title Here" variant="outlined" value={bundleTitle} onChange={changeTitle}/>
-                    <br></br><br></br>
-                    <Typography variant="overline">
-                    Theme
-                    </Typography><br></br>
-                    <FormControl variant="outlined" style={{ width: "100%"}}>
-                    <Select
-                    labelId="demo-simple-select-outlined-label"
-                    id="demo-simple-select-outlined"
-                    value={designTheme}
-                    onChange={handleChange}
-                    >
-                    <MenuItem value={10}>Debut</MenuItem>
-                    <MenuItem value={20}>Flow</MenuItem>
-                    </Select>
-                </FormControl>
-                </Paper>  
-            </Grid>   
-            <Grid item style={{ width: "48%", float: "right", marginTop: "-33%" }}>
-                <Paper style={{ padding: "34px" }}elevation={20}>
-                    <br></br><br></br>
-                    <Container style={{ display: SkeletonDisplay }}>
-                      <Skeleton animation="wave" variant="text" />
-                      <Skeleton animation="wave" variant="rect" width={210} height={165} />
-                      <Skeleton animation="wave" variant="text" width={135} height={40} />
-                      <Skeleton animation="wave" variant="text" />
-                      <Skeleton animation="wave" variant="text" />
-                      <Skeleton animation="wave" variant="rect" />
-                    </Container>
-                    <Container style={{ display: PrevDisplay }} id="LivePreviewBox" dangerouslySetInnerHTML={createLiveMarkup()}>
-
-                    </Container>
-                </Paper>
-            </Grid>         
-        </Grid>
-        <Snackbar open={save} autoHideDuration={6000} onClose={saveClose}>
-          <Alert onClose={saveClose} severity="success">
-            Saved Successfully
-          </Alert>
-        </Snackbar>
       </main>
     </div>
   </NoSsr>

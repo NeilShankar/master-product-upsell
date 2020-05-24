@@ -41,6 +41,7 @@
     "chart.js": "^2.9.3",
     "circular-json": "^0.5.9",
     "cookie": "^0.4.1",
+    "currency-symbol-map": "^4.0.4",
     "date-fns": "^2.14.0",
     "delay": "^4.3.0",
     "devextreme-react": "20.1.3",

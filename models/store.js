@@ -9,6 +9,24 @@ const schema = new Schema({
      BundleConfigs: {
           Title: String,
           Theme: Number
+     },
+     Metrics: {
+          ThisMonth: {
+               Sales: Number,
+               AddToCarts: Number,
+               Views: Number,
+               Currency: String
+          },
+          LastMonth: {
+               Sales: Number,
+               AddToCarts: Number,
+               Views: Number,
+               Currency: String
+          }
+     },
+     ShopInfo: {
+          UserName: String,
+          ShopName: String
      }
 });
 

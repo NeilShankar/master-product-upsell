@@ -35,6 +35,7 @@ const updateBundleInfo = require('./services/updateBundleInfo')
 const getBundleInfo = require('./services/getBundleInfo')
 const getProducts = require('./services/getProducts')
 const getStoreInfo = require('./services/getStoreInfo')
+const getMetrics = require('./services/getMetricInfo')
 
 const {
   SHOPIFY_API_SECRET_KEY,
@@ -73,6 +74,7 @@ app.prepare().then(() => {
   .get('/api/getBundleInfo', getBundleInfo)
   .get('/api/getProducts', getProducts)
   .get('/api/getStoreInfo', getStoreInfo)
+  .get('/api/getMetrics', getMetrics)
   .get('/api/currentShop', ctx => {
     ctx.body = ctx.session.shop
   })
@@ -125,6 +127,24 @@ app.prepare().then(() => {
           }
          })
 
+         const response = await fetch(
+          `https://${ctx.session.shop}/admin/api/2020-04/shop.json`,
+              {
+                  method: "GET",
+                  headers: {
+                  "Content-Type": "application/json",
+                  "X-Shopify-Access-Token": accessToken,
+                  },
+              }
+          );
+  
+          const responseJson = await response.json();
+          var results = JSON.parse(JSON.stringify(responseJson));
+      
+          ShopUser = results.shop.shop_owner
+          ShopName = results.shop.name
+          Currency = results.shop.currency
+
         // Saving Store Data to MongoDB
         const storeData = storeModel({
           url: `https://${shop}`,
@@ -134,6 +154,24 @@ app.prepare().then(() => {
           BundleConfigs: {
             Title: 'Frequently Bought Together',
             Theme: 10
+          }, 
+          Metrics: {
+            ThisMonth: {
+              Sales: 0,
+              AddToCarts: 0,
+              Views: 0,
+              Currency: Currency
+            },
+            LastMonth: {
+              Sales: 0,
+              AddToCarts: 0,
+              Views: 0,
+              Currency: Currency
+            }            
+          },
+          ShopInfo: {
+            UserName: ShopUser,
+            ShopName: ShopName
           }
         })
 

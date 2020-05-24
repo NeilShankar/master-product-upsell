@@ -43,6 +43,8 @@ import axios from 'axios'
 import { Line, Bar } from "react-chartjs-2";
 import NoSsr from '@material-ui/core/NoSsr';
 
+import GetMetrics from '../API-instances/StoreMetrics'
+
 var AnalysisType = "Overall"
 const ColorLinearProgress = withStyles({
 colorPrimary: {
@@ -227,29 +229,44 @@ export default function Dashboard() {
   const classes = useStyles();
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
-  // const [metrics, setMetrics] = React.useState({
-  //   views: 0,
-  //   addToCarts: 0,
-  //   sales: ""
-  // });
   const anchorRef = React.useRef(null);
   const [MenuOpen, setMenuOpen] = React.useState(false);
   const [displayProgress, setDisplayProgress] = React.useState('block');
   const bull = <span className={classes.bullet}>•</span>;
 
+  const [metric, setMetric] = React.useState({
+    Sales: "$0",
+    Views: 0,
+    AddToCarts: 0
+  });
+
+  const [conv, setConv] = React.useState({
+    SalesColor: "white",
+    AddToCartsColor: "white",
+    ViewsColor: "white",
+  });
+
+  React.useEffect(() => {
+    GetMetrics({
+      method: "GET"
+    }).then((res) => {
+      console.log(res.data.Sales)
+      setMetric({
+        Sales: res.data.Sales,
+        Views: res.data.Views,
+        AddToCarts: res.data.AddToCart
+      })
+      setConv({
+        SalesColor: res.data.SalesColor,
+        AddToCartsColor: res.data.AddToCartColor,
+        ViewsColor: res.data.ViewsColor
+      })
+    })
+  }, [])
+
   React.useEffect(() => {
     setDisplayProgress('none')    
   }, [])
-
-  // Get Sales Metric
-
-  // React.useEffect(() => {
-  //   GetMetricSales({
-  //     method: "GET"
-  //   }).then((response) => {
-      
-  //   })
-  // }, [])
 
   const handleToggle = () => {
     setMenuOpen((prevOpen) => !prevOpen);
@@ -393,29 +410,32 @@ export default function Dashboard() {
         <Typography variant="h6">
           Overall Performance
         </Typography>
-        <br></br>
+        <Typography variant="caption">
+          Showing Overall Performance for this Month. Options to view more will be added soon!
+        </Typography>
+        <br></br><br></br>
         <Grid container spacing={3}>
         <Grid item xs>
-          <Paper elevation={20} style={{ background: "#fff" }} className={classes.paper}>
+          <Paper elevation={20} style={{ background: conv.ViewsColor }} className={classes.paper}>
               Impressions<br/><br/>
               <Typography style={{ fontWeight: "bold" , color: "black" }} variant="h5">
-                  15k <FontAwesomeIcon style={{ color: "red" }} icon={faArrowDown} />                                  
+                  {metric.Views}
               </Typography>           
           </Paper>
         </Grid>
         <Grid item xs>
-          <Paper elevation={20} style={{ background: "#fff" }} className={classes.paper}>
+          <Paper elevation={20} style={{ background: conv.AddToCartsColor }} className={classes.paper}>
               Add to Carts<br/><br/>
               <Typography style={{ fontWeight: "bold" , color: "black" }} variant="h5">
-                  700 <FontAwesomeIcon style={{ color: "green" }} icon={faArrowUp} />
+              {metric.AddToCarts}
               </Typography>
               </Paper>
         </Grid>
         <Grid item xs>
-          <Paper elevation={20} style={{ background: "#fff" }} className={classes.paper}>
+          <Paper elevation={20} style={{ background: conv.SalesColor }} className={classes.paper}>
               Sales Generated<br/><br/>
               <Typography style={{ fontWeight: "bold" , color: "black" }} variant="h5">
-                  $1.2k <FontAwesomeIcon style={{ color: "green" }} icon={faArrowUp} />
+                {metric.Sales}
               </Typography>
               </Paper>
         </Grid>
@@ -443,15 +463,7 @@ export default function Dashboard() {
             </Paper>
           </Grid>
         </Grid>
-        <br></br><br></br>
-        <Typography variant="h5">Top Performing Products</Typography>
-        <Typography variant="caption" display="block">
-        View your top 5 performing product bundles.
-        </Typography>
-        <br></br>
-        <Container>
-            <ProGrid />
-        </Container>        
+        <br></br><br></br>       
       </main>
     </div>
     </NoSsr>

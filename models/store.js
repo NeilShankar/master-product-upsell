@@ -27,7 +27,8 @@ const schema = new Schema({
      ShopInfo: {
           UserName: String,
           ShopName: String
-     }
+     },
+     Bundles: Array
 });
 
 const store = mongoose.model('Store', schema)

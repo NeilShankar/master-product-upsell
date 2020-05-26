@@ -40,6 +40,7 @@ import HeaderBar from '../components/dashboard/HeaderBar'
 
 import Container from '@material-ui/core/Container';
 import axios from 'axios'
+import TuneIcon from '@material-ui/icons/Tune';
 import { Line, Bar } from "react-chartjs-2";
 import NoSsr from '@material-ui/core/NoSsr';
 
@@ -357,21 +358,31 @@ export default function Dashboard() {
         <Divider />
         <List>
         <ListItem button key={"Dashboard"}>
-          <Link href="/" color="inherit">
-            <ListItemIcon><AssessmentIcon /></ListItemIcon>
-          </Link>
-          <Link href="/" color="inherit">
-            <ListItemText primary={"Dashboard"} />
-          </Link>
-        </ListItem>      
-        <ListItem button key={"Bundles"}>
-          <Link href="/bundles" color="inherit">
-            <ListItemIcon><AddShoppingCartIcon /></ListItemIcon>
-          </Link>
-          <Link href="/bundles" color="inherit">
-            <ListItemText primary={"Bundles"} />
-          </Link>
-        </ListItem>           
+            <Link href="/" color="inherit">
+              <ListItemIcon><AssessmentIcon /></ListItemIcon>
+            </Link>
+            <Link href="/" color="inherit">
+              <ListItemText primary={"Dashboard"} />
+            </Link>
+          </ListItem>     
+           
+          <ListItem button key={"Configurations"}>
+            <Link href="/bundle-configuration" color="inherit">
+              <ListItemIcon><TuneIcon /></ListItemIcon>
+            </Link>
+            <Link href="/bundle-configuration" color="inherit">
+              <ListItemText primary={"Configurations"} />
+            </Link>
+          </ListItem>     
+
+          <ListItem button key={"Bundles"}>
+            <Link href="/bundles" color="inherit">
+              <ListItemIcon><AddShoppingCartIcon /></ListItemIcon>
+            </Link>
+            <Link href="/bundles" color="inherit">
+              <ListItemText primary={"Bundles"} />
+            </Link>
+          </ListItem>     
         </List>
         <Divider />
         <List>

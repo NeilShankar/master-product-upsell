@@ -6,6 +6,7 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import List from '@material-ui/core/List';
 import Skeleton from '@material-ui/lab/Skeleton';
+import Zoom from '@material-ui/core/Zoom';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
@@ -19,6 +20,7 @@ import TextField from '@material-ui/core/TextField';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import Tooltip from '@material-ui/core/Tooltip';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -38,7 +40,9 @@ import MenuItem from '@material-ui/core/MenuItem';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
+import TuneIcon from '@material-ui/icons/Tune';
 // import Debut from '../templates/TemplatePreviews/debut'
+import InfoIcon from '@material-ui/icons/Info';
 
 import FormGroup from '@material-ui/core/FormGroup';
 import Switch from '@material-ui/core/Switch';
@@ -47,6 +51,11 @@ import BundleInstance from '../API-instances/BundleInstance'
 import GetBundleInstance from '../API-instances/BundleGetInstance'
 import DefaultLivePreview from '../templates/HTML/1'
 import Container from '@material-ui/core/Container';
+import BundleCard from "../components/bundles/BundleCard";
+
+import DiscountHandler from "../components/bundles/DiscountHandler";
+import SPhandler from "../components/bundles/SelectProductHandler";
+import RPhandler from "../components/bundles/RecommendedProductHandler"
 
 import GetProductsLive from '../API-instances/BundleLivePreviewProducts'
 
@@ -295,31 +304,8 @@ export default function FrequentlyBought() {
   const bull = <span className={classes.bullet}>•</span>;
   const [save, saveOpen] = React.useState(false);
 
-  React.useEffect(() => {
-    GetBundleInstance({
-      method: "GET"
-    }).then((res) => {
-      setBundleTitle(res.data.Title)
-      setDesignTheme(res.data.Theme)
-    })
-  }, []);
-
-  
 React.useEffect(() => {
-  GetProductsLive({
-    method: "GET"
-  }).then((response) => {
-    setProductTitle(response.data.ProductTitle)
-    setProductImage(response.data.ProductImage)
-    setProductPrice(response.data.ProductPrice)
-    setProduct1Price(response.data.Product1Price)
-    setProduct1Image(response.data.Product1Image)
-    setProduct1Title(response.data.Product1Title)
-    setTotalPrice(response.data.TotalPrice)
     setDisplayProgress('none')
-    setSkeletonDisplay('none')
-    setPrevDisplay('block')
-  })
 }, [])
 
   const saveSuccess = () => {
@@ -427,7 +413,7 @@ React.useEffect(() => {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap>
-            Product Bundles
+            All Bundles
           </Typography>
         </Toolbar>
       </AppBar>
@@ -454,22 +440,32 @@ React.useEffect(() => {
         </div>
         <Divider />
         <List>
-        <ListItem button key={"Dashboard"}>
-          <Link href="/" color="inherit">
-            <ListItemIcon><AssessmentIcon /></ListItemIcon>
-          </Link>
-          <Link href="/" color="inherit">
-            <ListItemText primary={"Dashboard"} />
-          </Link>
-        </ListItem>      
-        <ListItem button key={"Bundles"}>
-          <Link href="/bundles" color="inherit">
-            <ListItemIcon><AddShoppingCartIcon /></ListItemIcon>
-          </Link>
-          <Link href="/bundles" color="inherit">
-            <ListItemText primary={"Bundles"} />
-          </Link>
-        </ListItem>           
+          <ListItem button key={"Dashboard"}>
+            <Link href="/" color="inherit">
+              <ListItemIcon><AssessmentIcon /></ListItemIcon>
+            </Link>
+            <Link href="/" color="inherit">
+              <ListItemText primary={"Dashboard"} />
+            </Link>
+          </ListItem>     
+
+          <ListItem button key={"Configurations"}>
+            <Link href="/bundle-configuration" color="inherit">
+              <ListItemIcon><TuneIcon /></ListItemIcon>
+            </Link>
+            <Link href="/bundle-configuration" color="inherit">
+              <ListItemText primary={"Configurations"} />
+            </Link>
+          </ListItem>     
+
+          <ListItem button key={"Bundles"}>
+            <Link href="/bundles" color="inherit">
+              <ListItemIcon><AddShoppingCartIcon /></ListItemIcon>
+            </Link>
+            <Link href="/bundles" color="inherit">
+              <ListItemText primary={"Bundles"} />
+            </Link>
+          </ListItem>            
         </List>
         <Divider />
         <List>
@@ -502,89 +498,66 @@ React.useEffect(() => {
       <main className={classes.content}>
         <div className={classes.toolbar} />       
         <Typography variant="h5">
-            Bundles Configuration
-        </Typography>   
-        <Typography variant="caption">
-            Setup configurations for displaying frequently bought products on your Store.
-        </Typography> 
-        <Button variant="contained" style={{ float: "right" }} onClick={saveBundleInfo} color="primary" startIcon={<SaveIcon />}>
-        Save
-        </Button>
-        <br></br><br></br>
-        <Divider/>
-        <br></br><br></br>
-        <Grid>
-            <Grid item xs={6}> 
-                <Paper style={{ padding: "33px"}} elevation={20}>
-                    <Typography variant="h6">
-                        Display Setup
-                    </Typography> 
-                    <Typography variant="caption">
-                        Include the code below in your product template, wherever you want the frequently bought products to appear! If you need any sort of assistance in doing this please do not hesitate, we recommend if you are not comfortable with editing your theme files, you may contact us to prevent any errors in your theme.
-                    </Typography> 
-                    <br></br><br></br>
-                    <Paper variant="outlined" style={{ backgroundColor: "rgb(176, 179, 184)", padding: "11px 23%"}}>
-                        {"{% render 'frequently-bought-products' %}"}
-                    </Paper>
-                </Paper>  
-            </Grid>            
-        </Grid>
-        <br></br><br></br>
-        <Divider/>
+            Bundles
+        </Typography>  
         <br></br>
-        <Grid>
-            <Grid style={{ height: "44%"}} item xs={6}> 
-                <Paper style={{ padding: "33px"}} elevation={20}>
-                    <Typography variant="h6">
-                        Display Customizations
-                    </Typography>    
-                    <Typography variant="caption">
-                        Now you can configure how the snippet will look in your store, you can choose from our pre-built themes and change the title of the snippet! If you feel like you need a custom design for your store, please don't hesitate to contact us!
-                    </Typography>      
-                    <br></br><br></br>      
-                    <Typography variant="overline">
-                       Title
-                    </Typography><br></br>
-                    <TextField style={{ width: "100%" }} id="outlined-basic" label="Enter Title Here" variant="outlined" value={bundleTitle} onChange={changeTitle}/>
-                    <br></br><br></br>
-                    <Typography variant="overline">
-                    Theme
-                    </Typography><br></br>
-                    <FormControl variant="outlined" style={{ width: "100%"}}>
-                    <Select
-                    labelId="demo-simple-select-outlined-label"
-                    id="demo-simple-select-outlined"
-                    value={designTheme}
-                    onChange={handleChange}
-                    >
-                    <MenuItem value={10}>Debut</MenuItem>
-                    <MenuItem value={20}>Flow</MenuItem>
-                    </Select>
-                </FormControl>
-                </Paper>  
-            </Grid>   
-            <Grid item style={{ width: "48%", float: "right", marginTop: "-33%" }}>
-                <Paper style={{ padding: "34px" }}elevation={20}>
-                    <br></br><br></br>
-                    <Container style={{ display: SkeletonDisplay }}>
-                      <Skeleton animation="wave" variant="text" />
-                      <Skeleton animation="wave" variant="rect" width={210} height={165} />
-                      <Skeleton animation="wave" variant="text" width={135} height={40} />
-                      <Skeleton animation="wave" variant="text" />
-                      <Skeleton animation="wave" variant="text" />
-                      <Skeleton animation="wave" variant="rect" />
-                    </Container>
-                    <Container style={{ display: PrevDisplay }} id="LivePreviewBox" dangerouslySetInnerHTML={createLiveMarkup()}>
+        <Divider></Divider>
+        <br></br>
+        <Grid style={{ display: "flex" }}>
+            <Grid item xs style={{ textAlign: "center", padding: "10px 0" }}>
+                <Typography variant="h6">
+                    Source Product
+                    <Tooltip TransitionComponent={Zoom} title="This is the main product which appears first in the bundle, the one which the customer is currently viewing." aria-label="add" arrow interactive>
+                    <InfoIcon style={{"width":"14px","margin":"3px 4px"}} />
+                </Tooltip>
+                </Typography>
+            </Grid>
 
-                    </Container>
-                </Paper>
-            </Grid>         
+            <Grid item xs style={{ textAlign: "center", padding: "10px 0"}}>
+                <Typography variant="h6">
+                    Auto Recommended
+                    <Tooltip TransitionComponent={Zoom} title="The Products in this row are auto generated by our software, according to your orders and customer activity. They will be displayed with the Source Product as a bundle, unless you specify a selected product yourself." aria-label="add" arrow interactive>
+                        <InfoIcon style={{"width":"14px","margin":"3px 4px"}} />
+                    </Tooltip>
+                </Typography>                
+            </Grid>
+            
+            <Grid item xs style={{ textAlign: "center", padding: "10px 0"}}>
+                <Typography variant="h6">
+                    Selected Product
+                    <Tooltip TransitionComponent={Zoom} title="The Products shown here are the ones which will be displayed in the store side, with the source product as a bundle. You can select the product which will Display as a bundle of the Source Product too!" aria-label="add" arrow interactive>
+                    <InfoIcon style={{"width":"14px","margin":"3px 4px"}} />
+                </Tooltip>
+                </Typography>                
+            </Grid>
+
+            <Grid item xs style={{ textAlign: "center", padding: "10px 0"}}>
+                <Typography variant="h6">
+                    Discount
+                    <Tooltip TransitionComponent={Zoom} title="Specify How much discount will be added to the customer's cart when They add a bundle to the cart, leave the field empty for no discount." aria-label="add" arrow interactive>
+                    <InfoIcon style={{"width":"14px","margin":"3px 4px"}} />
+                </Tooltip>
+                </Typography>
+                
+            </Grid>
         </Grid>
-        <Snackbar open={save} autoHideDuration={6000} onClose={saveClose}>
-          <Alert onClose={saveClose} severity="success">
-            Saved Successfully
-          </Alert>
-        </Snackbar>
+        <Grid  style={{ display: "flex" }}>
+            <Grid item xs style={{ textAlign: "center", padding: "10px 0"}}>
+            </Grid>
+
+            <Grid item xs style={{ textAlign: "center", padding: "10px 0"}}>
+                <RPhandler />
+            </Grid>
+
+            <Grid item xs style={{ textAlign: "center", padding: "10px 0"}}>
+                <SPhandler />
+            </Grid>
+
+            <Grid item xs style={{ textAlign: "center", padding: "10px 0"}}>
+                <DiscountHandler />  
+            </Grid>
+        </Grid><br></br><Divider /> <br />
+        <BundleCard SourceProduct="Atmos Helmet" RecommendedProduct="Brisker Cold Weather Riding Gloves" SelectedProduct="Pure City Swallow Saddle"/>
       </main>
     </div>
   </NoSsr>

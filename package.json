@@ -59,6 +59,8 @@
     "koa-router": "^8.0.8",
     "koa-session": "^5.13.1",
     "koa2-cors": "^2.0.6",
+    "limiter": "^1.1.5",
+    "material-ui-image": "^3.2.3",
     "moesif-express": "^2.9.15",
     "mongoose": "^5.9.14",
     "next": "^9.4.1",
@@ -76,6 +78,7 @@
     "react-iframe": "^1.8.0",
     "react-syntax-highlighter": "^12.2.1",
     "sass": "^1.26.5",
+    "stopcock": "^1.1.0",
     "store-js": "^2.0.4"
   },
   "devDependencies": {

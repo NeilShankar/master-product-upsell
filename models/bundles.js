@@ -2,10 +2,26 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
 const schema = new Schema({
-    SourceProduct: String,
-    RecommendedProduct: String,
-    NewRecommendedProduct: String,
-    SelectedProduct: String,
+    SourceProduct: {
+        Id: String,
+        Title: String,
+        ImageSrc: String
+    },
+    RecommendedProduct: {
+        Id: String,
+        Title: String,
+        ImageSrc: String
+    },
+    NewRecommendedProduct: {
+        Id: String,
+        Title: String,
+        ImageSrc: String
+    },
+    SelectedProduct: {
+        Id: String,
+        Title: String,
+        ImageSrc: String
+    },
     Discount: Number
 })
 

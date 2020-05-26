@@ -57,7 +57,7 @@ import DiscountHandler from "../components/bundles/DiscountHandler";
 import SPhandler from "../components/bundles/SelectProductHandler";
 import RPhandler from "../components/bundles/RecommendedProductHandler"
 
-import GetProductsLive from '../API-instances/BundleLivePreviewProducts'
+import GetAllBundles from '../API-instances/GetAllBundles'
 
 const AntSwitch = withStyles((theme) => ({
   root: {
@@ -305,6 +305,13 @@ export default function FrequentlyBought() {
   const [save, saveOpen] = React.useState(false);
 
 React.useEffect(() => {
+    GetAllBundles({
+      method: "GET"
+    }).then((res) => {
+      res.data.forEach(element => {
+        console.log(element)
+      });
+    })
     setDisplayProgress('none')
 }, [])
 

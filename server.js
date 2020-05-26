@@ -39,6 +39,7 @@ const getMetrics = require('./services/getMetricInfo')
 
 // API Endpoints For Bundles
 const InitializeBundles = require('./services/InitialiazeBundles')
+const getAllBundles = require('./services/GetAllBundles')
 
 const {
   SHOPIFY_API_SECRET_KEY,
@@ -77,7 +78,7 @@ app.prepare().then(() => {
   .get('/api/getBundleInfo', getBundleInfo)
   .get('/api/getProducts', getProducts)
   .get('/api/getStoreInfo', getStoreInfo)
-  .get('/api/InitBundles', InitializeBundles)
+  .get('/api/getAllBundles', getAllBundles)
   .get('/api/getMetrics', getMetrics)
   .get('/api/currentShop', ctx => {
     ctx.body = ctx.session.shop
@@ -122,7 +123,19 @@ app.prepare().then(() => {
         require('./models/store')
         const storeModel = mongoose.model('Store')
 
-        storeModel.findOneAndDelete({ url: `https://${shop}`}, function(err) {
+        require("../models/bundles");
+        const bundleModel = mongoose.model("Bundle");
+
+        storeModel.findOne({ url: `https://${shop}` }, async function(err, res) {
+          var Array = res.Bundles
+
+          Array.forEach(element => {
+            findOneAndDelete({ _id: element })
+          });
+        })
+
+
+        storeModel.findOneAndDelete({ url: `https://${shop}`}, async function(err) {
           if (!err) {
                   console.log("Found One Record.")
           }
@@ -187,6 +200,8 @@ app.prepare().then(() => {
         const getThemes = require('./templates/default')
 
         getThemes(`https://${shop}`, accessToken)
+        InitializeBundles(ctx)
+
 
         const registration = await registerWebhook({
           address: `${HOST}/webhooks/products/create`,

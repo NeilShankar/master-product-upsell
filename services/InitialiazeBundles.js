@@ -15,7 +15,7 @@ const stopcock = require('stopcock');
 require("isomorphic-fetch");
 
 const InitializeBundles = async (ctx) => {
-    const products = await fetch(`https://${ctx.session.shop}/admin/api/2020-04/products.json?limit=250`, {
+    const count = await fetch(`https://${ctx.session.shop}/admin/api/2020-04/products/count.json`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -23,13 +23,92 @@ const InitializeBundles = async (ctx) => {
       }
     })
   
-    const productsJson = await products.json();
-
+    const countJson = await count.json();
+    var ProdCount = countJson.count
+    var NumberOfTimes = ProdCount / 250
     var sourceArray = []
+    var id = 0
 
-    productsJson.products.forEach(element => {
-        sourceArray.push(`${element.id}`)
-    });
+    var today = new Date()
+
+    function diff_minutes(dt2, dt1) 
+    {
+
+    var diff =(dt2.getTime() - dt1.getTime()) / 1000;
+    diff /= 60;
+    return Math.abs(diff);
+
+    }
+
+    var ProductInfo = []
+    
+    async function getAllProducts() {
+        id = sourceArray[sourceArray.length - 1]
+        if (sourceArray.length) {
+            const products = await fetch(`https://${ctx.session.shop}/admin/api/2020-04/products.json?limit=250&since_id${id}`, {
+            method: 'GET',
+            headers: {
+            'Content-Type': 'application/json',
+            "X-Shopify-Access-Token": ctx.session.accessToken,
+            }
+            })
+
+            const productsJson = await products.json();
+
+
+            productsJson.products.forEach(element => {
+                sourceArray.push(`${element.id}`)
+            });
+
+            productsJson.products.forEach(element => {
+                var ImageSrc = ""
+                if (element["image"] != null) { 
+                    ImageSrc = element["image"]["src"] 
+                } else {
+                    ImageSrc = "https://cynthiarenee.com/wp-content/uploads/2018/11/placeholder-product-image.png"
+                }
+                ProductInfo.push({
+                    "Id": element.id,
+                    "Title": element.title,
+                    "ImageSrc": ImageSrc
+                })
+            })
+
+            return sourceArray
+        } else {
+            const products = await fetch(`https://${ctx.session.shop}/admin/api/2020-04/products.json?limit=250`, {
+            method: 'GET',
+            headers: {
+            'Content-Type': 'application/json',
+            "X-Shopify-Access-Token": ctx.session.accessToken,
+            }
+            })
+
+            const productsJson = await products.json();
+
+
+            productsJson.products.forEach(element => {
+                sourceArray.push(`${element.id}`)
+            });
+
+            productsJson.products.forEach(element => {
+                var ImageSrc = ""
+                if (element["image"] != null) { 
+                    ImageSrc = element["image"]["src"] 
+                } else {
+                    ImageSrc = "https://cynthiarenee.com/wp-content/uploads/2018/11/placeholder-product-image.png"
+                }
+                ProductInfo.push({
+                    "Id": element.id,
+                    "Title": element.title,
+                    "ImageSrc": ImageSrc
+                })
+            })
+
+            return sourceArray
+        }
+    }
+
 
     async function request(i) {
         const collections = await fetch(`https://${ctx.session.shop}/admin/api/2020-04/collects.json?product_id=${i}`, {
@@ -44,8 +123,6 @@ const InitializeBundles = async (ctx) => {
 
         return collectionsJson
     }
-
-var ReDo = []
 
     async function requestProductFromCollection(collection, prod) {
             const collectionOfProd = await fetch(`https://${ctx.session.shop}/admin/api/2020-04/collections/${collection}/products.json`, {
@@ -76,18 +153,52 @@ var ReDo = []
 
             var RecommendedProduct = collectionsJson.products[FbTproduct].id
 
+            var SourceProductInfo = {"Title": "", "ImageSrc": ""}
+            var RecommendedProductInfo = {"Title": "", "ImageSrc": ""}
+
+            ProductInfo.forEach(function(product) {
+                if (product.Id === RecommendedProduct) {
+                    RecommendedProductInfo = {
+                        "Title": `${product.Title}`,
+                        "ImageSrc": `${product.ImageSrc}`
+                    }
+                }
+                if (product.Id === parseInt(prod)) {
+                    SourceProductInfo = {
+                        "Title": `${product.Title}`,
+                        "ImageSrc": `${product.ImageSrc}`
+                    }
+                }
+            })
+
             var Bundled = JSON.parse(JSON.stringify({
-                "SourceProduct": prod,
-                "RecommendedProduct": `${RecommendedProduct}`,
-                "NewRecommendedProduct": "None",
-                "SelectedProduct": `${RecommendedProduct}`,
+                "SourceProduct": {
+                    "Id": `${prod}`,
+                    "Title": SourceProductInfo.Title,
+                    "ImageSrc": SourceProductInfo.ImageSrc
+                },
+                "RecommendedProduct": {
+                    "Id": `${RecommendedProduct}`,
+                    "Title": RecommendedProductInfo.Title,
+                    "ImageSrc": RecommendedProductInfo.ImageSrc
+                },
+                "NewRecommendedProduct": {
+                    "Id": "None",
+                    "Title": "None",
+                    "ImageSrc": "None"
+                },
+                "SelectedProduct": {
+                    "Id": `${RecommendedProduct}`,
+                    "Title": RecommendedProductInfo.Title,
+                    "ImageSrc": RecommendedProductInfo.ImageSrc
+                },
                 "Discount": 0
             }))
             return Bundled
     }
 
     async function requestProductFromType(prod) {
-            const ProductType = await fetch(`https://${ctx.session.shop}/admin/api/2020-04/products/${prod}.json`, {
+            const ProductType = await fetch(`https://${ctx.session.shop}/admin/api/2020-04/products/${prod}.json?fields=product_type`, {
             method: 'GET',
             headers: {
             'Content-Type': 'application/json',
@@ -98,9 +209,9 @@ var ReDo = []
             const JsonPT = await ProductType.json();
             const type = JsonPT.product.product_type
 
-            sleep(1000)
+            await sleep(1000)
 
-            const SimilarProds = await fetch(`https://${ctx.session.shop}/admin/api/2020-04/products.json?product_type=${type}`, {
+            const SimilarProds = await fetch(`https://${ctx.session.shop}/admin/api/2020-04/products.json?product_type=${type}&fields=id`, {
                 method: 'GET',
                 headers: {
                 'Content-Type': 'application/json',
@@ -118,40 +229,71 @@ var ReDo = []
 
             var RecommendedProduct = SimProdsJson.products[FbTproduct].id
 
-            if (SimProdsJson.products[FbTproduct].id === prod) {
-                console.log("Found Conflict")
-                if (FbTproduct <  SimProdsJson.products.length) {
-                    FbTproduct = FbTproduct + 1
-                    RecommendedProduct = SimProdsJson.products[FbTproduct].id
-                } else if (SimProdsJson.products.length < 1) {
-                    await sleep(1000)
-
-                    console.log("No Same Types, so defining a random")
-                    const Prods = await fetch(`https://${ctx.session.shop}/admin/api/2020-04/products.json`, {
-                    method: 'GET',
-                    headers: {
-                    'Content-Type': 'application/json',
-                    "X-Shopify-Access-Token": ctx.session.accessToken,
+            if (RecommendedProduct == prod) {
+                if (SimProdsJson.products.length > 1) {
+                    if (FbTproduct < SimProdsJson.products.length) {
+                        FbTproduct = FbTproduct + 1
+                        RecommendedProduct = SimProdsJson.products[FbTproduct].id
+                    } else {
+                        FbTproduct = FbTproduct - 1
+                        RecommendedProduct = SimProdsJson.products[FbTproduct].id
                     }
-                    })
+                // } else {
+                //     await sleep(1000)
+                //     const NewProd = await fetch(`https://${ctx.session.shop}/admin/api/2020-04/products.json?product_type=${type}`, {
+                //         method: 'GET',
+                //         headers: {
+                //         'Content-Type': 'application/json',
+                //         "X-Shopify-Access-Token": ctx.session.accessToken,
+                //         }
+                //     })
+            
+                //     const NewProdJson = await NewProd.json();      
+                    
+                //     FbTproduct = collectRandom(0, NewProdJson.products.length);
+                //     RecommendedProduct = NewProdJson.products[FbTproduct].id
+                // 
+            }}
 
-                    const ProdJson = await Prods.json();
+            var SourceProductInfo = {"Title": "", "ImageSrc": ""}
+            var RecommendedProductInfo = {"Title": "", "ImageSrc": ""}
 
-                    RecommendedProduct = ProdJson.products[FbTproduct].id
-                } else {
-                    FbTproduct = FbTproduct - 1
-                    RecommendedProduct = SimProdsJson.products[FbTproduct].id
+            ProductInfo.forEach(function(product) {
+                if (product.Id === RecommendedProduct) {
+                    RecommendedProductInfo = {
+                        "Title": `${product.Title}`,
+                        "ImageSrc": `${product.ImageSrc}`
+                    }
                 }
-            } else {
-                console.error()
-            }
-
+                if (product.Id === parseInt(prod)) {
+                    SourceProductInfo = {
+                        "Title": `${product.Title}`,
+                        "ImageSrc": `${product.ImageSrc}`
+                    }
+                }
+            })
 
             var BundledFromType = JSON.parse(JSON.stringify({
-                "SourceProduct": prod,
-                "RecommendedProduct": `${RecommendedProduct}`,
-                "NewRecommendedProduct": "None",
-                "SelectedProduct": `${RecommendedProduct}`,
+                "SourceProduct": {
+                    "Id": `${prod}`,
+                    "Title": `${SourceProductInfo.Title}`,
+                    "ImageSrc": `${SourceProductInfo.ImageSrc}`
+                },
+                "RecommendedProduct": {
+                    "Id": `${RecommendedProduct}`,
+                    "Title": RecommendedProductInfo.Title,
+                    "ImageSrc": RecommendedProductInfo.ImageSrc
+                },
+                "NewRecommendedProduct": {
+                    "Id": "None",
+                    "Title": "None",
+                    "ImageSrc": "None"
+                },
+                "SelectedProduct": {
+                    "Id": `${RecommendedProduct}`,
+                    "Title": RecommendedProductInfo.Title,
+                    "ImageSrc": RecommendedProductInfo.ImageSrc
+                },
                 "Discount": 0
             }))
 
@@ -159,9 +301,30 @@ var ReDo = []
     }
 
 
-    const get = stopcock(request, { bucketSize: 2, interval: 1000 });
-    const getBundleFromCollection = stopcock(requestProductFromCollection, { bucketSize: 2, interval: 1000 });
+    const get = stopcock(request, { bucketSize: 1, interval: 1000 });
+    const getBundleFromCollection = stopcock(requestProductFromCollection, { bucketSize: 1, interval: 1000 });
     const getBundleFromType = stopcock(requestProductFromType, { bucketSize: 1, interval: 1000 });
+    const getAllProductsFromStore = stopcock(getAllProducts, { bucketSize: 2, interval: 1000 });
+    
+    if (ProdCount > 250) {
+        NumberOfTimes = Math.round(ProdCount / NumberOfTimes)
+        for (i = 0; i < NumberOfTimes; i++) {
+            getAllProductsFromStore().then((res) => {
+                console.log("Multiple Loops In Getting Products.")
+            }).catch((err) => {
+                console.log("Got some err.", err)
+            })
+            if (i == NumberOfTimes) {
+                FindBundles()
+            }
+        }
+    } else {
+        getAllProductsFromStore().then((res) => {
+            FindBundles()
+        }).catch((err) => {
+            console.log("Got some err.", err)
+        })
+    }
 
     var TotalBundledArray = []
     var BundleIdArray = []
@@ -169,11 +332,21 @@ var ReDo = []
     async function createBundlesInDB() {
         try {
             bundleModel.insertMany(TotalBundledArray).then((res) => {
-                console.log(res)
+                res.forEach(element => {
+                    BundleIdArray.push(element._id)
+                })
+
+                storeModel.updateOne({ url: `https://${ctx.session.shop}`}, { Bundles: BundleIdArray }, (err, res) => {
+                    if (err) {
+                       console.log(err)
+                    }
+                })
+                console.log("Finished Creating default bundles in MongoDB")
             })
         } catch (e) {
             console.log(e)
         }
+        // console.log("Test Ended.")
     }
 
     var Complete = 0
@@ -185,51 +358,63 @@ var ReDo = []
         if (Complete === Total) {
             Complete = 0
             Total = 0
-            if (ReDo.length) {
+            if (sourceArray.length) {
                 Retry()
             } else {
-                console.log("Completed With No Errors! Creating new records now.")
-                console.log(TotalBundledArray)
-                // createBundlesInDB()
+                var completed = new Date()
+                var ComTime = diff_minutes(today, completed)
+                console.log(`Completed in ${ComTime} minute(s)`)
+                createBundlesInDB()
             }            
         }
     }
 
     async function Retry() {
-        console.log("Completed, But there are some errors, lets fix them...")
-        sourceArray = ReDo.slice(0)
-        ReDo = []
-        await sleep(10000)
+        sleep(10000)
         FindBundles()
     }
 
 function FindBundles() {
     sourceArray.forEach(function(i){
         Total = sourceArray.length
-        console.log(i)
         get(i).then((log) => {
             if (Array.isArray(log.collects) && log.collects.length) {
                 getBundleFromCollection(log.collects[0].collection_id, i).then((res) => {
                     if (typeof res === "undefined") {
-                        ReDo.push(i)
+                        return;
                     } else {
                         TotalBundledArray.push(res)
+
+                        var index = sourceArray.indexOf(i);
+                        if (index > -1) {
+                         sourceArray.splice(index, 1);
+                        }
                     }                    
                 }).catch((e) => {
-                    ReDo.push(i)
+                    if (e) {
+                        return;
+                    }
+                }).finally(function() {
+                    Opertions()
                 }) 
-                Opertions()
             } else if (Array.isArray(log.collects) && !log.collects.length) {
                 getBundleFromType(i).then((res) => {
                     if (typeof res === "undefined") {
-                        ReDo.push(i)
+                        return;
                     } else {
                         TotalBundledArray.push(res)
+                        var index = sourceArray.indexOf(i);
+                        if (index > -1) {
+                         sourceArray.splice(index, 1);
+                        }
                     }   
                 }).catch((e) => {
-                    ReDo.push(i)
-                }) 
-                Opertions()
+                    if (e) {
+                        return;
+                    }
+                }).finally(function() {
+                    Opertions()
+                })
             } else if (!Array.isArray(log.collects)) {
                 console.log(log)
                 Opertions()
@@ -237,10 +422,6 @@ function FindBundles() {
         });
     })
 }
-
-FindBundles()
-
-    ctx.body = "Hi"
 }
 
 module.exports = InitializeBundles

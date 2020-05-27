@@ -50,8 +50,22 @@ export default function BundleCards(props) {
     showPassword: false,
   });
 
+  const isInitialMount = React.useRef(true);
+
   const discountChange = (event) => {
     setDiscount(event.target.value)
+  };
+
+
+  React.useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+     } else {
+        changeDiscount()
+    }
+  }, [Discount])
+
+  function changeDiscount() {
     BundleDiscount({
       method: "POST",
       headers: {
@@ -59,10 +73,10 @@ export default function BundleCards(props) {
       },
       data: {
         "prod_id": props.prod_id,
-        "discount": Discount
+        "Discount": Discount
       }
     })
-  };
+  }
 
   return (
     <div>

@@ -125,14 +125,14 @@ app.prepare().then(() => {
         require('./models/store')
         const storeModel = mongoose.model('Store')
 
-        require("../models/bundles");
+        require("./models/bundles");
         const bundleModel = mongoose.model("Bundle");
 
         storeModel.findOne({ url: `https://${shop}` }, async function(err, res) {
-          var Array = res.Bundles
+          var Array = await res.Bundles
 
           Array.forEach(element => {
-            findOneAndDelete({ _id: element })
+            bundleModel.findOneAndDelete({ _id: element })
           });
         })
 

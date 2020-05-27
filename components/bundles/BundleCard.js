@@ -9,6 +9,7 @@ import Typography from '@material-ui/core/Typography';
 import Avatar from '@material-ui/core/Avatar';
 import Image from 'material-ui-image'
 import SettingsIcon from '@material-ui/icons/Settings';
+import BundleDiscount from '../../API-instances/BundleDiscount'
 
 import Input from '@material-ui/core/Input';
 
@@ -20,7 +21,7 @@ import FormControl from '@material-ui/core/FormControl';
 const useStyles = makeStyles(theme => ({
   root: {
     width: "100%",
-    height: "80px",
+    height: "150px",
     border: `2px solid ${theme.palette.divider}`,
     borderRadius: theme.shape.borderRadius,
     backgroundColor: theme.palette.background.paper,
@@ -39,6 +40,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function BundleCards(props) {
   const classes = useStyles();
+  const [Discount, setDiscount] = React.useState(props.Discount)
 
   const [values, setValues] = React.useState({
     amount: '',
@@ -48,16 +50,26 @@ export default function BundleCards(props) {
     showPassword: false,
   });
 
-  const handleChange = (prop) => (event) => {
-    setValues({ ...values, [prop]: event.target.value });
+  const discountChange = (event) => {
+    setDiscount(event.target.value)
+    BundleDiscount({
+      method: "POST",
+      headers: {
+        'Content-type': 'application/json'
+      },
+      data: {
+        "prod_id": props.prod_id,
+        "discount": Discount
+      }
+    })
   };
 
   return (
     <div>
-      <Grid style={{ boxShadow: "0px 0px 17px 6px rgba(150,150,150,1)" }} container alignItems="center" className={classes.root}>
+      <Grid style={{ boxShadow: "0px 0px 20px -6px rgba(156,150,156,1)" }} container alignItems="center" className={classes.root}>
             <Grid item xs style={{ textAlign: "center" }}>
                 <div style={{"display":"inline-block","float":"left","marginLeft":"5%","height":"auto","width":"30%"}}>
-                    <img style={{"width":"101px","height":"92%"}} src="https://cdn.shopify.com/s/files/1/0278/4611/5389/products/giro-atmos-black-WEB_1024x1024@2x.jpg?v=1589554033"/>
+                    <img style={{"width":"101px","height":"92%"}} src={props.SourceProductImage}/>
                 </div>
                 <div>
                     <Typography style={{ color: "black", marginTop: "15px", fontWeight: "bold", fontSize: ".9rem" }} variant="h6" gutterBottom>
@@ -67,11 +79,11 @@ export default function BundleCards(props) {
             </Grid>        
             <Divider orientation="vertical" flexItem />
             <Grid item xs alignItems="center" textAlign="center" style={{ textAlign: "center" }}>
-                <div style={{ marginLeft: ".5%", marginTop: "42px"}} class="icon">
+                <div style={{ marginLeft: ".5%", marginTop: "73px"}} class="icon">
                     <i></i>
                 </div>
                 <div style={{"display":"inline-block","float":"left","marginLeft":"5%","height":"auto","width":"30%"}}>
-                    <img style={{"width":"101px","height":"92%"}} src="https://cdn.shopify.com/s/files/1/0278/4611/5389/products/Black-gloves-web_180x.jpg?v=1589554125"/>
+                    <img style={{"width":"101px","height":"92%"}} src={props.RecommendedProductImage}/>
                 </div>
                 <div>
                     <Typography style={{ color: "black", marginTop: "15px", fontWeight: "bold", fontSize: ".9rem" }} variant="h6" gutterBottom>
@@ -81,11 +93,11 @@ export default function BundleCards(props) {
             </Grid>  
             <Divider orientation="vertical" flexItem />
             <Grid item xs alignItems="center" textAlign="center" style={{ textAlign: "center" }}>
-                <div style={{ "display":"inherit","position":"absolute","margin":"29px -9px" }}>
+                <div style={{ "display":"inherit","position":"absolute","margin":"58px -9px" }}>
                     <SettingsIcon style={{ color: "dark-gray", width: "18px"}} />
                 </div>
                 <div style={{"display":"inline-block","float":"left","marginLeft":"5%","height":"auto","width":"30%"}}>
-                    <img style={{"width":"101px","height":"92%"}} src="//cdn.shopify.com/s/files/1/0278/4611/5389/products/PCDrone_3RD_Tan_WEB_180x.jpg?v=1589554144"/>
+                    <img style={{"width":"101px","height":"92%"}} src={props.SelectedProductImage}/>
                 </div>
                 <div>
                     <Typography style={{ color: "black", marginTop: "15px", fontWeight: "bold", fontSize: ".9rem" }} variant="h6" gutterBottom>
@@ -97,6 +109,8 @@ export default function BundleCards(props) {
             <Grid item xs alignItems="center" textAlign="center" style={{ textAlign: "center" }}>
             <TextField
             label="Discount"
+            value={Discount}
+            onChange={discountChange}
             id="standard-start-adornment"
             className={clsx(classes.textField)}
             InputProps={{

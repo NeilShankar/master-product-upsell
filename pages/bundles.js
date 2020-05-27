@@ -20,6 +20,7 @@ import TextField from '@material-ui/core/TextField';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import Grow from '@material-ui/core/Grow';
 import Tooltip from '@material-ui/core/Tooltip';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -295,11 +296,11 @@ export default function FrequentlyBought() {
 
   const [TotalPrice, setTotalPrice] = React.useState('')
 
-
   const anchorRef = React.useRef(null);
   const [MenuOpen, setMenuOpen] = React.useState(false);
   const [SkeletonDisplay, setSkeletonDisplay] = React.useState('block');
   const [PrevDisplay, setPrevDisplay] = React.useState('none');
+  const [ bundles, setBundles ] = React.useState([])
   const [displayProgress, setDisplayProgress] = React.useState('block');
   const bull = <span className={classes.bullet}>•</span>;
   const [save, saveOpen] = React.useState(false);
@@ -308,9 +309,7 @@ React.useEffect(() => {
     GetAllBundles({
       method: "GET"
     }).then((res) => {
-      res.data.forEach(element => {
-        console.log(element)
-      });
+      setBundles(res.data)
     })
     setDisplayProgress('none')
 }, [])
@@ -563,8 +562,15 @@ React.useEffect(() => {
             <Grid item xs style={{ textAlign: "center", padding: "10px 0"}}>
                 <DiscountHandler />  
             </Grid>
-        </Grid><br></br><Divider /> <br />
-        <BundleCard SourceProduct="Atmos Helmet" RecommendedProduct="Brisker Cold Weather Riding Gloves" SelectedProduct="Pure City Swallow Saddle"/>
+        </Grid><br></br><Divider /> <br />        
+        {bundles.map((d) => 
+        
+        <>
+        <BundleCard key={d.SourceProduct.Title} SourceProduct={d.SourceProduct.Title} RecommendedProduct={d.RecommendedProduct.Title} SelectedProduct={d.SelectedProduct.Title} SourceProductImage={d.SourceProduct.ImageSrc} RecommendedProductImage={d.RecommendedProduct.ImageSrc} SelectedProductImage={d.SelectedProduct.ImageSrc} Discount={d.Discount} prod_id={d._id}/><br/>
+        </> 
+        
+        )}
+        {/* <BundleCard SourceProduct="Atmos Helmet" RecommendedProduct="Brisker Cold Weather Riding Gloves" SelectedProduct="Pure City Swallow Saddle"/> */}
       </main>
     </div>
   </NoSsr>

@@ -56,6 +56,13 @@ export default function BundleCards(props) {
     setDiscount(event.target.value)
   };
 
+  // React.useImperativeHandle(ref, () => ({
+
+  //   changeDiscountsForAll(value) {
+  //     alert("Hi");
+  //   }
+
+  // }));
 
   React.useEffect(() => {
     if (isInitialMount.current) {

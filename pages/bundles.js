@@ -10,13 +10,11 @@ import Zoom from '@material-ui/core/Zoom';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
-import Button from '@material-ui/core/Button';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 import Divider from '@material-ui/core/Divider';
 import SaveIcon from '@material-ui/icons/Save';
 import IconButton from '@material-ui/core/IconButton';
-import TextField from '@material-ui/core/TextField';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
@@ -45,6 +43,16 @@ import TuneIcon from '@material-ui/icons/Tune';
 // import Debut from '../templates/TemplatePreviews/debut'
 import InfoIcon from '@material-ui/icons/Info';
 
+import Button from '@material-ui/core/Button';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import TextField from '@material-ui/core/TextField';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import Slide from '@material-ui/core/Slide';
+
 import FormGroup from '@material-ui/core/FormGroup';
 import Switch from '@material-ui/core/Switch';
 
@@ -53,8 +61,6 @@ import GetBundleInstance from '../API-instances/BundleGetInstance'
 import DefaultLivePreview from '../templates/HTML/1'
 import Container from '@material-ui/core/Container';
 import BundleCard from "../components/bundles/BundleCard";
-
-import DiscountHandler from "../components/bundles/DiscountHandler";
 import SPhandler from "../components/bundles/SelectProductHandler";
 import RPhandler from "../components/bundles/RecommendedProductHandler"
 
@@ -279,6 +285,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
+
+
 export default function FrequentlyBought() {
   const classes = useStyles();
   const theme = useTheme();
@@ -304,6 +315,19 @@ export default function FrequentlyBought() {
   const [displayProgress, setDisplayProgress] = React.useState('block');
   const bull = <span className={classes.bullet}>•</span>;
   const [save, saveOpen] = React.useState(false);
+  const [checked, setChecked] = React.useState(false)
+
+  const discountRef = React.useRef()
+
+  const [discountOpen, setDiscountOpen] = React.useState(false);
+
+  const handleDiscountOpen = () => {
+    setDiscountOpen(true);
+  };
+
+  const discountClose = () => {
+    setDiscountOpen(false);
+  };
 
 React.useEffect(() => {
     GetAllBundles({
@@ -311,7 +335,10 @@ React.useEffect(() => {
     }).then((res) => {
       setBundles(res.data)
     })
-    setDisplayProgress('none')
+    setTimeout(function() {
+      setDisplayProgress('none')
+      setChecked(true)
+    }, 10000)
 }, [])
 
   const saveSuccess = () => {
@@ -560,17 +587,56 @@ React.useEffect(() => {
             </Grid>
 
             <Grid item xs style={{ textAlign: "center", padding: "10px 0"}}>
-                <DiscountHandler />  
+            <Button variant="outlined" color="primary" onClick={handleDiscountOpen}>
+        Options
+      </Button>
+      <Dialog
+        open={discountOpen}
+        TransitionComponent={Transition}
+        keepMounted
+        onClose={discountClose}
+        aria-labelledby="alert-dialog-slide-title"
+        aria-describedby="alert-dialog-slide-description"
+      >
+        <DialogTitle id="alert-dialog-slide-title">{"Discount Options"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-slide-description">
+            You can set a discount percentage to all of your product bundles all at once from here! Pressing Reset will set discount percentage for all products to 0.
+          </DialogContentText>
+          <TextField
+            label="Discount"
+            id="standard-start-adornment"
+            InputProps={{
+             endAdornment: <InputAdornment position="end">%</InputAdornment>,
+            }}
+            />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={discountClose} color="primary">
+            Apply
+          </Button>
+          <Button onClick={discountClose} color="secondary"  variant="contained">
+            Reset
+          </Button>
+        </DialogActions>
+      </Dialog>
             </Grid>
-        </Grid><br></br><Divider /> <br />        
-        {bundles.map((d) => 
-        
+        </Grid><br></br><Divider /> <br />   
+        <Grow
+          in={checked}
+          style={{ transformOrigin: '0 0 0' }}
+          {...(checked ? { timeout: 1000 } : {})}
+        >
+        <div>
+        {bundles.map((d) =>
+  
         <>
-        <BundleCard key={d.SourceProduct.Title} SourceProduct={d.SourceProduct.Title} RecommendedProduct={d.RecommendedProduct.Title} SelectedProduct={d.SelectedProduct.Title} SourceProductImage={d.SourceProduct.ImageSrc} RecommendedProductImage={d.RecommendedProduct.ImageSrc} SelectedProductImage={d.SelectedProduct.ImageSrc} Discount={d.Discount} prod_id={d._id}/><br/>
+        <BundleCard ref={discountRef} key={d.SourceProduct.Title} SourceProduct={d.SourceProduct.Title} RecommendedProduct={d.RecommendedProduct.Title} SelectedProduct={d.SelectedProduct.Title} SourceProductImage={d.SourceProduct.ImageSrc} RecommendedProductImage={d.RecommendedProduct.ImageSrc} SelectedProductImage={d.SelectedProduct.ImageSrc} Discount={d.Discount} prod_id={d._id}/><br/>
         </> 
         
         )}
-        {/* <BundleCard SourceProduct="Atmos Helmet" RecommendedProduct="Brisker Cold Weather Riding Gloves" SelectedProduct="Pure City Swallow Saddle"/> */}
+      </div>     
+        </Grow>
       </main>
     </div>
   </NoSsr>

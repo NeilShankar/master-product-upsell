@@ -47,6 +47,10 @@ const BundleCards = React.forwardRef((props, ref) => {
     setDiscount(props.Discount);
   }, [props]);
 
+  const setProd = () => {
+    props.selectProduct(props.prod_id)
+  }
+
   const [values, setValues] = React.useState({
     amount: '',
     password: '',
@@ -94,7 +98,7 @@ const BundleCards = React.forwardRef((props, ref) => {
         'Content-type': 'application/json'
       },
       data: {
-        "prod_id": props.prod_id,
+        "prod_id": props.Id,
         "Discount": Discount
       }
     })
@@ -129,7 +133,7 @@ const BundleCards = React.forwardRef((props, ref) => {
             </Grid>  
             <Divider orientation="vertical" flexItem />
             <Grid item xs alignItems="center" textAlign="center" style={{ textAlign: "center" }}>
-                <div style={{ "display":"inherit","position":"absolute","margin":"58px -9px" }}>
+                <div onClick={setProd} style={{ "cursor": "pointer","display":"inherit","position":"absolute","margin":"58px -9px" }}>
                     <SettingsIcon style={{ color: "dark-gray", width: "18px"}} />
                 </div>
                 <div style={{"display":"inline-block","float":"left","marginLeft":"5%","height":"auto","width":"30%"}}>

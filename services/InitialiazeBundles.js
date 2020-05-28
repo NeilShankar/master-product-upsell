@@ -15,11 +15,14 @@ const stopcock = require('stopcock');
 require("isomorphic-fetch");
 
 const InitializeBundles = async (ctx) => {
-    const count = await fetch(`https://${ctx.session.shop}/admin/api/2020-04/products/count.json`, {
+    const shopURL = ctx.session.shop
+    const aToken = ctx.session.accessToken
+
+    const count = await fetch(`https://${shopURL}/admin/api/2020-04/products/count.json`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        "X-Shopify-Access-Token": ctx.session.accessToken,
+        "X-Shopify-Access-Token": aToken,
       }
     })
   
@@ -45,11 +48,11 @@ const InitializeBundles = async (ctx) => {
     async function getAllProducts() {
         id = sourceArray[sourceArray.length - 1]
         if (sourceArray.length) {
-            const products = await fetch(`https://${ctx.session.shop}/admin/api/2020-04/products.json?limit=250&since_id${id}`, {
+            const products = await fetch(`https://${shopURL}/admin/api/2020-04/products.json?limit=250&since_id${id}`, {
             method: 'GET',
             headers: {
             'Content-Type': 'application/json',
-            "X-Shopify-Access-Token": ctx.session.accessToken,
+            "X-Shopify-Access-Token": aToken,
             }
             })
 
@@ -76,11 +79,11 @@ const InitializeBundles = async (ctx) => {
 
             return sourceArray
         } else {
-            const products = await fetch(`https://${ctx.session.shop}/admin/api/2020-04/products.json?limit=250`, {
+            const products = await fetch(`https://${shopURL}/admin/api/2020-04/products.json?limit=250`, {
             method: 'GET',
             headers: {
             'Content-Type': 'application/json',
-            "X-Shopify-Access-Token": ctx.session.accessToken,
+            "X-Shopify-Access-Token": aToken,
             }
             })
 
@@ -111,11 +114,11 @@ const InitializeBundles = async (ctx) => {
 
 
     async function request(i) {
-        const collections = await fetch(`https://${ctx.session.shop}/admin/api/2020-04/collects.json?product_id=${i}`, {
+        const collections = await fetch(`https://${shopURL}/admin/api/2020-04/collects.json?product_id=${i}`, {
             method: 'GET',
             headers: {
             'Content-Type': 'application/json',
-            "X-Shopify-Access-Token": ctx.session.accessToken,
+            "X-Shopify-Access-Token": aToken,
             }
         })
   
@@ -125,11 +128,11 @@ const InitializeBundles = async (ctx) => {
     }
 
     async function requestProductFromCollection(collection, prod) {
-            const collectionOfProd = await fetch(`https://${ctx.session.shop}/admin/api/2020-04/collections/${collection}/products.json`, {
+            const collectionOfProd = await fetch(`https://${shopURL}/admin/api/2020-04/collections/${collection}/products.json`, {
             method: 'GET',
             headers: {
             'Content-Type': 'application/json',
-            "X-Shopify-Access-Token": ctx.session.accessToken,
+            "X-Shopify-Access-Token": aToken,
             }
             })
 
@@ -198,11 +201,11 @@ const InitializeBundles = async (ctx) => {
     }
 
     async function requestProductFromType(prod) {
-            const ProductType = await fetch(`https://${ctx.session.shop}/admin/api/2020-04/products/${prod}.json?fields=product_type`, {
+            const ProductType = await fetch(`https://${shopURL}/admin/api/2020-04/products/${prod}.json?fields=product_type`, {
             method: 'GET',
             headers: {
             'Content-Type': 'application/json',
-            "X-Shopify-Access-Token": ctx.session.accessToken,
+            "X-Shopify-Access-Token": aToken,
             }
             })
     
@@ -211,11 +214,11 @@ const InitializeBundles = async (ctx) => {
 
             await sleep(1000)
 
-            const SimilarProds = await fetch(`https://${ctx.session.shop}/admin/api/2020-04/products.json?product_type=${type}&fields=id`, {
+            const SimilarProds = await fetch(`https://${shopURL}/admin/api/2020-04/products.json?product_type=${type}&fields=id`, {
                 method: 'GET',
                 headers: {
                 'Content-Type': 'application/json',
-                "X-Shopify-Access-Token": ctx.session.accessToken,
+                "X-Shopify-Access-Token": aToken,
                 }
             })
     
@@ -244,7 +247,7 @@ const InitializeBundles = async (ctx) => {
                 //         method: 'GET',
                 //         headers: {
                 //         'Content-Type': 'application/json',
-                //         "X-Shopify-Access-Token": ctx.session.accessToken,
+                //         "X-Shopify-Access-Token": aToken,
                 //         }
                 //     })
             
@@ -336,7 +339,7 @@ const InitializeBundles = async (ctx) => {
                     BundleIdArray.push(element._id)
                 })
 
-                storeModel.updateOne({ url: `https://${ctx.session.shop}`}, { Bundles: BundleIdArray }, (err, res) => {
+                storeModel.updateOne({ url: `https://${shopURL}`}, { Bundles: BundleIdArray }, (err, res) => {
                     if (err) {
                        console.log(err)
                     }

@@ -15,6 +15,7 @@ import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 import Divider from '@material-ui/core/Divider';
 import SaveIcon from '@material-ui/icons/Save';
+
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
@@ -59,6 +60,7 @@ import FormGroup from '@material-ui/core/FormGroup';
 import Switch from '@material-ui/core/Switch';
 
 import BundleInstance from '../API-instances/BundleInstance'
+import SelectProduct from '../API-instances/SelectProduct'
 import GetBundleInstance from '../API-instances/BundleGetInstance'
 import DefaultLivePreview from '../templates/HTML/1'
 import Container from '@material-ui/core/Container';
@@ -67,6 +69,7 @@ import SPhandler from "../components/bundles/SelectProductHandler";
 import RPhandler from "../components/bundles/RecommendedProductHandler"
 
 import GetAllBundles from '../API-instances/GetAllBundles'
+import SelectProductComp from '../components/bundles/SelectProduct'
 
 const AntSwitch = withStyles((theme) => ({
   root: {
@@ -321,15 +324,30 @@ export default function FrequentlyBought() {
 
   const discountRef = React.useRef()
 
-React.useEffect(() => {
-  GetAllBundles({
-    method: "GET"
-  }).then((res) => {
-    setBundles(res.data)
-    setDisplayProgress('none')
-    setChecked(true)  
-  })
-}, [])
+  React.useEffect(() => {
+    GetAllBundles({
+      method: "GET"
+    }).then((res) => {
+      setBundles(res.data)
+      setDisplayProgress('none')
+      setChecked(true)  
+    })
+  }, [])
+
+  const SelectProductUpdate = (id, sId) => {
+    SelectProduct({
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      data: {
+        "SourceProduct": sId,
+        "SelectedProduct": id,
+      }
+    }).then((res) => {
+      console.log(res)
+    })
+  }
 
   const saveSuccess = () => {
     saveOpen(true);
@@ -420,6 +438,12 @@ React.useEffect(() => {
     discountRef.current.changeDiscountsForAll(discountValue)
     setDisplayProgress('block')
     setChecked(false)
+  }
+
+  const sProd = React.useRef()
+
+  function selectProd(prodID) {
+    sProd.current.handleClickOpen(prodID)
   }
 
 
@@ -611,21 +635,31 @@ React.useEffect(() => {
               <DiscountHandler changeDiscountAll={changeDiscAll} Discount={""} />
             </Grid>
         </Grid><br></br><Divider /> <br />
-      
+        
        
         {bundles.map((d) =>
   
           <Grow
           in={checked}
-          style={{ transformOrigin: '0 0 0' }}
+          anchorOrigin={{
+            vertical: 'center',
+            horizontal: 'center',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'center',
+          }}
           {...(checked ? { timeout: 1000 } : {})}
         >
         <div>
-        <BundleCard changedDiscAll={changedDiscAll} ref={discountRef} key={d._id} SourceProduct={d.SourceProduct.Title} RecommendedProduct={d.RecommendedProduct.Title} SelectedProduct={d.SelectedProduct.Title} SourceProductImage={d.SourceProduct.ImageSrc} RecommendedProductImage={d.RecommendedProduct.ImageSrc} SelectedProductImage={d.SelectedProduct.ImageSrc} Discount={d.Discount} prod_id={d._id}/><br/>
+
+        <BundleCard selectProduct={selectProd} Id={d._id} changedDiscAll={changedDiscAll} ref={discountRef} key={d._id} SourceProduct={d.SourceProduct.Title} RecommendedProduct={d.RecommendedProduct.Title} SelectedProduct={d.SelectedProduct.Title} SourceProductImage={d.SourceProduct.ImageSrc} RecommendedProductImage={d.RecommendedProduct.ImageSrc} SelectedProductImage={d.SelectedProduct.ImageSrc} Discount={d.Discount} prod_id={d.SourceProduct.Id}/><br/>
        
         </div>     
         </Grow>
        )}
+
+      <SelectProductComp ref={sProd} UpdateSelectProduct={SelectProductUpdate} />
      
       </main>
     </div>

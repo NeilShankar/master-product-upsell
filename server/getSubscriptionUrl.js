@@ -2,18 +2,10 @@ const getSubscriptionUrl = async (ctx, accessToken, shop) => {
     const query = JSON.stringify({
       query: `mutation {
         appSubscriptionCreate(
-            name: "Super Duper Plan"
-            returnUrl: "${process.env.HOST}"
+            name: "Basic Plan"
+            returnUrl: "https://${shop}/admin/apps/frequently-bought-products"
             test: true
             lineItems: [
-            {
-              plan: {
-                appUsagePricingDetails: {
-                    cappedAmount: { amount: 10, currencyCode: USD }
-                    terms: "$1 for 1000 emails"
-                }
-              }
-            }
             {
               plan: {
                 appRecurringPricingDetails: {

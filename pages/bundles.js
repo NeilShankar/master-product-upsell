@@ -612,21 +612,21 @@ React.useEffect(() => {
             </Grid>
         </Grid><br></br><Divider /> <br />
       
-        <Grow
+       
+        {bundles.map((d) =>
+  
+          <Grow
           in={checked}
           style={{ transformOrigin: '0 0 0' }}
           {...(checked ? { timeout: 1000 } : {})}
         >
         <div>
-        {bundles.map((d) =>
-  
-        <>
         <BundleCard changedDiscAll={changedDiscAll} ref={discountRef} key={d._id} SourceProduct={d.SourceProduct.Title} RecommendedProduct={d.RecommendedProduct.Title} SelectedProduct={d.SelectedProduct.Title} SourceProductImage={d.SourceProduct.ImageSrc} RecommendedProductImage={d.RecommendedProduct.ImageSrc} SelectedProductImage={d.SelectedProduct.ImageSrc} Discount={d.Discount} prod_id={d._id}/><br/>
-        </> 
-  
-       )}
-      </div>     
+       
+        </div>     
         </Grow>
+       )}
+     
       </main>
     </div>
     </NoSsr>

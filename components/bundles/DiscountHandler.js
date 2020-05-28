@@ -32,6 +32,7 @@ const DiscountHandler = (props) => {
   
     const discountClose = () => {
       setDiscountAll(0)
+      props.changeDiscountAll("")
       setDiscountOpen(false);
     };
 

@@ -41,6 +41,7 @@ const getMetrics = require('./services/getMetricInfo')
 const InitializeBundles = require('./services/InitialiazeBundles')
 const getAllBundles = require('./services/GetAllBundles')
 const DiscountBundle = require('./services/BundleDiscount')
+const DiscountAllBundle = require('./services/BundleAllDiscount')
 
 const {
   SHOPIFY_API_SECRET_KEY,
@@ -81,6 +82,7 @@ app.prepare().then(() => {
   .get('/api/getStoreInfo', getStoreInfo)
   .get('/api/getAllBundles', getAllBundles)
   .post('/api/discountBundle', DiscountBundle)
+  .post('/api/discountBundleAll', DiscountAllBundle)
   .get('/api/getMetrics', getMetrics)
   .get('/api/currentShop', ctx => {
     ctx.body = ctx.session.shop

@@ -10,6 +10,7 @@ import Avatar from '@material-ui/core/Avatar';
 import Image from 'material-ui-image'
 import SettingsIcon from '@material-ui/icons/Settings';
 import BundleDiscount from '../../API-instances/BundleDiscount'
+import BundleAllDiscount from '../../API-instances/BundleAllDiscount'
 
 import Input from '@material-ui/core/Input';
 
@@ -38,9 +39,13 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export default function BundleCards(props) {
+const BundleCards = React.forwardRef((props, ref) => {
   const classes = useStyles();
   const [Discount, setDiscount] = React.useState(props.Discount)
+
+  React.useEffect(() => {
+    setDiscount(props.Discount);
+  }, [props]);
 
   const [values, setValues] = React.useState({
     amount: '',
@@ -56,13 +61,23 @@ export default function BundleCards(props) {
     setDiscount(event.target.value)
   };
 
-  // React.useImperativeHandle(ref, () => ({
+  React.useImperativeHandle(ref, () => ({
 
-  //   changeDiscountsForAll(value) {
-  //     alert("Hi");
-  //   }
+    changeDiscountsForAll(value) {
+      BundleAllDiscount({
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        data: {
+          "Discount": value
+        }
+      }).then((res) => {
+        props.changedDiscAll(value)
+      })
+    }
 
-  // }));
+  }));
 
   React.useEffect(() => {
     if (isInitialMount.current) {
@@ -142,4 +157,6 @@ export default function BundleCards(props) {
       </Grid>
     </div>
   );
-}
+})
+
+export default BundleCards

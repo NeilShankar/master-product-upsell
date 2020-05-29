@@ -10,7 +10,17 @@ const SelectProduct = async (ctx) => {
             "SelectProd": ctx.request.body.SelectedProduct
         }
 
-        return ProductInfo
+        var NewSelect = await bundleModel.findOne({ "SourceProduct.Id": ProductInfo.SelectProd })
+
+        var NewUpdate = {
+            "Id": NewSelect.SourceProduct.Id,
+            "Title": NewSelect.SourceProduct.Title,
+            "ImageSrc": NewSelect.SourceProduct.ImageSrc
+        }
+
+        var Update = await bundleModel.findOneAndUpdate({ "SourceProduct.Id": ProductInfo.SourceProd }, { $set: { "SelectedProduct": NewUpdate }}, {new: true})
+
+        return Update
     }
 
     ctx.response.body = await prods()

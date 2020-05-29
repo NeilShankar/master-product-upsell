@@ -45,6 +45,7 @@ import TuneIcon from '@material-ui/icons/Tune';
 // import Debut from '../templates/TemplatePreviews/debut'
 import InfoIcon from '@material-ui/icons/Info';
 import DiscountHandler from '../components/bundles/DiscountHandler'
+import ResetProducts from '../API-instances/ResetSelectedProduct'
 
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
@@ -69,6 +70,7 @@ import SPhandler from "../components/bundles/SelectProductHandler";
 import RPhandler from "../components/bundles/RecommendedProductHandler"
 
 import GetAllBundles from '../API-instances/GetAllBundles'
+import InfiniteScroll from "react-infinite-scroll-component";
 import SelectProductComp from '../components/bundles/SelectProduct'
 
 const AntSwitch = withStyles((theme) => ({
@@ -313,7 +315,12 @@ export default function FrequentlyBought() {
   const [MenuOpen, setMenuOpen] = React.useState(false);
   const [SkeletonDisplay, setSkeletonDisplay] = React.useState('block');
   const [PrevDisplay, setPrevDisplay] = React.useState('none');
+
+  const [hasMore, setHasMore] = React.useState([true])
   const [ bundles, setBundles ] = React.useState([])
+  const [ originalBundle, setOriginalBundles ] = React.useState([])
+
+
   const [displayProgress, setDisplayProgress] = React.useState('block');
   const bull = <span className={classes.bullet}>•</span>;
   const [save, saveOpen] = React.useState(false);
@@ -323,6 +330,25 @@ export default function FrequentlyBought() {
   const [discountChange, setDiscountChange] = React.useState(0)
 
   const discountRef = React.useRef()
+
+  function rProducts() {
+    setDisplayProgress('block')
+    ResetProducts({
+      method: "GET",
+    }).then((res) => {
+      renderUpdate()
+    })
+  }
+
+  function renderUpdate() {
+    GetAllBundles({
+      method: "GET"
+    }).then((res) => {
+      setBundles(res.data)
+      setDisplayProgress('none')
+      setChecked(true)  
+    })
+  }
 
   React.useEffect(() => {
     GetAllBundles({
@@ -335,6 +361,7 @@ export default function FrequentlyBought() {
   }, [])
 
   const SelectProductUpdate = (id, sId) => {
+    setDisplayProgress('block')
     SelectProduct({
       method: "POST",
       headers: {
@@ -345,7 +372,24 @@ export default function FrequentlyBought() {
         "SelectedProduct": id,
       }
     }).then((res) => {
-      console.log(res)
+      var updateArray = []
+ 
+      var arr = []
+      arr = [...bundles]
+      arr.forEach(element => {
+        var Elem = element
+        if (Elem.SourceProduct.Id === res.data.SourceProduct.Id) {
+          Elem.SelectedProduct = {
+            "Id": res.data.SelectedProduct.Id,
+            "Title": res.data.SelectedProduct.Title,
+            "ImageSrc": res.data.SelectedProduct.ImageSrc
+          }
+        }
+        updateArray.push(Elem)
+      });
+      
+      setBundles(updateArray)
+      setDisplayProgress('none')
     })
   }
 
@@ -628,7 +672,7 @@ export default function FrequentlyBought() {
             </Grid>
 
             <Grid item xs style={{ textAlign: "center", padding: "10px 0"}}>
-                <SPhandler />
+                <SPhandler resetProducts={rProducts} />
             </Grid>
 
             <Grid item xs style={{ textAlign: "center", padding: "10px 0"}}>
@@ -636,28 +680,27 @@ export default function FrequentlyBought() {
             </Grid>
         </Grid><br></br><Divider /> <br />
         
-       
-        {bundles.map((d) =>
-  
+          {bundles.map((d) =>
+
           <Grow
           in={checked}
           anchorOrigin={{
-            vertical: 'center',
-            horizontal: 'center',
+          vertical: 'center',
+          horizontal: 'center',
           }}
           transformOrigin={{
-            vertical: 'top',
-            horizontal: 'center',
+          vertical: 'top',
+          horizontal: 'center',
           }}
           {...(checked ? { timeout: 1000 } : {})}
-        >
-        <div>
+          >
+          <div>
 
-        <BundleCard selectProduct={selectProd} Id={d._id} changedDiscAll={changedDiscAll} ref={discountRef} key={d._id} SourceProduct={d.SourceProduct.Title} RecommendedProduct={d.RecommendedProduct.Title} SelectedProduct={d.SelectedProduct.Title} SourceProductImage={d.SourceProduct.ImageSrc} RecommendedProductImage={d.RecommendedProduct.ImageSrc} SelectedProductImage={d.SelectedProduct.ImageSrc} Discount={d.Discount} prod_id={d.SourceProduct.Id}/><br/>
-       
-        </div>     
-        </Grow>
-       )}
+          <BundleCard selectProduct={selectProd} Id={d._id} changedDiscAll={changedDiscAll} ref={discountRef} key={d._id} SourceProduct={d.SourceProduct.Title} RecommendedProduct={d.RecommendedProduct.Title} SelectedProduct={d.SelectedProduct.Title} SourceProductImage={d.SourceProduct.ImageSrc} RecommendedProductImage={d.RecommendedProduct.ImageSrc} SelectedProductImage={d.SelectedProduct.ImageSrc} Discount={d.Discount} prod_id={d.SourceProduct.Id}/><br/>
+
+          </div>     
+          </Grow>
+          )}
 
       <SelectProductComp ref={sProd} UpdateSelectProduct={SelectProductUpdate} />
      

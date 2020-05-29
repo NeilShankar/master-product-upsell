@@ -14,7 +14,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-export default function SPhandler() {
+export default function SPhandler(props) {
   const [open, setOpen] = React.useState(false);
 
   const handleClickOpen = () => {
@@ -24,6 +24,11 @@ export default function SPhandler() {
   const handleClose = () => {
     setOpen(false);
   };
+
+  function handleReset() {
+    props.resetProducts()
+    setOpen(false);
+  }
 
   return (
     <div>
@@ -45,7 +50,7 @@ export default function SPhandler() {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} variant="contained" color="secondary">
+          <Button onClick={handleReset} variant="contained" color="secondary">
             Reset
           </Button>
         </DialogActions>

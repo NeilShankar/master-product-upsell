@@ -47,6 +47,7 @@ const SelectProductComp = React.forwardRef((props, ref) => {
   const [search, setSearch] = React.useState("")
   const [originalProds, setOriginalProds] = React.useState([])
   const [filteredProds, setFilteredProds] = React.useState([])
+  const [Product, setProduct] = React.useState(0)
 
   const handleSearch = (e) => {
     setSearch(e.target.value)
@@ -71,13 +72,12 @@ const SelectProductComp = React.forwardRef((props, ref) => {
     }
   }, [search])
 
-  var Product = 0
  
   React.useImperativeHandle(ref, () => ({
     handleClickOpen(id) {
         var arrayData = []
         var data = [...products]
-        var Product = parseInt(id)
+        setProduct(parseInt(id))
 
         data.forEach(element => {
           if (element.id == parseInt(id)) {
@@ -108,10 +108,10 @@ const handleClose = () => {
     
 }
 
-// const SelectProduct = (id) => {
-//   handleClose()
-//   props.UpdateSelectProduct(id, Product)
-// }
+function SelectProduct(id) {
+  handleClose()
+  props.UpdateSelectProduct(id, Product)
+}
 
   return (
     <div>
@@ -127,7 +127,7 @@ const handleClose = () => {
           <DialogContentText id="alert-dialog-description">
             When you select a different product, that will appear as a bundle for your customers on storefront.
           </DialogContentText>
-          <Paper component="form" className={classes.root}>
+          <Paper elevation={5} component="form" className={classes.root}>
             <InputBase
             value={search}
             onChange={handleSearch}
@@ -142,7 +142,7 @@ const handleClose = () => {
           <div>
           {products.map((product) =>
           <>
-          <Card style={{ cursor: "pointer" }}>
+          <Card onClick={() => SelectProduct(product.id)} style={{ cursor: "pointer", boxShadow: "0px 0px 13px 0px rgba(143,140,143,1)" }}>
             <Grid container justify="center">
               <Grid item xs={2}>
                 <img style={{ "width": "85px", "margin-left": "45%"}} src={product["image"]} alt=""/>

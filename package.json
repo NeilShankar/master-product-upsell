@@ -76,6 +76,8 @@
     "react-copy-code": "^2.1.2",
     "react-dom": "^16.13.1",
     "react-iframe": "^1.8.0",
+    "react-infinite-scroll-component": "^5.0.4",
+    "react-infinite-scroll-hook": "^2.0.1",
     "react-simple-infinite-loading": "^1.0.0",
     "react-syntax-highlighter": "^12.2.1",
     "sass": "^1.26.5",

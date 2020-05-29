@@ -105,6 +105,7 @@ const BundleCards = React.forwardRef((props, ref) => {
   }
 
   return (
+
     <div>
       <Grid style={{ boxShadow: "0px 0px 20px -6px rgba(156,150,156,1)" }} container alignItems="center" className={classes.root}>
             <Grid item xs style={{ textAlign: "center" }}>

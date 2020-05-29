@@ -30,6 +30,9 @@ const handle = app.getRequestHandler();
 
 const cookie = require('cookie');
 
+// Jobs
+const UpdateRecommendedProducts = require('./Jobs/dailyUpdate')
+
 // Service Handlers
 const updateBundleInfo = require('./services/updateBundleInfo')
 const getBundleInfo = require('./services/getBundleInfo')
@@ -45,6 +48,7 @@ const SelectProduct = require('./services/SelectProduct')
 const DiscountAllBundle = require('./services/BundleAllDiscount')
 const GetAllProduct = require('./services/GetAllProduct')
 const ResetProducts = require('./services/ResetProducts')
+const schedule = require('node-schedule');
 
 const {
   SHOPIFY_API_SECRET_KEY,
@@ -86,6 +90,7 @@ app.prepare().then(() => {
   .get('/api/resetProducts', ResetProducts)
   .get('/api/getStoreInfo', getStoreInfo)
   .get('/api/getAllBundles', getAllBundles)
+  .get('/api/test', UpdateRecommendedProducts)
   .post('/api/selectProduct', SelectProduct)
   .post('/api/discountBundle', DiscountBundle)
   .post('/api/discountBundleAll', DiscountAllBundle)
@@ -116,6 +121,14 @@ app.prepare().then(() => {
     console.log("Connection To MongoDB Atlas Successful!");
   });
 
+  
+  const Agenda = require('agenda');
+
+  const agenda = new Agenda({
+      db: {address: process.env.MONGO_DB_URL, collection: 'Jobs'},
+      processEvery: '30 seconds'
+  });
+
   server.use(
     createShopifyAuth({
       apiKey: SHOPIFY_API_KEY,
@@ -138,6 +151,12 @@ app.prepare().then(() => {
 
         storeModel.findOne({ url: `https://${shop}` }, async function(err, res) {
           var Array = await res.Bundles
+
+          agenda.jobs({'name': 'update products', 'data.id': res.JobInfo}, function(err, jobs) {
+            if(jobs[0]){
+                jobs[0].remove();
+            }
+          });
 
           Array.forEach(element => {
             bundleModel.findOneAndDelete({ _id: element })
@@ -171,6 +190,21 @@ app.prepare().then(() => {
           ShopUser = results.shop.shop_owner
           ShopName = results.shop.name
           Currency = results.shop.currency
+        
+        var jobId = ""
+
+        agenda.define('update products', {priority: 'high'}, async job => {
+          const {shopData} = job.attrs.data
+          jobId = `updatesFor${shop}`
+          job.unique({ 'data.id': `updatesFor${shop}` });
+          UpdateRecommendedProducts(shopData)
+        });
+        
+        (async function() {       
+          await agenda.start()
+          await agenda.every('1 Day', 'update products', {shopData: `${shop}`}, { skipImmediate: true });
+        })();
+        
 
         // Saving Store Data to MongoDB
         const storeData = storeModel({
@@ -199,7 +233,8 @@ app.prepare().then(() => {
           ShopInfo: {
             UserName: ShopUser,
             ShopName: ShopName
-          }
+          },
+          JobInfo: jobId
         })
 
         storeData.save(async function(err, doc) {

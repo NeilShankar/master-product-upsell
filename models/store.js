@@ -28,7 +28,8 @@ const schema = new Schema({
           UserName: String,
           ShopName: String
      },
-     Bundles: Array
+     Bundles: Array,
+     JobInfo: String
 });
 
 const store = mongoose.model('Store', schema)

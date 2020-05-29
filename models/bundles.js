@@ -22,6 +22,8 @@ const schema = new Schema({
         Title: String,
         ImageSrc: String
     },
+    ChoosenBy: String,
+    RelateID: String,
     Discount: Number
 })
 

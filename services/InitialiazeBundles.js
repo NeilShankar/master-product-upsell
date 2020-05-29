@@ -195,6 +195,8 @@ const InitializeBundles = async (ctx) => {
                     "Title": RecommendedProductInfo.Title,
                     "ImageSrc": RecommendedProductInfo.ImageSrc
                 },
+                "ChoosenBy": "Collection",
+                "RelateID": collection,
                 "Discount": 0
             }))
             return Bundled
@@ -297,6 +299,8 @@ const InitializeBundles = async (ctx) => {
                     "Title": RecommendedProductInfo.Title,
                     "ImageSrc": RecommendedProductInfo.ImageSrc
                 },
+                "ChoosenBy": "Type",   
+                "RelateID": type,
                 "Discount": 0
             }))
 

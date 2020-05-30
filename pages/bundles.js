@@ -72,6 +72,7 @@ import RPhandler from "../components/bundles/RecommendedProductHandler"
 import GetAllBundles from '../API-instances/GetAllBundles'
 import InfiniteScroll from "react-infinite-scroll-component";
 import SelectProductComp from '../components/bundles/SelectProduct'
+import ApplySingle from '../components/bundles/ApplySingle'
 
 const AntSwitch = withStyles((theme) => ({
   root: {
@@ -330,6 +331,50 @@ export default function FrequentlyBought() {
   const [discountChange, setDiscountChange] = React.useState(0)
 
   const discountRef = React.useRef()
+  const sApply = React.useRef()
+
+  const ChSelectedProd = (bundleId, prodInfo) => {
+    var updateArray = []
+ 
+    var arr = []
+    arr = [...bundles]
+
+    arr.forEach(element => {
+      var Elem = element
+      if (Elem._id === bundleId) {
+        Elem.SelectedProduct = {
+          "Id": prodInfo.Id,
+          "Title": prodInfo.Title,
+          "ImageSrc": prodInfo.Image
+        }
+      }
+      updateArray.push(Elem)
+    })
+
+    setBundles(updateArray)
+  }
+
+  const ChRecomProd = (bundleId, prodInfo) => {
+    var updateArray = []
+ 
+    var arr = []
+    arr = [...bundles]
+
+    arr.forEach(element => {
+      var Elem = element
+      if (Elem._id === bundleId) {
+        Elem.RecommendedProduct = {
+          "Id": prodInfo.Id,
+          "Title": prodInfo.Title,
+          "ImageSrc": prodInfo.Image
+        }
+      }
+      updateArray.push(Elem)
+    })
+
+    setBundles(updateArray)
+  }
+
 
   function rProducts() {
     setDisplayProgress('block')
@@ -490,6 +535,10 @@ export default function FrequentlyBought() {
     sProd.current.handleClickOpen(prodID)
   }
 
+  function applySingleOpen(slProd, rProd, bunId, newRec) {
+    // console.log(slProd, newRec)
+    sApply.current.openApplySingle(slProd, rProd, bunId, newRec)
+  }
 
   function handleUpdate(value) {
     let newArr = [...bundles];
@@ -696,13 +745,14 @@ export default function FrequentlyBought() {
           >
           <div>
 
-          <BundleCard selectProduct={selectProd} Id={d._id} changedDiscAll={changedDiscAll} ref={discountRef} key={d._id} SourceProduct={d.SourceProduct.Title} RecommendedProduct={d.RecommendedProduct.Title} SelectedProduct={d.SelectedProduct.Title} SourceProductImage={d.SourceProduct.ImageSrc} RecommendedProductImage={d.RecommendedProduct.ImageSrc} SelectedProductImage={d.SelectedProduct.ImageSrc} Discount={d.Discount} prod_id={d.SourceProduct.Id}/><br/>
+          <BundleCard applyS={applySingleOpen} NewRecom={d.NewRecommendedProduct} selectProduct={selectProd} Id={d._id} changedDiscAll={changedDiscAll} ref={discountRef} key={d._id} SelectedID={d.SelectedProduct.Id} RecommendedID={d.RecommendedProduct.Id} SourceProduct={d.SourceProduct.Title} RecommendedProduct={d.RecommendedProduct.Title} SelectedProduct={d.SelectedProduct.Title} SourceProductImage={d.SourceProduct.ImageSrc} RecommendedProductImage={d.RecommendedProduct.ImageSrc} SelectedProductImage={d.SelectedProduct.ImageSrc} Discount={d.Discount} prod_id={d.SourceProduct.Id}/><br/>
 
           </div>     
           </Grow>
           )}
 
       <SelectProductComp ref={sProd} UpdateSelectProduct={SelectProductUpdate} />
+      <ApplySingle ChangeRecommendedProduct={ChRecomProd} ChangeSelectedProduct={ChSelectedProd} ref={sApply} />
      
       </main>
     </div>

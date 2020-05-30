@@ -51,6 +51,13 @@ const BundleCards = React.forwardRef((props, ref) => {
     props.selectProduct(props.prod_id)
   }
 
+  const openApplySingle = () => {
+    var sProd = {"Title": props.SelectedProduct, "Image": props.SelectedProductImage, "Id": props.SelectedID}
+    var rProd = {"Title": props.RecommendedProduct, "Image": props.RecommendedProductImage, "Id": props.RecommendedID}
+    var newRec = {"Title": props.NewRecom.Title, "Image": props.NewRecom.ImageSrc, "Id": props.NewRecom.Id}
+    props.applyS(sProd, rProd, props.Id, newRec)
+  }
+
   const [values, setValues] = React.useState({
     amount: '',
     password: '',
@@ -120,7 +127,7 @@ const BundleCards = React.forwardRef((props, ref) => {
             </Grid>        
             <Divider orientation="vertical" flexItem />
             <Grid item xs alignItems="center" textAlign="center" style={{ textAlign: "center" }}>
-                <div style={{ marginLeft: ".5%", marginTop: "73px"}} class="icon">
+                <div onClick={openApplySingle} style={{ marginLeft: ".5%", marginTop: "73px"}} class="icon">
                     <i></i>
                 </div>
                 <div style={{"display":"inline-block","float":"left","marginLeft":"5%","height":"auto","width":"30%"}}>

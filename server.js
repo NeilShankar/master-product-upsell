@@ -48,6 +48,9 @@ const SelectProduct = require('./services/SelectProduct')
 const DiscountAllBundle = require('./services/BundleAllDiscount')
 const GetAllProduct = require('./services/GetAllProduct')
 const ResetProducts = require('./services/ResetProducts')
+const ApplyRecommendation = require('./services/ApplyRecommendation')
+const ApplyNewRecommendation = require('./services/ApplyNewRecommendation')
+
 const schedule = require('node-schedule');
 
 const {
@@ -92,6 +95,8 @@ app.prepare().then(() => {
   .get('/api/getAllBundles', getAllBundles)
   .get('/api/test', UpdateRecommendedProducts)
   .post('/api/selectProduct', SelectProduct)
+  .post('/api/applyRecommendation', ApplyRecommendation)
+  .post('/api/applyNewRecommendation', ApplyNewRecommendation)
   .post('/api/discountBundle', DiscountBundle)
   .post('/api/discountBundleAll', DiscountAllBundle)
   .get('/api/getMetrics', getMetrics)
@@ -202,7 +207,7 @@ app.prepare().then(() => {
         
         (async function() {       
           await agenda.start()
-          await agenda.every('1 Day', 'update products', {shopData: `${shop}`}, { skipImmediate: true });
+          await agenda.every('1440 minutes', 'update products', {shopData: `${shop}`}, { skipImmediate: true }, { timezone: "UTC"});
         })();
         
 

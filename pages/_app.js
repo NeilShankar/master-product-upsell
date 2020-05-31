@@ -12,7 +12,7 @@ function MyApp({ Component, pageProps }) {
   React.useEffect(() => {
     setTimeout(() => {
       setLoading('none')
-    }, 3000)
+    }, 5000)
   }, [])
 
     return (

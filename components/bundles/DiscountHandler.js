@@ -36,6 +36,10 @@ const DiscountHandler = (props) => {
       setDiscountOpen(false);
     };
 
+    const discountCloseOnly = () => {
+        setDiscountOpen(false);
+      };
+
     return (
         <>
         <Button variant="outlined" color="primary" onClick={handleDiscountOpen}>
@@ -45,7 +49,7 @@ const DiscountHandler = (props) => {
             open={discountOpen}
             TransitionComponent={Transition}
             keepMounted
-            onClose={discountClose}
+            onClose={discountCloseOnly}
             aria-labelledby="alert-dialog-slide-title"
             aria-describedby="alert-dialog-slide-description"
         >

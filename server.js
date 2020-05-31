@@ -52,6 +52,8 @@ const ApplyRecommendation = require('./services/ApplyRecommendation')
 const ApplyNewRecommendation = require('./services/ApplyNewRecommendation')
 const ApplyAllNewRecommendation = require('./services/ApplyAllNewRecommendation')
 const ApplyAllRecommendation = require('./services/ApplyAllRecommendation')
+const EnabledBundles = require('./services/BundlesEnabled')
+const CheckEnabled = require('./services/CheckEnabled')
 
 const schedule = require('node-schedule');
 
@@ -95,6 +97,8 @@ app.prepare().then(() => {
   .get('/api/resetProducts', ResetProducts)
   .get('/api/getStoreInfo', getStoreInfo)
   .get('/api/getAllBundles', getAllBundles)
+  .post('/api/bundlesEnabled', EnabledBundles)
+  .get('/api/enabledCheck', CheckEnabled)
   .get('/api/test', UpdateRecommendedProducts)
   .get('/api/applyAllNewRecommendation', ApplyAllNewRecommendation)
   .get('/api/applyAllRecommendation', ApplyAllRecommendation)
@@ -192,7 +196,8 @@ app.prepare().then(() => {
               FreeShippingThreshold: 0,
               BundleConfigs: {
                 Title: 'Frequently Bought Together',
-                Theme: 10
+                Theme: 10,
+                Enabled: true
               }, 
               Metrics: {
                 ThisMonth: {

@@ -74,6 +74,8 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import SelectProductComp from '../components/bundles/SelectProduct'
 import ApplySingle from '../components/bundles/ApplySingle'
 
+import EnableBundles from '../components/bundles/Enable'
+
 const AntSwitch = withStyles((theme) => ({
   root: {
     width: 28,
@@ -711,6 +713,8 @@ export default function FrequentlyBought() {
         <Typography variant="h5">
             Bundles
         </Typography>  
+        <br />
+        <EnableBundles />
         <br></br>
         <Divider></Divider>
         <br></br>

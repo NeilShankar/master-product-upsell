@@ -8,7 +8,8 @@ const schema = new Schema({
      FreeShippingThreshold: Number,
      BundleConfigs: {
           Title: String,
-          Theme: Number
+          Theme: Number,
+          Enabled: Boolean
      },
      Metrics: {
           ThisMonth: {

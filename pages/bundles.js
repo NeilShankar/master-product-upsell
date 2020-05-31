@@ -333,7 +333,44 @@ export default function FrequentlyBought() {
   const discountRef = React.useRef()
   const sApply = React.useRef()
 
+  const chSelects = () => {
+    setDisplayProgress('block')
+    var updateArray = []
+
+    var arr = []
+    arr = [...bundles]
+
+    arr.forEach(element => {
+      var Elem = element
+      Elem.SelectedProduct = Elem.RecommendedProduct
+      updateArray.push(Elem)
+    })
+
+    setBundles(updateArray)
+    setDisplayProgress('none')
+  }
+
+  const changeAllNewRecommendations = () => {
+    setDisplayProgress('block')
+    var updateArray = []
+
+    var arr = []
+    arr = [...bundles]
+
+    arr.forEach(element => {
+      var Elem = element
+      if (Elem.NewRecommendedProduct.Id !== "None") {
+        Elem.RecommendedProduct = Elem.NewRecommendedProduct
+      }
+      updateArray.push(Elem)
+    })
+
+    setBundles(updateArray)
+    setDisplayProgress('none')
+  }
+
   const ChSelectedProd = (bundleId, prodInfo) => {
+    setDisplayProgress('block')
     var updateArray = []
  
     var arr = []
@@ -352,9 +389,11 @@ export default function FrequentlyBought() {
     })
 
     setBundles(updateArray)
+    setDisplayProgress('none')
   }
 
   const ChRecomProd = (bundleId, prodInfo) => {
+    setDisplayProgress('block')
     var updateArray = []
  
     var arr = []
@@ -373,6 +412,7 @@ export default function FrequentlyBought() {
     })
 
     setBundles(updateArray)
+    setDisplayProgress('none')
   }
 
 
@@ -717,7 +757,7 @@ export default function FrequentlyBought() {
             </Grid>
 
             <Grid item xs style={{ textAlign: "center", padding: "10px 0"}}>
-                <RPhandler />
+                <RPhandler ChangeSelects={chSelects} ChangeAllNewRecoms={changeAllNewRecommendations} bundlesArray={bundles} />
             </Grid>
 
             <Grid item xs style={{ textAlign: "center", padding: "10px 0"}}>

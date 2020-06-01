@@ -360,6 +360,24 @@ export default function FrequentlyBought() {
     timeout: 0
   })
 
+  const controlSearch = (e) => {
+    if (e.target.value === "" || e.target.value.length < 1) {
+      setTimeout(() => {
+        setDisplayBundles(paginate(bundles, 10, page))
+        var rounded = Math.ceil(bundles.length / 10) * 10
+        var distance = bundles.length
+        
+        var pages = rounded / 10
+
+        if (distance > rounded) {
+          pages = pages + 1
+        }
+
+        setTotalPage(pages)
+      }, 3000);
+    }
+  }
+
   const handleSearch = (e) => {
      if (search.timeout) {
         clearTimeout(search.timeout);
@@ -374,8 +392,10 @@ export default function FrequentlyBought() {
         term: e.target.value,
         timeout: setTimeout(() => {
           searchFunc(search.term)
-        }, 3000)
+        }, 2000)
       })
+
+      controlSearch(e)
   }
 
   React.useEffect(() => {     
@@ -469,22 +489,20 @@ export default function FrequentlyBought() {
         setTotalPage(pages)
         setDisplayProgress('none')   
 
-        setTimeout(() => {
-          if (search.term.length === 0 ) {
-            setDisplayBundles(paginate(bundles, 10, 1))
+          
+    } else {
+      setDisplayBundles(paginate(bundles, 10, 1))
 
-            var rounded = Math.ceil(bundles.length / 10) * 10
-            var distance = bundles.length
-            
-            var pages = rounded / 10
-    
-            if (distance > rounded) {
-              pages = pages + 1
-            }
-    
-            setTotalPage(pages)
-          }
-        }, 3000);   
+      var rounded = Math.ceil(bundles.length / 10) * 10
+      var distance = bundles.length
+      
+      var pages = rounded / 10
+
+      if (distance > rounded) {
+        pages = pages + 1
+      }
+
+      setTotalPage(pages)
     }
   }
 

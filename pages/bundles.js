@@ -357,12 +357,15 @@ export default function FrequentlyBought() {
   const [search, setSearch] = React.useState({
     term: "",
     items: [],
-    timeout: 0
+    timeout: 0,
+    searching: false
   })
 
   const controlSearch = (e) => {
     if (e.target.value === "" || e.target.value.length < 1) {
       setTimeout(() => {
+        setPage(1)
+        setSearch({ searching: false })
         setDisplayBundles(paginate(bundles, 10, page))
         var rounded = Math.ceil(bundles.length / 10) * 10
         var distance = bundles.length
@@ -487,9 +490,8 @@ export default function FrequentlyBought() {
         }
 
         setTotalPage(pages)
-        setDisplayProgress('none')   
-
-          
+        setDisplayProgress('none')  
+        setSearch({ searching: true })        
     } else {
       setDisplayBundles(paginate(bundles, 10, 1))
 
@@ -507,16 +509,20 @@ export default function FrequentlyBought() {
   }
 
   const nextPage = () => {
-    if (search.items.length) {
-      setDisplayBundles(paginate(search.items, 10, page+1))
+    if (search.searching === true) {
+      if (Array.isArray(search.items)) {
+        setDisplayBundles(paginate(search.items, 10, page+1))
+      } 
     } else {
       setDisplayBundles(paginate(bundles, 10, page+1))
     }
   }
 
   const prevPage = () => {
-    if (search.items.length) {
-      setDisplayBundles(paginate(search.items, 10, page-1))
+    if (search.searching === true) {
+      if (Array.isArray(search.items)) {
+        setDisplayBundles(paginate(search.items, 10, page-1))
+      } 
     } else {
       setDisplayBundles(paginate(bundles, 10, page-1))
     }

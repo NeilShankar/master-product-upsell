@@ -17,9 +17,14 @@ const DiscountHandler = (props) => {
     const [discountOpen, setDiscountOpen] = React.useState(false);
     const [discountAll, setDiscountAll] = React.useState(0)
 
-    const changeDiscountAll = (e) => {
+const changeDiscountAll = (e) => {
+    const re = /^[0-9\b]+$/
+
+    if (e.target.value === '' || re.test(e.target.value)) {
         setDiscountAll(e.target.value)
     }
+
+}
 
     const handleDiscountOpen = () => {
       setDiscountOpen(true);

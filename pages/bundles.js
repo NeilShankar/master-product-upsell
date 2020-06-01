@@ -13,7 +13,6 @@ import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
-import Divider from '@material-ui/core/Divider';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
 import SaveIcon from '@material-ui/icons/Save';
@@ -47,6 +46,9 @@ import TuneIcon from '@material-ui/icons/Tune';
 // import Debut from '../templates/TemplatePreviews/debut'
 import InfoIcon from '@material-ui/icons/Info';
 import DiscountHandler from '../components/bundles/DiscountHandler'
+import InputBase from '@material-ui/core/InputBase';
+import Divider from '@material-ui/core/Divider';
+import SearchIcon from '@material-ui/icons/Search';
 import ResetProducts from '../API-instances/ResetSelectedProduct'
 
 import Button from '@material-ui/core/Button';
@@ -216,6 +218,24 @@ const legend = {
 const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
+  inputRoot: {
+    padding: '2px 4px',
+    display: 'flex',
+    float: "left",
+    alignItems: 'center',
+    width: 400,
+  },
+  input: {
+    marginLeft: theme.spacing(1),
+    flex: 1,
+  },
+  iconButton: {
+    padding: 10,
+  },
+  divider: {
+    height: 28,
+    margin: 4,
+  },
   root: {
     display: 'flex',
     flexGrow: 1,
@@ -334,9 +354,60 @@ export default function FrequentlyBought() {
   const [save, saveOpen] = React.useState(false);
   const [checked, setChecked] = React.useState(false)
   const [discountAll, setDiscountAll] = React.useState(0)
+  const [search, setSearch] = React.useState({
+    term: "",
+    items: [],
+    timeout: 0
+  })
+
+  const handleSearch = (e) => {
+      if (search.timeout) {
+        clearTimeout(search.timeout);
+      }
+  
+      setDisplayProgress('block')
+      setSearch({ 
+        term: e.target.value,
+        timeout: setTimeout(() => {
+          searchFunc(search.term)
+        }, 3000)
+      })
+  }
 
   React.useEffect(() => {
-    setDisplayBundles(paginate(bundles, 10, page))
+    if (search.term.length === 0) {
+      setDisplayBundles(paginate(bundles, 10, 1))
+
+      var rounded = Math.ceil(bundles.length / 10) * 10
+      var distance = bundles.length
+      
+      var pages = rounded / 10
+
+      if (distance > rounded) {
+        pages = pages + 1
+      }
+
+      setTotalPage(pages)
+    }
+  }, [search.term])
+
+  React.useEffect(() => {
+     if (search.term.length > 0) {
+        setDisplayProgress('block')
+       searchFunc(search.term)
+     } else {
+      setDisplayBundles(paginate(bundles, 10, page))
+      var rounded = Math.ceil(bundles.length / 10) * 10
+      var distance = bundles.length
+      
+      var pages = rounded / 10
+
+      if (distance > rounded) {
+        pages = pages + 1
+      }
+
+      setTotalPage(pages)
+     }
   }, [bundles])
 
   const [pageButtons, setPageButtons]  = React.useState({
@@ -394,12 +465,44 @@ export default function FrequentlyBought() {
     return array.slice((page_number - 1) * page_size, page_number * page_size);
   }
 
+  function searchFunc(nameKey){
+    if (search.term.length > 0){
+      var searchArray = []
+      bundles.forEach(element => {
+        if (element.SourceProduct.Title.includes(nameKey)) {
+          searchArray.push(element)
+        }
+      });
+      setDisplayBundles(paginate(searchArray, 10, 1))
+
+        var rounded = Math.ceil(searchArray.length / 10) * 10
+        var distance = searchArray.length
+        
+        var pages = rounded / 10
+
+        if (distance > rounded) {
+          pages = pages + 1
+        }
+
+        setTotalPage(pages)
+        setDisplayProgress('none')
+    }
+  }
+
   const nextPage = () => {
-    setDisplayBundles(paginate(bundles, 10, page+1))
+    if (search.items.length) {
+      setDisplayBundles(paginate(search.items, 10, page+1))
+    } else {
+      setDisplayBundles(paginate(bundles, 10, page+1))
+    }
   }
 
   const prevPage = () => {
-    setDisplayBundles(paginate(bundles, 10, page-1))
+    if (search.items.length) {
+      setDisplayBundles(paginate(search.items, 10, page-1))
+    } else {
+      setDisplayBundles(paginate(bundles, 10, page-1))
+    }
   }
 
   const chSelects = () => {
@@ -854,6 +957,21 @@ export default function FrequentlyBought() {
               <DiscountHandler changeDiscountAll={changeDiscAll} Discount={""} />
             </Grid>
         </Grid><br></br><Divider /> <br />
+
+          <Paper component="form" className={classes.inputRoot}>
+            <InputBase
+            className={classes.input}
+            value={search.term}
+            onChange={handleSearch}
+            placeholder="Search Any Of Your Products"
+            inputProps={{ 'aria-label': 'Search Any Of Your Products' }}
+            />
+              <Divider className={classes.divider} orientation="vertical" />
+            <IconButton className={classes.iconButton} aria-label="search">
+              <SearchIcon />
+            </IconButton>
+          </Paper>
+
         {/* Pagination Here */}
           <Grid style={{"width":"fit-content","border":"1px solid #ccbdbd", "marginBottom": "1em","borderRadius":"12px","background":"#dbdbdb","float":"right"}} container alignItems="center">
               <IconButton onClick={prevPage} aria-label="Next Page" disabled={pageButtons.prev}>

@@ -59,14 +59,14 @@ const SelectProductComp = React.forwardRef((props, ref) => {
 
   React.useEffect(() => {
     if (search.length > 0) {
-      var newArray = products.filter(function (el) {
+        var newArray = products.filter(function (el) {
         var productTitle = el.title
         var s = search
 
         var filteredS = s.toLowerCase()
         var filteredTitle = productTitle.toLowerCase()
         return filteredTitle.includes(filteredS)
-      });
+    });
       
       setProducts(newArray)
     }

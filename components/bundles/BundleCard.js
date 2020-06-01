@@ -68,8 +68,12 @@ const BundleCards = React.forwardRef((props, ref) => {
 
   const isInitialMount = React.useRef(true);
 
-  const discountChange = (event) => {
-    setDiscount(event.target.value)
+  const discountChange = (e) => {
+    const re = /^[0-9\b]+$/
+
+    if (e.target.value === '' || re.test(e.target.value)) {
+        setDiscount(e.target.value)
+    }
   };
 
   React.useImperativeHandle(ref, () => ({

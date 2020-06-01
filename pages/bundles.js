@@ -14,6 +14,8 @@ import Link from '@material-ui/core/Link';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 import Divider from '@material-ui/core/Divider';
+import NavigateNextIcon from '@material-ui/icons/NavigateNext';
+import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
 import SaveIcon from '@material-ui/icons/Save';
 
 import IconButton from '@material-ui/core/IconButton';
@@ -321,8 +323,11 @@ export default function FrequentlyBought() {
 
   const [hasMore, setHasMore] = React.useState([true])
   const [ bundles, setBundles ] = React.useState([])
-  const [ originalBundle, setOriginalBundles ] = React.useState([])
 
+  const [ DisplayBundles, setDisplayBundles ] = React.useState([])
+  const [ oriBundles, setOriBundles ] = React.useState([])
+  const [page, setPage] = React.useState(1)
+  const [totalPage, setTotalPage] = React.useState(1)
 
   const [displayProgress, setDisplayProgress] = React.useState('block');
   const bull = <span className={classes.bullet}>•</span>;
@@ -330,10 +335,72 @@ export default function FrequentlyBought() {
   const [checked, setChecked] = React.useState(false)
   const [discountAll, setDiscountAll] = React.useState(0)
 
+  React.useEffect(() => {
+    setDisplayBundles(paginate(bundles, 10, page))
+  }, [bundles])
+
+  const [pageButtons, setPageButtons]  = React.useState({
+    next: true,
+    prev: true
+  })
+
+  React.useEffect(() => {
+      if (page === 1 && totalPage > 1) {
+        setPageButtons({
+          next: false,
+          prev: true
+        })
+      } else if (totalPage === 1) {
+        setPageButtons({
+          next: true,
+          prev: true
+        })
+      }
+  }, [totalPage])
+
+  
+  React.useEffect(() => {
+    if (page === 1 && totalPage > 1) {
+      setPageButtons({
+        next: false,
+        prev: true
+      })
+    } else if (page > 1 && page < totalPage) {
+      setPageButtons({
+        next: false,
+        prev: false
+      })
+    } else if (totalPage === 1){
+      setPageButtons({
+        next: true,
+        prev: true
+      })
+    } else if (page === totalPage) {
+        setPageButtons({
+          next: true,
+          prev: false
+        })
+    }
+  }, [page])
+
   const [discountChange, setDiscountChange] = React.useState(0)
+
 
   const discountRef = React.useRef()
   const sApply = React.useRef()
+
+  function paginate(array, page_size, page_number) {
+    setPage(page_number)
+    return array.slice((page_number - 1) * page_size, page_number * page_size);
+  }
+
+  const nextPage = () => {
+    setDisplayBundles(paginate(bundles, 10, page+1))
+  }
+
+  const prevPage = () => {
+    setDisplayBundles(paginate(bundles, 10, page-1))
+  }
 
   const chSelects = () => {
     setDisplayProgress('block')
@@ -390,7 +457,7 @@ export default function FrequentlyBought() {
       updateArray.push(Elem)
     })
 
-    setBundles(updateArray)
+  setBundles(updateArray)
     setDisplayProgress('none')
   }
 
@@ -437,11 +504,26 @@ export default function FrequentlyBought() {
     })
   }
 
+
   React.useEffect(() => {
     GetAllBundles({
       method: "GET"
     }).then((res) => {
       setBundles(res.data)
+      var array = paginate(res.data, 10, 1)
+      setDisplayBundles(array)
+
+      var rounded = Math.ceil(res.data.length / 10) * 10
+      var distance = res.data.length
+      
+      var pages = rounded / 10
+
+      if (distance > rounded) {
+        pages = pages + 1
+      }
+
+      setTotalPage(pages)
+
       setDisplayProgress('none')
       setChecked(true)  
     })
@@ -772,8 +854,18 @@ export default function FrequentlyBought() {
               <DiscountHandler changeDiscountAll={changeDiscAll} Discount={""} />
             </Grid>
         </Grid><br></br><Divider /> <br />
-        
-          {bundles.map((d) =>
+        {/* Pagination Here */}
+          <Grid style={{"width":"fit-content","border":"1px solid #ccbdbd", "marginBottom": "1em","borderRadius":"12px","background":"#dbdbdb","float":"right"}} container alignItems="center">
+              <IconButton onClick={prevPage} aria-label="Next Page" disabled={pageButtons.prev}>
+                <NavigateBeforeIcon />
+              </IconButton>
+            <Divider orientation="vertical" flexItem />
+              <IconButton onClick={nextPage} disabled={pageButtons.next} aria-label="Next Page">
+                <NavigateNextIcon />
+              </IconButton>
+          </Grid>
+
+          {DisplayBundles.map((d) =>
 
           <Grow
           in={checked}

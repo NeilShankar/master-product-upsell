@@ -361,10 +361,14 @@ export default function FrequentlyBought() {
   })
 
   const handleSearch = (e) => {
-      if (search.timeout) {
+     if (search.timeout) {
         clearTimeout(search.timeout);
       }
   
+      if (e.target.value.length === 0) {
+        clearTimeout(search.timeout);
+      }
+      
       setDisplayProgress('block')
       setSearch({ 
         term: e.target.value,
@@ -374,28 +378,7 @@ export default function FrequentlyBought() {
       })
   }
 
-  React.useEffect(() => {
-    if (search.term.length === 0) {
-      setDisplayBundles(paginate(bundles, 10, 1))
-
-      var rounded = Math.ceil(bundles.length / 10) * 10
-      var distance = bundles.length
-      
-      var pages = rounded / 10
-
-      if (distance > rounded) {
-        pages = pages + 1
-      }
-
-      setTotalPage(pages)
-    }
-  }, [search.term])
-
-  React.useEffect(() => {
-     if (search.term.length > 0) {
-        setDisplayProgress('block')
-       searchFunc(search.term)
-     } else {
+  React.useEffect(() => {     
       setDisplayBundles(paginate(bundles, 10, page))
       var rounded = Math.ceil(bundles.length / 10) * 10
       var distance = bundles.length
@@ -407,7 +390,6 @@ export default function FrequentlyBought() {
       }
 
       setTotalPage(pages)
-     }
   }, [bundles])
 
   const [pageButtons, setPageButtons]  = React.useState({
@@ -473,7 +455,7 @@ export default function FrequentlyBought() {
           searchArray.push(element)
         }
       });
-      setDisplayBundles(paginate(searchArray, 10, 1))
+        setDisplayBundles(paginate(searchArray, 10, 1))
 
         var rounded = Math.ceil(searchArray.length / 10) * 10
         var distance = searchArray.length
@@ -485,7 +467,24 @@ export default function FrequentlyBought() {
         }
 
         setTotalPage(pages)
-        setDisplayProgress('none')
+        setDisplayProgress('none')   
+
+        setTimeout(() => {
+          if (search.term.length === 0 ) {
+            setDisplayBundles(paginate(bundles, 10, 1))
+
+            var rounded = Math.ceil(bundles.length / 10) * 10
+            var distance = bundles.length
+            
+            var pages = rounded / 10
+    
+            if (distance > rounded) {
+              pages = pages + 1
+            }
+    
+            setTotalPage(pages)
+          }
+        }, 3000);   
     }
   }
 

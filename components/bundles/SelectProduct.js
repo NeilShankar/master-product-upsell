@@ -142,7 +142,7 @@ function SelectProduct(id) {
           <div>
           {products.map((product) =>
           <>
-          <Card onClick={() => SelectProduct(product.id)} style={{ cursor: "pointer", boxShadow: "0px 0px 13px 0px rgba(143,140,143,1)" }}>
+          <Card onClick={() => SelectProduct(product.id)} style={{ cursor: "pointer", boxShadow: "0px 0px 5px 0px rgba(143,140,143,1)" }}>
             <Grid container justify="center">
               <Grid item xs={2}>
                 <img style={{ "width": "85px", "margin-left": "45%"}} src={product["image"]} alt=""/>

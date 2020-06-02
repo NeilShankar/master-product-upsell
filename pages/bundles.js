@@ -79,6 +79,7 @@ import SelectProductComp from '../components/bundles/SelectProduct'
 import ApplySingle from '../components/bundles/ApplySingle'
 
 import EnableBundles from '../components/bundles/Enable'
+import { FixedSizeList as ReactList } from 'react-window';
 
 const AntSwitch = withStyles((theme) => ({
   root: {
@@ -223,7 +224,7 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     float: "left",
     alignItems: 'center',
-    width: 400,
+    width: 1000,
   },
   input: {
     marginLeft: theme.spacing(1),
@@ -360,6 +361,8 @@ export default function FrequentlyBought() {
     timeout: 0,
     searching: false
   })
+  const [loaded, setLoaded] = React.useState(false)
+  const [searchTimeout, setSearchTimeout] = React.useState(0)
 
   const controlSearch = (e) => {
     if (e.target.value === "" || e.target.value.length < 1) {
@@ -377,31 +380,34 @@ export default function FrequentlyBought() {
         }
 
         setTotalPage(pages)
-      }, 3000);
+        setDisplayProgress('none') 
+      }, 5000);
     }
   }
 
-  const handleSearch = (e) => {
-     if (search.timeout) {
-        clearTimeout(search.timeout);
-      }
-  
-      if (e.target.value.length === 0) {
-        clearTimeout(search.timeout);
-      }
-      
-      setDisplayProgress('block')
+  async function handleSearch(e) {
       setSearch({ 
         term: e.target.value,
-        timeout: setTimeout(() => {
-          searchFunc(search.term)
-        }, 2000)
       })
+      
+      if (searchTimeout) {
+        clearTimeout(searchTimeout);
+      }      
 
-      controlSearch(e)
+      if (e.target.value !== "") {
+        setDisplayProgress('block')
+        setSearchTimeout({
+          timeout: setTimeout(() => {           
+            searchFunc(search.term)
+          }, 4000)
+        })
+      } else {
+        controlSearch(e)
+      }
   }
 
-  React.useEffect(() => {     
+  React.useEffect(() => {    
+    if (loaded === true)  {
       setDisplayBundles(paginate(bundles, 10, page))
       var rounded = Math.ceil(bundles.length / 10) * 10
       var distance = bundles.length
@@ -413,6 +419,7 @@ export default function FrequentlyBought() {
       }
 
       setTotalPage(pages)
+    }
   }, [bundles])
 
   const [pageButtons, setPageButtons]  = React.useState({
@@ -471,11 +478,11 @@ export default function FrequentlyBought() {
   }
 
   function searchFunc(nameKey){
-    if (search.term.length > 0){
+    if (nameKey !== ""){
       var searchArray = []
       bundles.forEach(element => {
         if (element.SourceProduct.Title.includes(nameKey)) {
-          searchArray.push(element)
+          searchArray.push(element)                                           
         }
       });
         setDisplayBundles(paginate(searchArray, 10, 1))
@@ -636,6 +643,7 @@ export default function FrequentlyBought() {
       method: "GET"
     }).then((res) => {
       setBundles(res.data)
+
       var array = paginate(res.data, 10, 1)
       setDisplayBundles(array)
 
@@ -652,6 +660,7 @@ export default function FrequentlyBought() {
 
       setDisplayProgress('none')
       setChecked(true)  
+      setLoaded(true)
     })
   }, [])
 
@@ -1007,25 +1016,9 @@ export default function FrequentlyBought() {
           </Grid>
 
           {DisplayBundles.map((d) =>
-
-          <Grow
-          in={checked}
-          anchorOrigin={{
-          vertical: 'center',
-          horizontal: 'center',
-          }}
-          transformOrigin={{
-          vertical: 'top',
-          horizontal: 'center',
-          }}
-          {...(checked ? { timeout: 1000 } : {})}
-          >
-          <div>
-
-          <BundleCard applyS={applySingleOpen} NewRecom={d.NewRecommendedProduct} selectProduct={selectProd} Id={d._id} changedDiscAll={changedDiscAll} ref={discountRef} key={d._id} SelectedID={d.SelectedProduct.Id} RecommendedID={d.RecommendedProduct.Id} SourceProduct={d.SourceProduct.Title} RecommendedProduct={d.RecommendedProduct.Title} SelectedProduct={d.SelectedProduct.Title} SourceProductImage={d.SourceProduct.ImageSrc} RecommendedProductImage={d.RecommendedProduct.ImageSrc} SelectedProductImage={d.SelectedProduct.ImageSrc} Discount={d.Discount} prod_id={d.SourceProduct.Id}/><br/>
-
-          </div>     
-          </Grow>
+                <div>
+                  <BundleCard applyS={applySingleOpen} NewRecom={d.NewRecommendedProduct} selectProduct={selectProd} Id={d._id} changedDiscAll={changedDiscAll} ref={discountRef} key={d._id} SelectedID={d.SelectedProduct.Id} RecommendedID={d.RecommendedProduct.Id} SourceProduct={d.SourceProduct.Title} RecommendedProduct={d.RecommendedProduct.Title} SelectedProduct={d.SelectedProduct.Title} SourceProductImage={d.SourceProduct.ImageSrc} RecommendedProductImage={d.RecommendedProduct.ImageSrc} SelectedProductImage={d.SelectedProduct.ImageSrc} Discount={d.Discount} prod_id={d.SourceProduct.Id}/><br/>
+                </div>   
           )}
 
       <SelectProductComp ref={sProd} UpdateSelectProduct={SelectProductUpdate} />

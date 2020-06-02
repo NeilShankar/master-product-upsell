@@ -7,15 +7,18 @@ import Toolbar from '@material-ui/core/Toolbar';
 import List from '@material-ui/core/List';
 import Skeleton from '@material-ui/lab/Skeleton';
 import InfiniteLoadingList from 'react-simple-infinite-loading'
+import AccountCircleRoundedIcon from '@material-ui/icons/AccountCircleRounded';
 import Zoom from '@material-ui/core/Zoom';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Typography from '@material-ui/core/Typography';
-import Link from '@material-ui/core/Link';
+import Link from 'next/link';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
 import SaveIcon from '@material-ui/icons/Save';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
 
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
@@ -38,7 +41,6 @@ import Grid from '@material-ui/core/Grid';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import NoSsr from '@material-ui/core/NoSsr';
 import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
@@ -364,6 +366,16 @@ export default function FrequentlyBought() {
   })
   const [loaded, setLoaded] = React.useState(false)
   const [searchTimeout, setSearchTimeout] = React.useState(0)
+
+  const [anchorEl, setAnchorEl] = React.useState(null);
+
+  const handleClickUser = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseUser = () => {
+    setAnchorEl(null);
+  };
 
   const controlSearch = (e) => {
     if (e.target.value === "" || e.target.value.length < 1) {
@@ -832,7 +844,7 @@ export default function FrequentlyBought() {
   
     <NoSsr>
     <div className={classes.root}>
-      <CssBaseline />
+    <CssBaseline />
       <ColorLinearProgress style={{ display: displayProgress, margin: "0", position: "fixed", top: "0px", width: "100%", zIndex: "9999" }} className={classes.margin} />
       <AppBar
         position="fixed"
@@ -855,6 +867,20 @@ export default function FrequentlyBought() {
           <Typography variant="h6" noWrap>
             All Bundles
           </Typography>
+          <IconButton style={{"position":"absolute","right":"33px","fontSize":"2.5em"}} aria-controls="simple-menu" aria-haspopup="true" onClick={handleClickUser}>
+           <AccountCircleRoundedIcon style={{ color: "black" }} />
+          </IconButton>
+          <Menu
+          id="simple-menu"
+          anchorEl={anchorEl}
+          keepMounted
+          open={Boolean(anchorEl)}
+          onClose={handleCloseUser}
+          >
+          <MenuItem onClick={handleCloseUser}>Account</MenuItem>
+          <MenuItem onClick={handleCloseUser}>Bundle Configs</MenuItem>
+          </Menu>
+          {/* pagename */}
         </Toolbar>
       </AppBar>
       <Drawer
@@ -869,67 +895,69 @@ export default function FrequentlyBought() {
             [classes.drawerClose]: !open,
           }),
         }}
+        style={{
+          "background":"#313140",
+          "color":"white"
+        }}
       >
         <div className={classes.toolbar}>
-        <Typography variant="h6" noWrap>
-            Navigation Panel
-          </Typography>
+        <img style={{"height":"37px"}} src="https://cdn.shopify.com/s/files/1/0278/4611/5389/t/1/assets/SHOP.png?v=1591108196" alt=""/>
           <IconButton onClick={handleDrawerClose}>
-            {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+            {theme.direction === 'rtl' ? <ChevronRightIcon style={{ color: "white" }}/> : <ChevronLeftIcon style={{ color: "white" }}/>}
           </IconButton>
         </div>
         <Divider />
         <List>
-          <ListItem button key={"Dashboard"}>
-            <Link href="/" color="inherit">
-              <ListItemIcon><AssessmentIcon /></ListItemIcon>
+        <ListItem button key={"Dashboard"}>
+            <Link href="/" shallow={true}>
+              <ListItemIcon><AssessmentIcon style={{ color: "white" }} /></ListItemIcon>
             </Link>
-            <Link href="/" color="inherit">
+            <Link href="/" shallow={true}>
               <ListItemText primary={"Dashboard"} />
             </Link>
           </ListItem>     
-
+           
           <ListItem button key={"Configurations"}>
-            <Link href="/bundle-configuration" color="inherit">
-              <ListItemIcon><TuneIcon /></ListItemIcon>
+            <Link href="/bundle-configuration" shallow={true}>
+              <ListItemIcon><TuneIcon style={{ color: "white" }} /></ListItemIcon>
             </Link>
-            <Link href="/bundle-configuration" color="inherit">
+            <Link href="/bundle-configuration" shallow={true}>
               <ListItemText primary={"Configurations"} />
             </Link>
           </ListItem>     
 
           <ListItem button key={"Bundles"}>
-            <Link href="/bundles" color="inherit">
-              <ListItemIcon><AddShoppingCartIcon /></ListItemIcon>
+            <Link href="/bundles" shallow={true}>
+              <ListItemIcon><AddShoppingCartIcon style={{ color: "white" }} /></ListItemIcon>
             </Link>
-            <Link href="/bundles" color="inherit">
+            <Link href="/bundles" shallow={true}>
               <ListItemText primary={"Bundles"} />
             </Link>
-          </ListItem>            
+          </ListItem>     
         </List>
         <Divider />
         <List>
         <ListItem button key={"Settings"}>
-          <Link href="/settings" color="inherit">
-            <ListItemIcon><SettingsIcon /></ListItemIcon>
+          <Link href="/settings" shallow={true}>
+            <ListItemIcon><SettingsIcon style={{ color: "white" }} /></ListItemIcon>
           </Link>
-          <Link href="/settings" color="inherit">
+          <Link href="/settings" shallow={true}>
             <ListItemText primary={"Settings"} />
           </Link>
         </ListItem>      
         <ListItem button key={"Account"}>
-          <Link href="/account" color="inherit">
-            <ListItemIcon><AccountBoxIcon /></ListItemIcon>
+          <Link href="/account" shallow={true}>
+            <ListItemIcon><AccountBoxIcon style={{ color: "white" }} /></ListItemIcon>
           </Link>
-          <Link href="/account" color="inherit">
+          <Link href="/account" shallow={true}>
             <ListItemText primary={"Account"} />
           </Link>
         </ListItem>       
         <ListItem button key={"FAQ"}>
-          <Link href="/frequently-asked-questions" color="inherit">
-            <ListItemIcon><LiveHelpIcon /></ListItemIcon>
+          <Link href="/frequently-asked-questions" shallow={true}>
+            <ListItemIcon><LiveHelpIcon style={{ color: "white" }} /></ListItemIcon>
           </Link>
-          <Link href="/frequently-asked-questions" color="inherit">
+          <Link href="/frequently-asked-questions" shallow={true}>
             <ListItemText primary={"FAQ"} />
           </Link>
         </ListItem>        
@@ -1023,7 +1051,7 @@ export default function FrequentlyBought() {
               <IconButton onClick={nextPage} disabled={pageButtons.next} aria-label="Next Page">
                 <NavigateNextIcon />
               </IconButton>
-          </Grid>
+          </Grid>          
 
           {DisplayBundles.map((d) =>
                 <div>

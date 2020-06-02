@@ -6,9 +6,13 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import List from '@material-ui/core/List';
 import CssBaseline from '@material-ui/core/CssBaseline';
+import Link from 'next/link';
+
 import Typography from '@material-ui/core/Typography';
-import Link from '@material-ui/core/Link';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
+import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
@@ -22,6 +26,7 @@ import AddShoppingCartIcon from '@material-ui/icons/AddShoppingCart';
 import BallotIcon from '@material-ui/icons/Ballot';
 import LiveHelpIcon from '@material-ui/icons/LiveHelp';
 import AppsIcon from '@material-ui/icons/Apps';
+import AccountCircleRoundedIcon from '@material-ui/icons/AccountCircleRounded';
 import AccountBoxIcon from '@material-ui/icons/AccountBox';
 import Paper from '@material-ui/core/Paper';
 import Avatar from '@material-ui/core/Avatar';
@@ -44,6 +49,8 @@ import TuneIcon from '@material-ui/icons/Tune';
 import { Line, Bar } from "react-chartjs-2";
 import NoSsr from '@material-ui/core/NoSsr';
 
+
+import NextNprogress from 'nextjs-progressbar';
 import GetMetrics from '../API-instances/StoreMetrics'
 
 var AnalysisType = "Overall"
@@ -158,6 +165,8 @@ const useStyles = makeStyles((theme) => ({
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
+    background:"white",
+    color:"black"
   },
   appBarShift: {
     marginLeft: drawerWidth,
@@ -188,6 +197,8 @@ const useStyles = makeStyles((theme) => ({
     width: drawerWidth,
     flexShrink: 0,
     whiteSpace: 'nowrap',
+    background:"#313140",
+    color:"white"
   },
   drawerOpen: {
     width: drawerWidth,
@@ -234,6 +245,15 @@ export default function Dashboard() {
   const [MenuOpen, setMenuOpen] = React.useState(false);
   const [displayProgress, setDisplayProgress] = React.useState('block');
   const bull = <span className={classes.bullet}>•</span>;
+  const [anchorEl, setAnchorEl] = React.useState(null);
+
+  const handleClickUser = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseUser = () => {
+    setAnchorEl(null);
+  };
 
   const [metric, setMetric] = React.useState({
     Sales: "$0",
@@ -332,6 +352,20 @@ export default function Dashboard() {
           <Typography variant="h6" noWrap>
             Dashboard
           </Typography>
+          <IconButton style={{"position":"absolute","right":"33px","fontSize":"2.5em"}} aria-controls="simple-menu" aria-haspopup="true" onClick={handleClickUser}>
+           <AccountCircleRoundedIcon style={{ color: "black" }} />
+          </IconButton>
+          <Menu
+          id="simple-menu"
+          anchorEl={anchorEl}
+          keepMounted
+          open={Boolean(anchorEl)}
+          onClose={handleCloseUser}
+          >
+          <MenuItem onClick={handleCloseUser}>Account</MenuItem>
+          <MenuItem onClick={handleCloseUser}>Bundle Configs</MenuItem>
+          </Menu>
+          {/* pagename */}
         </Toolbar>
       </AppBar>
       <Drawer
@@ -346,40 +380,42 @@ export default function Dashboard() {
             [classes.drawerClose]: !open,
           }),
         }}
+        style={{
+          "background":"#313140",
+          "color":"white"
+        }}
       >
         <div className={classes.toolbar}>
-        <Typography variant="h6" noWrap>
-            Navigation Panel
-          </Typography>
+        <img style={{"height":"37px"}} src="https://cdn.shopify.com/s/files/1/0278/4611/5389/t/1/assets/SHOP.png?v=1591108196" alt=""/>
           <IconButton onClick={handleDrawerClose}>
-            {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+            {theme.direction === 'rtl' ? <ChevronRightIcon style={{ color: "white" }}/> : <ChevronLeftIcon style={{ color: "white" }}/>}
           </IconButton>
         </div>
         <Divider />
         <List>
         <ListItem button key={"Dashboard"}>
-            <Link href="/" color="inherit">
-              <ListItemIcon><AssessmentIcon /></ListItemIcon>
+            <Link href="/" shallow={true}>
+              <ListItemIcon><AssessmentIcon style={{ color: "white" }} /></ListItemIcon>
             </Link>
-            <Link href="/" color="inherit">
+            <Link href="/" shallow={true}>
               <ListItemText primary={"Dashboard"} />
             </Link>
           </ListItem>     
            
           <ListItem button key={"Configurations"}>
-            <Link href="/bundle-configuration" color="inherit">
-              <ListItemIcon><TuneIcon /></ListItemIcon>
+            <Link href="/bundle-configuration" shallow={true}>
+              <ListItemIcon><TuneIcon style={{ color: "white" }} /></ListItemIcon>
             </Link>
-            <Link href="/bundle-configuration" color="inherit">
+            <Link href="/bundle-configuration" shallow={true}>
               <ListItemText primary={"Configurations"} />
             </Link>
           </ListItem>     
 
           <ListItem button key={"Bundles"}>
-            <Link href="/bundles" color="inherit">
-              <ListItemIcon><AddShoppingCartIcon /></ListItemIcon>
+            <Link href="/bundles" shallow={true}>
+              <ListItemIcon><AddShoppingCartIcon style={{ color: "white" }} /></ListItemIcon>
             </Link>
-            <Link href="/bundles" color="inherit">
+            <Link href="/bundles" shallow={true}>
               <ListItemText primary={"Bundles"} />
             </Link>
           </ListItem>     
@@ -387,26 +423,26 @@ export default function Dashboard() {
         <Divider />
         <List>
         <ListItem button key={"Settings"}>
-          <Link href="/settings" color="inherit">
-            <ListItemIcon><SettingsIcon /></ListItemIcon>
+          <Link href="/settings" shallow={true}>
+            <ListItemIcon><SettingsIcon style={{ color: "white" }} /></ListItemIcon>
           </Link>
-          <Link href="/settings" color="inherit">
+          <Link href="/settings" shallow={true}>
             <ListItemText primary={"Settings"} />
           </Link>
         </ListItem>      
         <ListItem button key={"Account"}>
-          <Link href="/account" color="inherit">
-            <ListItemIcon><AccountBoxIcon /></ListItemIcon>
+          <Link href="/account" shallow={true}>
+            <ListItemIcon><AccountBoxIcon style={{ color: "white" }} /></ListItemIcon>
           </Link>
-          <Link href="/account" color="inherit">
+          <Link href="/account" shallow={true}>
             <ListItemText primary={"Account"} />
           </Link>
         </ListItem>       
         <ListItem button key={"FAQ"}>
-          <Link href="/frequently-asked-questions" color="inherit">
-            <ListItemIcon><LiveHelpIcon /></ListItemIcon>
+          <Link href="/frequently-asked-questions" shallow={true}>
+            <ListItemIcon><LiveHelpIcon style={{ color: "white" }} /></ListItemIcon>
           </Link>
-          <Link href="/frequently-asked-questions" color="inherit">
+          <Link href="/frequently-asked-questions" shallow={true}>
             <ListItemText primary={"FAQ"} />
           </Link>
         </ListItem>        
@@ -432,6 +468,7 @@ export default function Dashboard() {
               <Typography style={{ fontWeight: "bold" , color: "black" }} variant="h5">
                   {metric.Views}
               </Typography>           
+              <img src="https://cdn.shopify.com/s/files/1/0278/4611/5389/t/1/assets/Untitled_design_7.png?v=1591108190" style={{ float: "left", marginTop: "-6em", position: "relative" }} alt="" />
           </Paper>
         </Grid>
         <Grid item xs>
@@ -440,6 +477,7 @@ export default function Dashboard() {
               <Typography style={{ fontWeight: "bold" , color: "black" }} variant="h5">
               {metric.AddToCarts}
               </Typography>
+              <img src="https://cdn.shopify.com/s/files/1/0278/4611/5389/t/1/assets/Untitled_design_8.png" style={{ float: "left", marginTop: "-6em", position: "relative" }} alt="" />
               </Paper>
         </Grid>
         <Grid item xs>
@@ -448,33 +486,20 @@ export default function Dashboard() {
               <Typography style={{ fontWeight: "bold" , color: "black" }} variant="h5">
                 {metric.Sales}
               </Typography>
+              <img src="https://cdn.shopify.com/s/files/1/0278/4611/5389/t/1/assets/Untitled_design_9.png" style={{ float: "left", marginTop: "-6em", position: "relative" }} alt="" />
               </Paper>
         </Grid>
       </Grid>
         <br></br><br></br>
-        <Typography variant="h5">
-          Breakdown Performance
-        </Typography>
-        <Typography variant="caption" display="block">
-        Choose from a range of analysis options for your store!
-        </Typography>
-        <br></br>
-        <DropdownMenu />
-        <DateRange style={{ float: "right" }}/>
-        <br></br>
-        <Grid container spacing={3}>
-          <Grid item xs={6}>
-            <Paper elevation={20} style={{ background: "#fff" }} className={classes.paper}>
-              <Line data={data} options={options} legend={legend}/>
-            </Paper>
-          </Grid>
-          <Grid item xs={6}>
-            <Paper elevation={20} style={{ background: "#fff" }} className={classes.paper}>
-              <Bar data={data2} options={options2} legend={legend}/>
-            </Paper>
-          </Grid>
+        <Divider />
+        <br></br><br></br>
+        <Grid container>
+          <Paper elevation={20} style={{"padding":"2em","textAlign":"center","margin":"0 17%"}}>
+            <Typography variant="h5">Support Our App On Shopify App Store!</Typography>
+            <Typography variant="caption">Your support would mean alot to us, so could you please place a review for our app at Shopify App Store? If you need any other kind of support from our side, we are always ready to help!</Typography>
+            <br/><br/><Button style={{"background":"black","color":"white"}} variant="contained" >Leave A Review</Button>
+          </Paper>
         </Grid>
-        <br></br><br></br>       
       </main>
     </div>
     </NoSsr>

@@ -8,6 +8,7 @@ import List from '@material-ui/core/List';
 import Skeleton from '@material-ui/lab/Skeleton';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Typography from '@material-ui/core/Typography';
+import AccountCircleRoundedIcon from '@material-ui/icons/AccountCircleRounded';
 import Link from '@material-ui/core/Link';
 import Button from '@material-ui/core/Button';
 import Snackbar from '@material-ui/core/Snackbar';
@@ -48,6 +49,8 @@ import BundleInstance from '../API-instances/BundleInstance'
 import GetBundleInstance from '../API-instances/BundleGetInstance'
 import DefaultLivePreview from '../templates/HTML/1'
 import Container from '@material-ui/core/Container';
+
+import Menu from '@material-ui/core/Menu';
 
 import GetProductsLive from '../API-instances/BundleLivePreviewProducts'
 
@@ -296,6 +299,16 @@ export default function FrequentlyBought() {
   const bull = <span className={classes.bullet}>•</span>;
   const [save, saveOpen] = React.useState(false);
 
+  const [anchorEl, setAnchorEl] = React.useState(null);
+
+  const handleClickUser = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseUser = () => {
+    setAnchorEl(null);
+  };
+
   React.useEffect(() => {
     GetBundleInstance({
       method: "GET"
@@ -407,7 +420,7 @@ React.useEffect(() => {
   return (
   <NoSsr>
     <div className={classes.root}>
-      <CssBaseline />
+    <CssBaseline />
       <ColorLinearProgress style={{ display: displayProgress, margin: "0", position: "fixed", top: "0px", width: "100%", zIndex: "9999" }} className={classes.margin} />
       <AppBar
         position="fixed"
@@ -428,8 +441,22 @@ React.useEffect(() => {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap>
-            Bundles Configuration
+            Bundle Display Configurations
           </Typography>
+          <IconButton style={{"position":"absolute","right":"33px","fontSize":"2.5em"}} aria-controls="simple-menu" aria-haspopup="true" onClick={handleClickUser}>
+           <AccountCircleRoundedIcon style={{ color: "black" }} />
+          </IconButton>
+          <Menu
+          id="simple-menu"
+          anchorEl={anchorEl}
+          keepMounted
+          open={Boolean(anchorEl)}
+          onClose={handleCloseUser}
+          >
+          <MenuItem onClick={handleCloseUser}>Account</MenuItem>
+          <MenuItem onClick={handleCloseUser}>Bundle Configs</MenuItem>
+          </Menu>
+          {/* pagename */}
         </Toolbar>
       </AppBar>
       <Drawer
@@ -444,67 +471,69 @@ React.useEffect(() => {
             [classes.drawerClose]: !open,
           }),
         }}
+        style={{
+          "background":"#313140",
+          "color":"white"
+        }}
       >
         <div className={classes.toolbar}>
-        <Typography variant="h6" noWrap>
-            Navigation Panel
-          </Typography>
+        <img style={{"height":"37px"}} src="https://cdn.shopify.com/s/files/1/0278/4611/5389/t/1/assets/SHOP.png?v=1591108196" alt=""/>
           <IconButton onClick={handleDrawerClose}>
-            {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+            {theme.direction === 'rtl' ? <ChevronRightIcon style={{ color: "white" }}/> : <ChevronLeftIcon style={{ color: "white" }}/>}
           </IconButton>
         </div>
         <Divider />
         <List>
-          <ListItem button key={"Dashboard"}>
-            <Link href="/" color="inherit">
-              <ListItemIcon><AssessmentIcon /></ListItemIcon>
+        <ListItem button key={"Dashboard"}>
+            <Link href="/" shallow={true}>
+              <ListItemIcon><AssessmentIcon style={{ color: "white" }} /></ListItemIcon>
             </Link>
-            <Link href="/" color="inherit">
+            <Link href="/" shallow={true}>
               <ListItemText primary={"Dashboard"} />
             </Link>
           </ListItem>     
-
+           
           <ListItem button key={"Configurations"}>
-            <Link href="/bundle-configuration" color="inherit">
-              <ListItemIcon><TuneIcon /></ListItemIcon>
+            <Link href="/bundle-configuration" shallow={true}>
+              <ListItemIcon><TuneIcon style={{ color: "white" }} /></ListItemIcon>
             </Link>
-            <Link href="/bundle-configuration" color="inherit">
+            <Link href="/bundle-configuration" shallow={true}>
               <ListItemText primary={"Configurations"} />
             </Link>
           </ListItem>     
 
           <ListItem button key={"Bundles"}>
-            <Link href="/bundles" color="inherit">
-              <ListItemIcon><AddShoppingCartIcon /></ListItemIcon>
+            <Link href="/bundles" shallow={true}>
+              <ListItemIcon><AddShoppingCartIcon style={{ color: "white" }} /></ListItemIcon>
             </Link>
-            <Link href="/bundles" color="inherit">
+            <Link href="/bundles" shallow={true}>
               <ListItemText primary={"Bundles"} />
             </Link>
-          </ListItem>            
+          </ListItem>     
         </List>
         <Divider />
         <List>
         <ListItem button key={"Settings"}>
-          <Link href="/settings" color="inherit">
-            <ListItemIcon><SettingsIcon /></ListItemIcon>
+          <Link href="/settings" shallow={true}>
+            <ListItemIcon><SettingsIcon style={{ color: "white" }} /></ListItemIcon>
           </Link>
-          <Link href="/settings" color="inherit">
+          <Link href="/settings" shallow={true}>
             <ListItemText primary={"Settings"} />
           </Link>
         </ListItem>      
         <ListItem button key={"Account"}>
-          <Link href="/account" color="inherit">
-            <ListItemIcon><AccountBoxIcon /></ListItemIcon>
+          <Link href="/account" shallow={true}>
+            <ListItemIcon><AccountBoxIcon style={{ color: "white" }} /></ListItemIcon>
           </Link>
-          <Link href="/account" color="inherit">
+          <Link href="/account" shallow={true}>
             <ListItemText primary={"Account"} />
           </Link>
         </ListItem>       
         <ListItem button key={"FAQ"}>
-          <Link href="/frequently-asked-questions" color="inherit">
-            <ListItemIcon><LiveHelpIcon /></ListItemIcon>
+          <Link href="/frequently-asked-questions" shallow={true}>
+            <ListItemIcon><LiveHelpIcon style={{ color: "white" }} /></ListItemIcon>
           </Link>
-          <Link href="/frequently-asked-questions" color="inherit">
+          <Link href="/frequently-asked-questions" shallow={true}>
             <ListItemText primary={"FAQ"} />
           </Link>
         </ListItem>        

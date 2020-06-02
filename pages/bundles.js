@@ -50,6 +50,7 @@ import InputBase from '@material-ui/core/InputBase';
 import Divider from '@material-ui/core/Divider';
 import SearchIcon from '@material-ui/icons/Search';
 import ResetProducts from '../API-instances/ResetSelectedProduct'
+import Collapse from '@material-ui/core/Collapse';
 
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
@@ -381,7 +382,7 @@ export default function FrequentlyBought() {
 
         setTotalPage(pages)
         setDisplayProgress('none') 
-      }, 5000);
+      }, 3000);
     }
   }
 
@@ -394,16 +395,16 @@ export default function FrequentlyBought() {
         clearTimeout(searchTimeout);
       }      
 
-      if (e.target.value !== "") {
         setDisplayProgress('block')
         setSearchTimeout({
-          timeout: setTimeout(() => {           
-            searchFunc(search.term)
-          }, 4000)
+          timeout: setTimeout(() => {     
+            if (search.term !== "") {
+              searchFunc(search.term)
+            }            
+          }, 2000)
         })
-      } else {
+
         controlSearch(e)
-      }
   }
 
   React.useEffect(() => {    
@@ -478,10 +479,28 @@ export default function FrequentlyBought() {
   }
 
   function searchFunc(nameKey){
-    if (nameKey !== ""){
+    if (!nameKey){
+      setDisplayBundles(paginate(bundles, 10, 1))
+
+      var rounded = Math.ceil(bundles.length / 10) * 10
+      var distance = bundles.length
+      
+      var pages = rounded / 10
+
+      if (distance > rounded) {
+        pages = pages + 1
+      }
+
+      setTotalPage(pages)
+    } else {
       var searchArray = []
       bundles.forEach(element => {
-        if (element.SourceProduct.Title.includes(nameKey)) {
+        var title = element.SourceProduct.Title
+        var searchTerm = nameKey
+        var filteredS = searchTerm.toLowerCase()
+        var filteredT = title.toLowerCase()
+
+        if (filteredT.includes(filteredS)) {
           searchArray.push(element)                                           
         }
       });
@@ -498,20 +517,7 @@ export default function FrequentlyBought() {
 
         setTotalPage(pages)
         setDisplayProgress('none')  
-        setSearch({ searching: true })        
-    } else {
-      setDisplayBundles(paginate(bundles, 10, 1))
-
-      var rounded = Math.ceil(bundles.length / 10) * 10
-      var distance = bundles.length
-      
-      var pages = rounded / 10
-
-      if (distance > rounded) {
-        pages = pages + 1
-      }
-
-      setTotalPage(pages)
+        setSearch({ searching: true })  
     }
   }
 
@@ -631,7 +637,9 @@ export default function FrequentlyBought() {
     GetAllBundles({
       method: "GET"
     }).then((res) => {
-      setBundles(res.data)
+      var arr = []
+      arr = [...res.data]
+      setBundles(arr)
       setDisplayProgress('none')
       setChecked(true)  
     })
@@ -642,7 +650,9 @@ export default function FrequentlyBought() {
     GetAllBundles({
       method: "GET"
     }).then((res) => {
-      setBundles(res.data)
+      var arr = []
+      arr = [...res.data]
+      setBundles(arr)
 
       var array = paginate(res.data, 10, 1)
       setDisplayBundles(array)

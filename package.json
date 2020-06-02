@@ -61,6 +61,7 @@
     "koa-session": "^5.13.1",
     "koa2-cors": "^2.0.6",
     "limiter": "^1.1.5",
+    "lodash": "^4.17.15",
     "material-ui-image": "^3.2.3",
     "moesif-express": "^2.9.15",
     "mongoose": "^5.9.14",

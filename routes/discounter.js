@@ -32,44 +32,66 @@ const generateDiscount = async (ctx) => {
 
         let TotalPriceSum = TotalPriceArr.reduce((a, b) => a + b, 0)
         let DiscountedPriceSum = DiscountedPriceArr.reduce((a, b) => a + b, 0)
-
         let Difference = TotalPriceSum - DiscountedPriceSum
-
         let DiscountPercent = Math.round((Difference / TotalPriceSum) * 100)
 
         var shopURL = ctx.accept.headers.origin
+        let PriceRuleId = CartArray[CartArray.length - 1].PriceRuleId
 
-        // // Discount Generation!
-        var priceRuleTitle = randomstring.generate()
+        if (PriceRuleId === "NONE") {
+            var priceRuleTitle = randomstring.generate()
 
-        const data = JSON.stringify({
-            "price_rule": {
-            "title": "shopLee_"+priceRuleTitle,
-            "target_type": "line_item",
-            "target_selection": "entitled",
-            "allocation_method": "across",
-            "value_type": "percentage",
-            "entitled_product_ids": ApplyTo,
-            "value": "-"+DiscountPercent,
-            "customer_selection": "all",
-            "starts_at": new Date()
-            }
-        })
+            const data = JSON.stringify({
+                "price_rule": {
+                "title": "shopLee_"+priceRuleTitle,
+                "target_type": "line_item",
+                "target_selection": "entitled",
+                "allocation_method": "across",
+                "value_type": "percentage",
+                "entitled_product_ids": ApplyTo,
+                "value": "-"+DiscountPercent,
+                "customer_selection": "all",
+                "starts_at": new Date()
+                }
+            })
 
-        const response = await fetch(`${shopURL}/admin/api/2020-04/price_rules.json`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                "X-Shopify-Access-Token": await store.accessToken,
-            },
-            body: data
-        }).catch((err) => {
-            console.log(err)
-        })
+            const response = await fetch(`${shopURL}/admin/api/2020-04/price_rules.json`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    "X-Shopify-Access-Token": await store.accessToken,
+                },
+                body: data
+            }).catch((err) => {
+                console.log(err)
+            })
 
-        const responseJson = await response.json();
+            const responseJson = await response.json();
+            PriceRuleId = responseJson.price_rule.id
+        } else {
+            const data = JSON.stringify({
+                "price_rule": {
+                    "id": PriceRuleId,
+                    "entitled_product_ids": ApplyTo,
+                    "value": "-"+DiscountPercent,
+                    "allocation_method": "across"
+                  }
+            })
 
-        var priceRuleId = await responseJson.price_rule.id
+            const response = await fetch(`${shopURL}/admin/api/2020-04/price_rules/${PriceRuleId}.json`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    "X-Shopify-Access-Token": await store.accessToken,
+                },
+                body: data
+            }).catch((err) => {
+                return err
+            })
+
+            const responseJson = await response.json();
+            PriceRuleId = responseJson.price_rule.id
+        }
 
         var discountTitle = randomstring.generate({
             charset: 'shoplee2020!)ABC'
@@ -81,7 +103,7 @@ const generateDiscount = async (ctx) => {
             }           
         })
 
-        const discountRequest = await fetch(`${shopURL}/admin/api/2020-04/price_rules/${priceRuleId}/discount_codes.json`, {
+        const discountRequest = await fetch(`${shopURL}/admin/api/2020-04/price_rules/${PriceRuleId}/discount_codes.json`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -91,7 +113,13 @@ const generateDiscount = async (ctx) => {
         })
 
         const DiscountResponseJson = await discountRequest.json();   
-        return DiscountResponseJson.discount_code.code        
+
+        const returnData = JSON.stringify({
+            "discountCode": DiscountResponseJson.discount_code.code,
+            "priceRuleId": PriceRuleId
+        })
+
+        return returnData
     }
 
     ctx.body = await genDiscount()

@@ -285,7 +285,7 @@ app.prepare().then(() => {
     storeModel.findOne({'url': requestOrigin}, function(err, resad){
       console.log('Valid Origin Point.');
       if (!resad) {
-        storeModel.findOne({ 'site_url': requestOrigin })
+        storeModel.findOne({ 'domain': requestOrigin })
       }
     });
     

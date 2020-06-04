@@ -5,7 +5,8 @@ import * as Sentry from '@sentry/browser';
 import '../assets/1.scss'
 import Head from 'next/head'
 import Collapse from '@material-ui/core/Collapse';
-
+import { makeStyles } from '@material-ui/core/styles';
+import LinearProgress from '@material-ui/core/LinearProgress';
 
 //Binding events. 
 Sentry.init({dsn: "https://fc3b66bc262e49c0a4c28fae814dbf31@o397020.ingest.sentry.io/5251177"});
@@ -39,12 +40,8 @@ function MyApp({ Component, pageProps }) {
     <React.Fragment>
         <Head>
           <script id="ze-snippet" src="https://static.zdassets.com/ekr/snippet.js?key=cc38523f-eb8e-4023-bc68-d670179ba3ee"> </script>
+          <link href="https://fonts.googleapis.com/css2?family=Montserrat&family=Raleway:wght@500&display=swap" rel="stylesheet"></link>
         </Head>
-        <Collapse in={loading} transitionDuration={{ enter: 500, exit: 2000 }}>
-        {/* <div className="wrapper" style={{"opacity":"1","backgroundColor":"#ccc","position":"fixed","width":"100%","height":"100%","top":"0px","left":"0px","zIndex":"9999", "display": "block"}}>
-        <img style={{"height":"56px","margin":"20% 41%"}} src="https://cdn.shopify.com/s/files/1/0278/4611/5389/t/1/assets/SHOP.png?v=1591108196" alt=""/>
-        </div> */}
-        </Collapse>
         <Component {...pageProps} />
     </React.Fragment>
     )

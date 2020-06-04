@@ -3,6 +3,7 @@ const Schema = mongoose.Schema
 
 const schema = new Schema({
      url: String,
+     domain: String,
      accessToken: String,
      FreeShipEnabled: Boolean,
      FreeShippingThreshold: Number,

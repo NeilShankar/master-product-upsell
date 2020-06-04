@@ -377,6 +377,23 @@ export default function FrequentlyBought() {
     setAnchorEl(null);
   };
 
+  const discountChangeSing = (Discount, Id) => {
+    var updateArr = []
+    bundles.forEach(element => {
+      var Elem = element
+      if (element._id === Id) {
+        Elem.Discount = Discount
+      }
+      updateArr.push(Elem)
+    });
+    setBundles(updateArr)
+    if (search.searching === true) {
+      searchFunc(search.term)
+    } else {
+      setDisplayBundles(paginate(bundles, 10, page))
+    }
+  }
+
   const controlSearch = (e) => {
     if (e.target.value === "" || e.target.value.length < 1) {
       setTimeout(() => {
@@ -1028,7 +1045,7 @@ export default function FrequentlyBought() {
             </Grid>
         </Grid><br></br><Divider /> <br />
 
-          <Paper component="form" className={classes.inputRoot}>
+          <Paper component="form" className={classes.inputRoot} style={{ boxShadow: "1px 0px 10px 4px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 1px 3px 0px rgba(0,0,0,0.12)"}}>
             <InputBase
             className={classes.input}
             value={search.term}
@@ -1055,13 +1072,23 @@ export default function FrequentlyBought() {
 
           {DisplayBundles.map((d) =>
                 <div>
-                  <BundleCard applyS={applySingleOpen} NewRecom={d.NewRecommendedProduct} selectProduct={selectProd} Id={d._id} changedDiscAll={changedDiscAll} ref={discountRef} key={d._id} SelectedID={d.SelectedProduct.Id} RecommendedID={d.RecommendedProduct.Id} SourceProduct={d.SourceProduct.Title} RecommendedProduct={d.RecommendedProduct.Title} SelectedProduct={d.SelectedProduct.Title} SourceProductImage={d.SourceProduct.ImageSrc} RecommendedProductImage={d.RecommendedProduct.ImageSrc} SelectedProductImage={d.SelectedProduct.ImageSrc} Discount={d.Discount} prod_id={d.SourceProduct.Id}/><br/>
+                  <BundleCard applyS={applySingleOpen} NewRecom={d.NewRecommendedProduct} selectProduct={selectProd} Id={d._id} changedDiscAll={changedDiscAll} ref={discountRef} discountChangeSingle={discountChangeSing} key={d._id} SelectedID={d.SelectedProduct.Id} RecommendedID={d.RecommendedProduct.Id} SourceProduct={d.SourceProduct.Title} RecommendedProduct={d.RecommendedProduct.Title} SelectedProduct={d.SelectedProduct.Title} SourceProductImage={d.SourceProduct.ImageSrc} RecommendedProductImage={d.RecommendedProduct.ImageSrc} SelectedProductImage={d.SelectedProduct.ImageSrc} Discount={d.Discount} prod_id={d.SourceProduct.Id}/><br/>
                 </div>   
           )}
 
       <SelectProductComp ref={sProd} UpdateSelectProduct={SelectProductUpdate} />
       <ApplySingle ChangeRecommendedProduct={ChRecomProd} ChangeSelectedProduct={ChSelectedProd} ref={sApply} />
-     
+     <br></br>
+     <Divider />
+     <br></br>
+      <Grid container>
+          <Paper elevation={20} style={{"padding":"2em","textAlign":"center","margin":"0 17%"}}>
+            <Typography variant="h5">Support Our App On Shopify App Store!</Typography>
+            <Typography variant="caption">Your support would mean alot to us, so could you please place a review for our app at Shopify App Store? If you need any other kind of support from our side, we are always ready to help!</Typography>
+            <br/><br/><Button style={{"background":"black","color":"white"}} variant="contained" >Leave A Review</Button>
+          </Paper>
+        </Grid>
+        <br></br><br></br>
       </main>
     </div>
     </NoSsr>

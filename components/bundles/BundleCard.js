@@ -112,6 +112,8 @@ const BundleCards = React.forwardRef((props, ref) => {
         "prod_id": props.Id,
         "Discount": Discount
       }
+    }).then(() => {
+      props.discountChangeSingle(Discount, props.Id)
     })
   }
 

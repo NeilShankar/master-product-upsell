@@ -367,6 +367,7 @@ export default function Dashboard() {
           </Menu>
           {/* pagename */}
         </Toolbar>
+        
       </AppBar>
       <Drawer
         variant="permanent"
@@ -449,7 +450,11 @@ export default function Dashboard() {
         </List>
       </Drawer>
       <main className={classes.content}>
-        <div className={classes.toolbar} />       
+        <div className={classes.toolbar} />  
+        <Paper style={{"marginBottom":"24px","position":"relative","marginTop":"-24px","padding":"14px"}}>
+        <Typography variant="h5">Welcome To ShopLee!</Typography>
+        <Typography variant="caption">If you need any help to get started, you may leave us a message in the chat or mail us to neilshankarnath@gmail.com</Typography>
+      </Paper>     
         <HeaderBar />
         <br />
         <Divider />
@@ -490,6 +495,30 @@ export default function Dashboard() {
               </Paper>
         </Grid>
       </Grid>
+      <br></br><br></br>
+       <Typography variant="h5">
+          Breakdown Performance
+        </Typography>
+        <Typography variant="caption" display="block">
+        Choose from a range of analysis options for your store!
+        </Typography>
+        <br></br>
+        <DropdownMenu />
+        <DateRange style={{ float: "right" }}/>
+        <br></br>
+        <Grid container spacing={3}>
+          <Grid item xs={6}>
+            <Paper elevation={20} style={{ background: "#fff" }} className={classes.paper}>
+              <Line data={data} options={options} legend={legend}/>
+            </Paper>
+          </Grid>
+          <Grid item xs={6}>
+            <Paper elevation={20} style={{ background: "#fff" }} className={classes.paper}>
+              <Bar data={data2} options={options2} legend={legend}/>
+            </Paper>
+          </Grid>
+        </Grid>
+        <br></br><br></br>
         <br></br><br></br>
         <Divider />
         <br></br><br></br>

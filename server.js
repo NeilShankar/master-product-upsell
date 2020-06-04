@@ -54,6 +54,7 @@ const ApplyAllNewRecommendation = require('./services/ApplyAllNewRecommendation'
 const ApplyAllRecommendation = require('./services/ApplyAllRecommendation')
 const EnabledBundles = require('./services/BundlesEnabled')
 const CheckEnabled = require('./services/CheckEnabled')
+const generateDiscount = require('./routes/discounter')
 
 const schedule = require('node-schedule');
 
@@ -113,11 +114,8 @@ app.prepare().then(() => {
   })
 
   router
-  .get('/post-product', ctx => {
-    ctx.res.statusCode = 200;
-    ctx.body = 'Hello!'
-  })
-  .post('/post-product/:id', postFrequentProduct)
+  .get('/post-product/:id', postFrequentProduct)
+  .post('/generate-discount/:id', generateDiscount)
 
   // Sentry
   Sentry.init({ dsn: 'https://4fd23a47916849a1abc8c822cb6d598f@o397020.ingest.sentry.io/5251173' });
@@ -146,7 +144,8 @@ app.prepare().then(() => {
     createShopifyAuth({
       apiKey: SHOPIFY_API_KEY,
       secret: SHOPIFY_API_SECRET_KEY,
-      scopes: ['read_products', 'write_products', 'read_themes', 'write_themes'],
+      scopes: ['read_products', 'write_products', 'read_themes', 'write_themes', 'write_price_rules', 'read_price_rules'],
+      accessMode: 'offline',
       async afterAuth(ctx) {
         const { shop, accessToken } = ctx.session;
 
@@ -191,6 +190,7 @@ app.prepare().then(() => {
             // Saving Store Data to MongoDB
             const storeData = storeModel({
               url: `https://${shop}`,
+              domain: `https://${results.shop.domain}`,
               accessToken: accessToken,
               FreeShipEnabled: false,
               FreeShippingThreshold: 0,
@@ -284,6 +284,9 @@ app.prepare().then(() => {
     
     storeModel.findOne({'url': requestOrigin}, function(err, resad){
       console.log('Valid Origin Point.');
+      if (!resad) {
+        storeModel.findOne({ 'site_url': requestOrigin })
+      }
     });
     
     return requestOrigin;

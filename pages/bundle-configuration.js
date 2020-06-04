@@ -9,7 +9,7 @@ import Skeleton from '@material-ui/lab/Skeleton';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Typography from '@material-ui/core/Typography';
 import AccountCircleRoundedIcon from '@material-ui/icons/AccountCircleRounded';
-import Link from '@material-ui/core/Link';
+import Link from 'next/link';
 import Button from '@material-ui/core/Button';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
@@ -625,6 +625,17 @@ React.useEffect(() => {
             Saved Successfully
           </Alert>
         </Snackbar>
+        <br></br>
+     <Divider />
+     <br></br>
+      <Grid container>
+          <Paper elevation={20} style={{"padding":"2em","textAlign":"center","margin":"0 17%"}}>
+            <Typography variant="h5">Support Our App On Shopify App Store!</Typography>
+            <Typography variant="caption">Your support would mean alot to us, so could you please place a review for our app at Shopify App Store? If you need any other kind of support from our side, we are always ready to help!</Typography>
+            <br/><br/><Button style={{"background":"black","color":"white"}} variant="contained" >Leave A Review</Button>
+          </Paper>
+        </Grid>
+        <br></br><br></br>
       </main>
     </div>
   </NoSsr>

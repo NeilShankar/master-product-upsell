@@ -506,30 +506,104 @@ export default function FrequentlyBought() {
                 <TextField id="outlined-basic" label="Display Text" variant="outlined" />
               </form>
               <br />
-              <Typography variant="Overline">
+              <Typography style={{ marginBottom: ".25em" }} variant="Overline">
                 Button Background Color
               </Typography>
               <br />
               <ColorPicker
                 name='Button Background Color'
                 defaultValue='#000'
-                // value={this.state.color} - for controlled component
+                id="outlined-basic"
+                variant="outlined"
+                style={{ color: "black" }}
+                value="#000"
                 onChange={color => console.log(color)}
               />
-              <Typography variant="Overline">
+              <br /><br />
+              <Typography style={{ marginBottom: ".25em" }} variant="Overline">
                 Button Text Color
               </Typography>
               <br />
               <ColorPicker
                 name='Button Text Color'
                 defaultValue='#fff'
-                // value={this.state.color} - for controlled component
+                style={{ color: "black" }}
+                id="outlined-basic1"
+                variant="outlined"
+                value="#fff"
+                onChange={color => console.log(color)}
+              />
+              <br /><br />
+              <Typography style={{ marginBottom: ".25em" }} variant="Overline">
+                Button Border Color
+              </Typography>
+              <br />
+              <ColorPicker
+                name='Button Border Color'
+                defaultValue='#fff'
+                style={{ color: "black" }}
+                id="outlined-basic1"
+                variant="outlined"
+                value="#fff"
                 onChange={color => console.log(color)}
               />
               <br />
             </Paper>
           </Grid>
         </Grid>
+        <br />
+        <Grid container>
+          <Grid item xs={6}>
+            <Paper style={{ padding: "2em" }} elevation={10}>
+              <Typography style={{ marginBottom: ".25em" }} variant="h5">Button Hover Styling</Typography>
+              <Typography variant="caption">You can now adjust the colors displayed when the user hovers over the Action Button!</Typography>
+              <br /><br />
+              <Typography style={{ marginBottom: ".25em" }} variant="Overline">
+                Button Background Color
+              </Typography>
+              <br />
+              <ColorPicker
+                name='Button Background Color'
+                defaultValue='#fff'
+                id="outlined-basic"
+                variant="outlined"
+                style={{ color: "black" }}
+                value="#fff"
+                onChange={color => console.log(color)}
+              />
+              <br /><br />
+              <Typography style={{ marginBottom: ".25em" }} variant="Overline">
+                Button Text Color
+              </Typography>
+              <br />
+              <ColorPicker
+                name='Button Text Color'
+                defaultValue='#000'
+                style={{ color: "black" }}
+                id="outlined-basic1"
+                variant="outlined"
+                value="#000"
+                onChange={color => console.log(color)}
+              />
+              <br /><br />
+              <Typography style={{ marginBottom: ".25em" }} variant="Overline">
+                Button Border Color
+              </Typography>
+              <br />
+              <ColorPicker
+                name='Button Border Color'
+                defaultValue='#000'
+                style={{ color: "black" }}
+                id="outlined-basic1"
+                variant="outlined"
+                value="#000"
+                onChange={color => console.log(color)}
+              />
+              <br />
+            </Paper>
+          </Grid>
+        </Grid>
+        <br />
       </main>
     </div>
   </NoSsr>

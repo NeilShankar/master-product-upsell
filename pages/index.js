@@ -487,7 +487,7 @@ export default function Dashboard() {
         </Grid>
         <Grid item xs>
           <Paper elevation={20} style={{ background: conv.SalesColor }} className={classes.paper}>
-              Sales Generated<br/><br/>
+              Sales Generated (Est)<br/><br/>
               <Typography style={{ fontWeight: "bold" , color: "black" }} variant="h5">
                 {metric.Sales}
               </Typography>

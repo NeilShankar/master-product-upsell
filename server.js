@@ -56,6 +56,9 @@ const EnabledBundles = require('./services/BundlesEnabled')
 const CheckEnabled = require('./services/CheckEnabled')
 const generateDiscount = require('./routes/discounter')
 
+// Theme Required Snippets
+// const cartSnippet = require('./scripts/cart-snippet.js')
+
 const schedule = require('node-schedule');
 
 const {
@@ -117,6 +120,80 @@ app.prepare().then(() => {
   .get('/post-product/:id', postFrequentProduct)
   .post('/generate-discount/:id', generateDiscount)
 
+  router
+  .get('/scripts/cart-snippet.js', ctx => {
+    ctx.body = `
+      jQuery(document).ready(function() {
+        function getCookie(cname) {
+          var name = cname + "=";
+          var ca = document.cookie.split(';');
+          for(var i = 0; i < ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) == ' ') {
+              c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+              return c.substring(name.length, c.length);
+            }
+          }
+          return "";
+        }
+
+        if (localStorage.getItem("TotalDiscountedPrice") !== null) {
+          var DiscountText = localStorage.getItem("TotalDiscountedPrice")
+          var currency = getCookie("cart_currency")
+          var txt1 = '<div class="shopLee_cartSnippet" style="position: relative; height: 84px; border-left: 6px solid #4ac24a; border-radius: 5px; width: 31%; text-align: center; padding: 10px 0; box-shadow: 0px 0px 27px 0px rgba(122,112,122,0.56); top: 3.5em; margin-bottom: 1em; background: #ffffff;">' +
+          '<h5 style="margin-bottom: 6px;">Bundle Discount</h5>' +
+          '<p style="font-size: 13.5px;">Hooray, you have availed '+ DiscountText + ' ' + currency + ' ' + ' Off on your Bundles!</p>' +
+          '</div>'
+
+          $("[name=checkout]").after(txt1);
+          $("[name=checkout]").css("position", "absolute");
+          $("[name=checkout]").addClass("shopLee_checkout");
+
+          $(window).resize(function() {
+            var width = $(window).width();
+            if (width < 767){
+              $("[name=checkout]").css("width", "80%");
+              $(".shopLee_cartSnippet").css("width", "100%");
+              $(".shopLee_cartSnippet").css("top", "4.5em");
+              $(".shopLee_cartSnippet").css("margin-bottom", "2em");
+            } else {
+              $("[name=checkout]").css("width", "10%");
+              $(".shopLee_cartSnippet").css("width", "31%");
+              $(".shopLee_cartSnippet").css("top", "3.5em");
+              $(".shopLee_cartSnippet").css("margin-bottom", "1em");
+            }
+          });
+        }
+      });
+    `
+  })
+
+  // router
+  // .get('/endpoints/getScripts', async (ctx) => {
+  //     const response = await fetch(
+  //     `https://test-nsn.myshopify.com/admin/api/2020-04/script_tags/112803676221.json`,
+  //         {
+  //             method: "PUT",
+  //             headers: {
+  //             "Content-Type": "application/json",
+  //             "X-Shopify-Access-Token": "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",
+  //             },
+  //             body: JSON.stringify({
+  //               "script_tag": {
+  //                 "id": 112803676221,
+  //                 "src": "https://7ce22de62ce1.ngrok.io/scripts/cart-snippet.js"
+  //               }
+  //             })
+  //         }
+  //     );
+
+  //     const responseJson = await response.json();
+
+  //     ctx.body = await responseJson
+  // })
+
   // Sentry
   Sentry.init({ dsn: 'https://4fd23a47916849a1abc8c822cb6d598f@o397020.ingest.sentry.io/5251173' });
 
@@ -144,7 +221,7 @@ app.prepare().then(() => {
     createShopifyAuth({
       apiKey: SHOPIFY_API_KEY,
       secret: SHOPIFY_API_SECRET_KEY,
-      scopes: ['read_products', 'write_products', 'read_themes', 'write_themes', 'write_price_rules', 'read_price_rules'],
+      scopes: ['read_products', 'write_products', 'read_themes', 'write_themes', 'write_price_rules', 'read_price_rules', 'read_script_tags', 'write_script_tags'],
       accessMode: 'offline',
       async afterAuth(ctx) {
         const { shop, accessToken } = ctx.session;
@@ -235,6 +312,25 @@ app.prepare().then(() => {
               await agenda.start()
               await agenda.every('1440 minutes', 'update products', {shopData: `${shop}`, upJobId: `updaterFor${shop}`}, { skipImmediate: true }, { timezone: "UTC"});
             })();
+
+            var ScriptData = JSON.stringify({
+              "script_tag": {
+                "event": "onload",
+                "src": `${process.env.HOST}scripts/cart-snippet.js`
+              }
+            })
+
+            const scriptTag = await fetch(
+              `https://${ctx.session.shop}/admin/api/2020-04/script_tags.json`,
+                  {
+                      method: "POST",
+                      headers: {
+                      "Content-Type": "application/json",
+                      "X-Shopify-Access-Token": accessToken,
+                      },
+                      body: ScriptData
+                  }
+              );
           }
         })
 
@@ -287,10 +383,9 @@ app.prepare().then(() => {
       if (!resad) {
         storeModel.findOne({ 'domain': requestOrigin })
       }
-    });
-    
+    });    
     return requestOrigin;
- }
+  }
 
   server.use(router.allowedMethods());
   server.use(router.routes());

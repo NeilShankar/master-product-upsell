@@ -17,6 +17,14 @@ const postFrequentProduct = async (ctx) => {
     // Get some Tokens And Important Stuff.
     const store = await storeModel.findOne({ "Bundles": bundleProduct._id })
     const shop = `${store.url}`
+
+    if (store.BundleConfigs.Enabled === false) {
+      return ;
+    }
+
+    var impressions = await store.Metrics.ThisMonth.Views
+    var newImpr = impressions + 1
+    const updateStoreMetrics = await storeModel.findOneAndUpdate({ url: shop }, {$set: {"Metrics.ThisMonth.Views": newImpr}})
     
     const accessToken = await store.accessToken
 

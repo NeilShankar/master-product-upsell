@@ -1,5 +1,5 @@
 {
-  "name": "product-upsell",
+  "name": "shoplee-product-bundles",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -62,6 +62,7 @@
     "koa2-cors": "^2.0.6",
     "limiter": "^1.1.5",
     "lodash": "^4.17.15",
+    "material-ui-color-picker": "^3.5.0",
     "material-ui-image": "^3.2.3",
     "moesif-express": "^2.9.15",
     "mongoose": "^5.9.14",

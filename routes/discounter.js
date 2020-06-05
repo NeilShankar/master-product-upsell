@@ -35,6 +35,15 @@ const generateDiscount = async (ctx) => {
         let Difference = TotalPriceSum - DiscountedPriceSum
         let DiscountPercent = Math.round((Difference / TotalPriceSum) * 100)
 
+        var sales = await store.Metrics.ThisMonth.Sales
+        var addToCarts = await store.Metrics.ThisMonth.AddToCarts
+
+        var newSales = sales + DiscountedPriceSum
+        var newCarts = addToCarts + 1
+
+        const updateStoreMetrics = await storeModel.findOneAndUpdate({ domain: ctx.accept.headers.origin }, {$set: {"Metrics.ThisMonth.Sales": newSales, "Metrics.ThisMonth.AddToCarts": newCarts}})
+
+
         var shopURL = ctx.accept.headers.origin
         let PriceRuleId = CartArray[CartArray.length - 1].PriceRuleId
 
@@ -116,7 +125,8 @@ const generateDiscount = async (ctx) => {
 
         const returnData = JSON.stringify({
             "discountCode": DiscountResponseJson.discount_code.code,
-            "priceRuleId": PriceRuleId
+            "priceRuleId": PriceRuleId,
+            "DiscountedPrice": Difference
         })
 
         return returnData

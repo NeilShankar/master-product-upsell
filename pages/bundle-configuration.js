@@ -14,6 +14,7 @@ import Button from '@material-ui/core/Button';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 import Divider from '@material-ui/core/Divider';
+import Card from '@material-ui/core/Card';
 import SaveIcon from '@material-ui/icons/Save';
 import IconButton from '@material-ui/core/IconButton';
 import TextField from '@material-ui/core/TextField';
@@ -53,6 +54,7 @@ import Container from '@material-ui/core/Container';
 import Menu from '@material-ui/core/Menu';
 
 import GetProductsLive from '../API-instances/BundleLivePreviewProducts'
+import ColorPicker from 'material-ui-color-picker'
 
 const AntSwitch = withStyles((theme) => ({
   root: {
@@ -277,25 +279,13 @@ export default function FrequentlyBought() {
   const classes = useStyles();
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
-  const [bundleTitle, setBundleTitle] = React.useState('Frequently Bought Products')
-  const [bundleTheme, setBundleTheme] = React.useState(1)
-
-  const [ProductTitle, setProductTitle] = React.useState('')
-  const [ProductPrice, setProductPrice] = React.useState('')
-  const [ProductImage, setProductImage] = React.useState('')
-
-  const [Product1Image, setProduct1Image] = React.useState('')
-  const [Product1Price, setProduct1Price] = React.useState('')
-  const [Product1Title, setProduct1Title] = React.useState('')
-
-  const [TotalPrice, setTotalPrice] = React.useState('')
 
 
   const anchorRef = React.useRef(null);
   const [MenuOpen, setMenuOpen] = React.useState(false);
   const [SkeletonDisplay, setSkeletonDisplay] = React.useState('block');
   const [PrevDisplay, setPrevDisplay] = React.useState('none');
-  const [displayProgress, setDisplayProgress] = React.useState('block');
+  const [displayProgress, setDisplayProgress] = React.useState('none');
   const bull = <span className={classes.bullet}>•</span>;
   const [save, saveOpen] = React.useState(false);
 
@@ -309,65 +299,9 @@ export default function FrequentlyBought() {
     setAnchorEl(null);
   };
 
-  React.useEffect(() => {
-    GetBundleInstance({
-      method: "GET"
-    }).then((res) => {
-      setBundleTitle(res.data.Title)
-      setDesignTheme(res.data.Theme)
-    })
-  }, []);
-
-  
-React.useEffect(() => {
-  GetProductsLive({
-    method: "GET"
-  }).then((response) => {
-    setProductTitle(response.data.ProductTitle)
-    setProductImage(response.data.ProductImage)
-    setProductPrice(response.data.ProductPrice)
-    setProduct1Price(response.data.Product1Price)
-    setProduct1Image(response.data.Product1Image)
-    setProduct1Title(response.data.Product1Title)
-    setTotalPrice(response.data.TotalPrice)
-    setDisplayProgress('none')
-    setSkeletonDisplay('none')
-    setPrevDisplay('block')
-  })
-}, [])
-
   const saveSuccess = () => {
     saveOpen(true);
   };
-
-  const saveClose = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-
-    saveOpen(false);
-  };
-
-  const handleToggle = () => {
-    setMenuOpen((prevOpen) => !prevOpen);
-  };
-
-  const changeTitle = (e) => {
-    setBundleTitle(e.target.value);
-  }
-
-  const changeTheme = (e) => {
-    setBundleTheme(e.target.value);
-  }
-
-  const handleClose = (event) => {
-    if (anchorRef.current && anchorRef.current.contains(event.target)) {
-      return;
-    }
-
-    setMenuOpen(false);
-  };
-
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -375,32 +309,6 @@ React.useEffect(() => {
   const handleDrawerClose = () => {
     setOpen(false);
   };
-
-  function handleListKeyDown(event) {
-    if (event.key === 'Tab') {
-      event.preventDefault();
-      setMenuOpen(false);
-    }
-  }
-
-  function saveBundleInfo(e) {
-    setDisplayProgress('block')
-    e.preventDefault()
-    BundleInstance({
-      method: 'POST',
-      data: {
-        Title: bundleTitle,
-        Theme: designTheme
-      }
-    }).then((response) => {
-      console.log("Updated")
-      setDisplayProgress('none')
-      saveSuccess()
-    })
-  }  
-
-  function createLiveMarkup() { return {__html: DefaultLivePreview(bundleTitle, ProductTitle, ProductPrice, ProductImage, Product1Title, Product1Price, Product1Image, TotalPrice)}; };
-
   // return focus to the button when we transitioned from !open -> open
   const prevOpen = React.useRef(MenuOpen);
   React.useEffect(() => {
@@ -410,12 +318,6 @@ React.useEffect(() => {
 
     prevOpen.current = MenuOpen;
   }, [MenuOpen]);
-
-  const [designTheme, setDesignTheme] = React.useState('10');
-
-  const handleChange = (event) => {
-    setDesignTheme(event.target.value);
-  };
 
   return (
   <NoSsr>
@@ -541,101 +443,93 @@ React.useEffect(() => {
       </Drawer>
       <main className={classes.content}>
         <div className={classes.toolbar} />       
-        <Typography variant="h5">
-            Bundles Configuration
-        </Typography>   
-        <Typography variant="caption">
-            Setup configurations for displaying frequently bought products on your Store.
-        </Typography> 
-        <Button variant="contained" style={{ float: "right" }} onClick={saveBundleInfo} color="primary" startIcon={<SaveIcon />}>
-        Save
-        </Button>
-        <br></br><br></br>
-        <Divider/>
-        <br></br><br></br>
-        <Grid>
-            <Grid item xs={6}> 
-                <Paper style={{ padding: "33px"}} elevation={20}>
-                    <Typography variant="h6">
-                        Display Setup
-                    </Typography> 
-                    <Typography variant="caption">
-                        Include the code below in your product template, wherever you want the frequently bought products to appear! If you need any sort of assistance in doing this please do not hesitate, we recommend if you are not comfortable with editing your theme files, you may contact us to prevent any errors in your theme.
-                    </Typography> 
-                    <br></br><br></br>
-                    <Paper variant="outlined" style={{ backgroundColor: "rgb(176, 179, 184)", padding: "11px 23%"}}>
-                        {"{% render 'frequently-bought-products' %}"}
-                    </Paper>
-                </Paper>  
-            </Grid>            
+        <Paper style={{"marginBottom":"24px","position":"relative","marginTop":"-24px","padding":"14px"}}>
+        <Typography variant="h5">Bundle Configuration Panel</Typography>
+        <Typography variant="caption">This is where you may change the settings for your bundles! Like, the title of the snippet and more...</Typography>
+        </Paper>  
+        <br />
+        <Divider />
+        <br />  <br /> 
+        <Grid container>
+          <Grid item xs={7}>
+            <Paper style={{ padding: "2em" }} elevation={10}>
+              <Typography style={{ marginBottom: ".5em" }} variant="h5">Display Configurations</Typography>
+              <Typography variant="caption">Can you please place the below tag in your product page template in your theme, so that we can display our snippet in the exact position? We have normally seen this tag being placed in section/product-template.liquid file. But if you need any sort of help with it, you may drop us an email!</Typography>
+              <br />
+              <Card style={{"padding":"1em","marginTop":"1em","textAlign":"center","boxShadow":"0px 2px 19px -1px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 1px 3px 0px rgba(0,0,0,0.12)"}}>
+                <Typography variant="caption">{" {% render 'shoplee-bundles' %} "}</Typography>
+              </Card>
+            </Paper>
+          </Grid>
         </Grid>
-        <br></br><br></br>
-        <Divider/>
-        <br></br>
-        <Grid>
-            <Grid style={{ height: "44%"}} item xs={6}> 
-                <Paper style={{ padding: "33px"}} elevation={20}>
-                    <Typography variant="h6">
-                        Display Customizations
-                    </Typography>    
-                    <Typography variant="caption">
-                        Now you can configure how the snippet will look in your store, you can choose from our pre-built themes and change the title of the snippet! If you feel like you need a custom design for your store, please don't hesitate to contact us!
-                    </Typography>      
-                    <br></br><br></br>      
-                    <Typography variant="overline">
-                       Title
-                    </Typography><br></br>
-                    <TextField style={{ width: "100%" }} id="outlined-basic" label="Enter Title Here" variant="outlined" value={bundleTitle} onChange={changeTitle}/>
-                    <br></br><br></br>
-                    <Typography variant="overline">
-                    Theme
-                    </Typography><br></br>
-                    <FormControl variant="outlined" style={{ width: "100%"}}>
-                    <Select
-                    labelId="demo-simple-select-outlined-label"
-                    id="demo-simple-select-outlined"
-                    value={designTheme}
-                    onChange={handleChange}
-                    >
-                    <MenuItem value={10}>Debut</MenuItem>
-                    <MenuItem value={20}>Flow</MenuItem>
-                    </Select>
-                </FormControl>
-                </Paper>  
-            </Grid>   
-            <Grid item style={{ width: "48%", float: "right", marginTop: "-33%" }}>
-                <Paper style={{ padding: "34px" }}elevation={20}>
-                    <br></br><br></br>
-                    <Container style={{ display: SkeletonDisplay }}>
-                      <Skeleton animation="wave" variant="text" />
-                      <Skeleton animation="wave" variant="rect" width={210} height={165} />
-                      <Skeleton animation="wave" variant="text" width={135} height={40} />
-                      <Skeleton animation="wave" variant="text" />
-                      <Skeleton animation="wave" variant="text" />
-                      <Skeleton animation="wave" variant="rect" />
-                    </Container>
-                    <Container style={{ display: PrevDisplay }} id="LivePreviewBox" dangerouslySetInnerHTML={createLiveMarkup()}>
-
-                    </Container>
-                </Paper>
-            </Grid>         
+        <br />
+        <Divider />
+        <br />
+        <Grid container>
+          <Grid item xs={6}>
+            <Paper style={{ padding: "2em" }} elevation={10}>
+              <Typography style={{ marginBottom: ".25em" }} variant="h5">Title Styling</Typography>
+              <Typography variant="caption">Now, you may set the title of the snippet, and adjust some colors!</Typography>
+              <br /><br />
+              <Typography variant="Overline">
+                Title Text
+              </Typography><br />
+              <form className="customForm" style={{ marginTop: ".6em", width: "100%" }}>
+                <TextField id="outlined-basic" label="Display Title" variant="outlined" />
+              </form>
+              <br />
+              <Typography variant="Overline">
+                Title Color
+              </Typography>
+              <br />
+              <ColorPicker
+                name='Title Color'
+                defaultValue='#fff'
+                // value={this.state.color} - for controlled component
+                onChange={color => console.log(color)}
+              />
+              <br />
+            </Paper>
+          </Grid>
         </Grid>
-        <Snackbar open={save} autoHideDuration={6000} onClose={saveClose}>
-          <Alert onClose={saveClose} severity="success">
-            Saved Successfully
-          </Alert>
-        </Snackbar>
-        <br></br>
-     <Divider />
-     <br></br>
-      <Grid container>
-          <Paper elevation={20} style={{"padding":"2em","textAlign":"center","margin":"0 17%"}}>
-            <Typography variant="h5">Support Our App On Shopify App Store!</Typography>
-            <Typography variant="caption">Your support would mean alot to us, so could you please place a review for our app at Shopify App Store? If you need any other kind of support from our side, we are always ready to help!</Typography>
-            <br/><br/><Button style={{"background":"black","color":"white"}} variant="contained" >Leave A Review</Button>
-          </Paper>
+        <br />
+        <Grid container>
+          <Grid item xs={6}>
+            <Paper style={{ padding: "2em" }} elevation={10}>
+              <Typography style={{ marginBottom: ".25em" }} variant="h5">Button Styling</Typography>
+              <Typography variant="caption">You can now adjust the colors, and text which will be displayed in the Action Button!</Typography>
+              <br /><br />
+              <Typography variant="Overline">
+                Button Text
+              </Typography><br />
+              <form className="customForm" style={{ marginTop: ".6em", width: "100%" }}>
+                <TextField id="outlined-basic" label="Display Text" variant="outlined" />
+              </form>
+              <br />
+              <Typography variant="Overline">
+                Button Background Color
+              </Typography>
+              <br />
+              <ColorPicker
+                name='Button Background Color'
+                defaultValue='#000'
+                // value={this.state.color} - for controlled component
+                onChange={color => console.log(color)}
+              />
+              <Typography variant="Overline">
+                Button Text Color
+              </Typography>
+              <br />
+              <ColorPicker
+                name='Button Text Color'
+                defaultValue='#fff'
+                // value={this.state.color} - for controlled component
+                onChange={color => console.log(color)}
+              />
+              <br />
+            </Paper>
+          </Grid>
         </Grid>
-        <br></br><br></br>
       </main>
     </div>
   </NoSsr>

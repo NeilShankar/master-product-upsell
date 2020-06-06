@@ -1,25 +1,20 @@
 const mongoose = require("mongoose");
-const delay = require('delay');
 
 require("../models/store");
 const storeModel = mongoose.model("Store");
 
 const getBundleInfo = async (ctx) => {
-    var shop = `https://${ctx.session.shop}`
-    var Title = ""
-    var Theme = 0
+    async function getInfo() {
+        const store = await storeModel.findOne({ url: `https://${ctx.session.shop}` })
 
-    storeModel.findOne({ "url": shop }, async (err, data) => {
-       if (err) {
-           console.log(err)
-       } else {
-           Title = await data.BundleConfigs.Title
-           Theme = await data.BundleConfigs.Theme
-       }
-    })
-    
-    await delay(2000)
-    ctx.body = {"Title": Title, "Theme": Theme}
+        const previewData = await store.BundleConfigs
+        var key = "Enabled"
+        delete previewData[key]
+
+        return previewData
+    }
+
+    ctx.body = await getInfo()
 }
 
 module.exports = getBundleInfo

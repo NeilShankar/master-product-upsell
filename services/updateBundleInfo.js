@@ -5,44 +5,18 @@ require("../models/store");
 const storeModel = mongoose.model("Store");
 
 const updateBundleInfo = async (ctx) => {
-    var shop = `https://${ctx.session.shop}`
-    var CurrentTheme = ctx.request.body.Theme
-    var UpdateTheme = false
-    var NewTheme = 0
-    var Update = false
-    var accessT = 0
-
-    var ThemeToChange = "default"
-
-    storeModel.findOne({ "url": shop }, (err,data) => {
-        if (data.BundleConfigs.Theme != CurrentTheme) {
-            UpdateTheme = true
-            NewTheme = ctx.request.body.Theme
-            accessT = data.accessToken
-            if (NewTheme == 10) {
-                ThemeToChange = "default"
-            }
-        }
+    async function updateBundles() {
+        const store = await storeModel.findOne({ url: `https://${ctx.session.shop}` })
         
-        if (data.BundleConfigs.Title !== ctx.request.body.Title) {
-            Update = true
-        }
-    })
+        const updateObj = ctx.request.body.bundleConfigs
+        updateObj["Enabled"] = await store.BundleConfigs.Enabled
 
-    console.log("Going to Update.")
-    
-      
-    storeModel.findOneAndUpdate({ "url": shop }, {$set:{"BundleConfigs.Title": ctx.request.body.Title, "BundleConfigs.Theme": ctx.request.body.Theme}}, {new: true}, (err, data) => {
-        if (err) {
-            console.log(err)
-        }
-        console.log("Updated")
-    })
-      
-    
+        const update = await storeModel.findByIdAndUpdate(store._id, {$set: { BundleConfigs: updateObj }})
 
-    ctx.res.statusCode = 200;
-    ctx.body = "Updated"
+        return update
+    }
+
+    ctx.body = await updateBundles()
 }
 
 module.exports = updateBundleInfo

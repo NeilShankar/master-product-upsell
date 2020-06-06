@@ -377,7 +377,7 @@ const InitializeBundles = async (ctx) => {
     }
 
     async function Retry() {
-        sleep(10000)
+        sleep(20000)
         FindBundles()
     }
 

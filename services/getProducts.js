@@ -1,73 +1,43 @@
 const mongoose = require("mongoose");
-const delay = require('delay');
+
+require("../models/bundles");
+const bundleModel = mongoose.model("Bundle");
 
 require("../models/store");
 const storeModel = mongoose.model("Store");
 require("isomorphic-fetch");
 
 const getProducts = async (ctx) => {
-    var accessT = "NiL";
-    var ShopURI = "";
 
-    const shop = await storeModel.findOne({"url": `https://${ctx.session.shop}`}, async function (
-        err,
-        shopData
-    ) {
-        accessT = await shopData.accessToken
-        ShopURI = await shopData.url
-    });
-
-    const response = await fetch(
-        `https://${ctx.session.shop}/admin/api/2020-04/products.json?limit=2`,
-            {
-                method: "GET",
-                headers: {
-                "Content-Type": "application/json",
-                "X-Shopify-Access-Token": accessT,
-                },
-            }
-        );
-
-    const responseJson = await response.json();
-    var results = JSON.parse(JSON.stringify(responseJson));
-
-    const pResponse = await fetch(
-        `https://${ctx.session.shop}/admin/api/2020-04/shop.json`,
-        {
-            method: "GET",
-            headers: {
-            "Content-Type": "application/json",
-            "X-Shopify-Access-Token": accessT,
-            },
-    }
-    );
-
-
-
-    const pResponseJson = await pResponse.json();
-    var pResults = JSON.parse(JSON.stringify(pResponseJson));
+    const accessToken = ctx.session.accessToken
+    const shop = ctx.session.shop
     
-    await delay(1500)
+    async function getLivePrevData() {
+        const store = await storeModel.findOne({ url: `https://${shop}` })
 
-    var ProductTitle = await results.products[0]["title"]
-    var ProductImage = await results.products[0]["image"]["src"]
-    var ProductPrice = await results.products[0]["variants"][0]["price"] + ` ${await pResults.shop.enabled_presentment_currencies[0]}`
-    var Product1Title = await results.products[1]["title"]
-    var Product1Image = await results.products[1]["image"]["src"]
-    var Product1Price = await results.products[1]["variants"][0]["price"] + ` ${await pResults.shop.enabled_presentment_currencies[0]}`
-    var TotalPrice = Number(await results.products[1]["variants"][0]["price"]) + Number(await results.products[0]["variants"][0]["price"]) + ` ${await pResults.shop.enabled_presentment_currencies[0]}`
+        const bundle = await bundleModel.findById(store.Bundles[0])
 
-    const Payload = {
-        ProductTitle: ProductTitle,
-        ProductImage: ProductImage,
-        ProductPrice: ProductPrice,
-        Product1Title: Product1Title,
-        Product1Image: Product1Image,
-        Product1Price: Product1Price,
-        TotalPrice: TotalPrice
-    }; 
+        const prodRes = await fetch(`https://${shop}/admin/api/2020-04/products.json?ids=${bundle.SourceProduct.Id},${bundle.SelectedProduct.Id}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              "X-Shopify-Access-Token": accessToken,
+            }
+        })
+        
+        const productsResponseJson = await prodRes.json();
+        const products = await productsResponseJson.products
 
-    ctx.body = JSON.parse(JSON.stringify(Payload))
+        const payload = {
+            products,
+            Discount: await bundle.Discount,
+            currency: await store.Metrics.ThisMonth.Currency
+        }
+
+        return payload
+    }
+
+    ctx.body = await getLivePrevData()
 }
 
 module.exports = getProducts

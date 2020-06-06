@@ -6,10 +6,13 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import List from '@material-ui/core/List';
 import Skeleton from '@material-ui/lab/Skeleton';
+import Style from 'style-it';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Typography from '@material-ui/core/Typography';
 import AccountCircleRoundedIcon from '@material-ui/icons/AccountCircleRounded';
 import Link from 'next/link';
+import { useScrollPosition } from '@n8tb1t/use-scroll-position'
+import axios from 'axios'
 import Button from '@material-ui/core/Button';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
@@ -54,7 +57,7 @@ import Container from '@material-ui/core/Container';
 import Menu from '@material-ui/core/Menu';
 
 import GetProductsLive from '../API-instances/BundleLivePreviewProducts'
-import ColorPicker from 'material-ui-color-picker'
+import ColorPicker from "material-ui-color-picker";
 
 const AntSwitch = withStyles((theme) => ({
   root: {
@@ -285,11 +288,206 @@ export default function FrequentlyBought() {
   const [MenuOpen, setMenuOpen] = React.useState(false);
   const [SkeletonDisplay, setSkeletonDisplay] = React.useState('block');
   const [PrevDisplay, setPrevDisplay] = React.useState('none');
-  const [displayProgress, setDisplayProgress] = React.useState('none');
+  const [displayProgress, setDisplayProgress] = React.useState('block');
   const bull = <span className={classes.bullet}>•</span>;
   const [save, saveOpen] = React.useState(false);
 
   const [anchorEl, setAnchorEl] = React.useState(null);
+
+  const [previewBody, setPreviewBody] = React.useState({ __html: "<div></div>" })
+
+  const [previewData, setPreviewData] = React.useState({ 
+    title: "Frequently Bought Products",
+    titleColor: "#000",
+    buttonText: "Add Bundle To Cart",
+    buttonBackground: "#000",
+    buttonTextColor: "#fff",
+    buttonBorderColor: "#fff",
+    buttonHoverBackground: "#fff",
+    buttonHoverTextColor: "#000",
+    buttonHoverBorderColor: "#000"
+  })
+
+  const [loaded, setLoaded] = React.useState(false)
+
+  const [res, setPreviewRes] = React.useState({
+    data: {}
+  })
+
+  const [number, setNumber] = React.useState(0)
+
+  React.useEffect(() => {
+    if (number === 0) {
+      setNumber(number+1)
+    } else{
+      const timer = setTimeout(() => {
+        setDisplayProgress('block')
+        saveBundleConfigs()
+        setDisplayProgress('none')
+      }, 3000);
+  
+      return () => clearTimeout(timer);
+    }
+  }, [previewData])
+
+  function saveBundleConfigs() {
+    axios.post('https://8479d5748b7b.ngrok.io/api/saveBundleInfo', {
+      bundleConfigs: previewData
+    })
+    .then((response) => {
+      console.log("Updated database with following stuff:", response);
+    }, (error) => {
+      console.log(error);
+    });
+  }
+
+  const handlePanelChanges = (e) => {
+    var key = e.target.name
+    var value = e.target.value
+    var obj = Object.assign({}, previewData)
+    obj[key] = value
+    setPreviewData(obj)
+  }
+
+  function handleColorChanges(color, key) {
+    var value = color
+    var obj = Object.assign({}, previewData)
+    obj[key] = value
+    setPreviewData(obj)
+  }
+
+  React.useEffect(() => {
+    if (loaded === true) {
+      setSkeletonDisplay('none')
+      loadPreview()
+    }
+  }, [previewData])
+
+  React.useEffect(() => {
+    GetProductsLive({
+      method: "GET"
+    }).then(async (res) => {
+      setPreviewRes({ data: await res.data })
+      setLoaded(true)
+    })
+  }, [])
+
+  React.useEffect(() => {
+    setTimeout(() => {
+      if (loaded === true) {
+        loadPreview()
+        axios.get('https://8479d5748b7b.ngrok.io/api/getBundleInfo')
+        .then((response) => {
+          setPreviewData(response.data)
+          setDisplayProgress('none')
+        }, (error) => {
+          console.log(error);
+        });
+      }      
+    }, 3000);
+  }, [loaded])
+
+  const loadPreview = () => {
+    var DiscountAmount = Math.round((res.data.Discount / 100) * parseInt(Math.trunc(res.data.products[0].variants[0].price)) + parseInt(Math.trunc(res.data.products[1].variants[0].price)))
+      var TotalPrice = parseInt(Math.trunc(res.data.products[0].variants[0].price)) + parseInt(Math.trunc(res.data.products[1].variants[0].price))
+      var DiscountedPrice = TotalPrice - DiscountAmount
+
+      let DisplayPriceText 
+
+      if (res.data.Discount > 0) {
+        DisplayPriceText = `<span style="color: #1bbf3c;">${DiscountedPrice} ${res.data.currency}</span> <span style="text-decoration: line-through; color: gray;">${TotalPrice} ${res.data.currency}</span>`
+      } else {
+        DisplayPriceText = `<span style="color: #1bbf3c;">${TotalPrice} ${res.data.currency}</span>` 
+      }   
+
+      let sourceVariant
+      let selectVariant
+
+      var countSource = 0
+      var sourceVariants = res.data.products[0].variants.map((v, index) => { 
+        if (v.inventory_quantity < 1) {
+          return `<option disabled value=${v.id}>${v.title} - Sold Out</option>`;
+        } else {
+          if (countSource < 1) {
+            sourceVariant = index
+            countSource = countSource + 1
+          }
+          return `<option value=${v.id}>${v.title}</option>`;                  
+        }
+      })
+
+      var countSelect = 0
+      var selectVariants = res.data.products[1].variants.map((v, index) => {                 
+        if (v.inventory_quantity < 1) {
+          return `<option disabled value=${v.id}>${v.title} - Sold Out</option>`;
+        } else {                  
+          if (countSelect < 1) {
+            selectVariant = index
+            countSelect = countSelect + 1
+          }
+          return `<option value=${v.id}>${v.title}</option>`;
+        }
+      })
+
+      var sourceProductVariantText = res.data.products[0].title + " - " + res.data.products[0].variants[0].title + " - " + res.data.products[0].variants[0].price + ` ${res.data.currency}`
+      var selectProductVariantText = res.data.products[1].title + " - " + res.data.products[1].variants[0].title + " - " + res.data.products[1].variants[0].price + ` ${res.data.currency}`
+      
+      setPreviewBody({ __html: `
+        <h3 class='shopLee_title' style="color: ${previewData.titleColor} !important;">${previewData.title}</h3>
+        <div class="shopLee_triple">
+        <div class="shopLee_sideByside shopLee_product">
+        <a href='/products/${res.data.products[0].handle}'>
+        <img class="shopLee_productFirstImage" src='${res.data.products[0].image.src}' />
+          </a>
+          </div>
+        <div class="shopLee_sideBysideIcon shopLee_icon">
+        <img class="shopLee_plus" src="https://cdn.shopify.com/s/files/1/0278/4611/5389/t/1/assets/plus.svg?v=1591170063" alt="plus-icon" />
+          </div>
+        <div class="shopLee_sideByside shopLee_product">
+        <a href='/products/${res.data.products[1].handle}'>
+        <img class="shopLee_productSecondImage" src='${res.data.products[1].image.src}' />
+          </a>
+          </div>
+        <br style="clear: left;" />
+          </div>
+        <div class="shopLee_price">
+        <input onClick="disableCheck()" checked type="checkbox" id="productSource" name="productSource" value="SourceProduct">
+        <label id="sourceProductVariantTxt" for="productSource">${sourceProductVariantText}</label>
+        <select class="shopLee_variantSelect" name="Variants" id="sourceProductVariants">
+        ${sourceVariants}
+          </select>
+        <br>
+        <input onClick="disableCheck()" checked type="checkbox" id="productSelect" name="productSelect" value="SelectProduct">
+        <label id="selectProductVariantTxt" style="margin-top: 8px;" for="productSelect">${selectProductVariantText}</label>
+        <select class="shopLee_variantSelect" name="Variants" id="selectProductVariants">
+        ${selectVariants}
+        </select>
+        <br>
+        <p id="shopLee_pricing" class="shopLee_priceText">${DisplayPriceText}</p>
+        <button class="shopLee_button">${previewData.buttonText}</button>
+        </div>
+        <style>
+        .shopLee_button {
+          background-color: ${previewData.buttonBackground} !important;
+          color: ${previewData.buttonTextColor} !important;
+          border-color: ${previewData.buttonBorderColor} !important;
+        }
+        .shopLee_button:hover {
+          background-color: ${previewData.buttonHoverBackground} !important;
+          color: ${previewData.buttonHoverTextColor} !important;
+          border-color: ${previewData.buttonHoverBorderColor} !important;
+        }
+        </style>
+      `})
+  }
+
+  useScrollPosition(({ prevPos, currPos }) => {
+    if (currPos.y < -387) {
+      console.log(currPos.y)
+    } else {
+      return ;
+    }
+  })
 
   const handleClickUser = (event) => {
     setAnchorEl(event.currentTarget);
@@ -465,6 +663,18 @@ export default function FrequentlyBought() {
         <br />
         <Divider />
         <br />
+        <div>
+        <Grid style={{"position":"absolute","width":"100em","right":"2%","maxWidth":"45%","height":"89em"}} item xs={5}>
+          <Paper id="live-preview" style={{"float":"right","padding":"2em","position":"sticky","width":"97%","top":"101px"}} elevation={10}>
+            <Typography style={{ marginTop: "-22px" }} variant="h5">Live Preview</Typography>
+            <Divider />
+            <br />
+            <div dangerouslySetInnerHTML={previewBody}></div>
+            <div style={{ display: SkeletonDisplay }}>
+              <Skeleton variant="rect" width={210} height={118}/>
+            </div>
+          </Paper>
+        </Grid>
         <Grid container>
           <Grid item xs={6}>
             <Paper style={{ padding: "2em" }} elevation={10}>
@@ -475,7 +685,7 @@ export default function FrequentlyBought() {
                 Title Text
               </Typography><br />
               <form className="customForm" style={{ marginTop: ".6em", width: "100%" }}>
-                <TextField id="outlined-basic" label="Display Title" variant="outlined" />
+                <TextField id="outlined-basic" label="Display Title" variant="outlined" onChange={handlePanelChanges} name="title" value={previewData.title}/>
               </form>
               <br />
               <Typography variant="Overline">
@@ -483,14 +693,15 @@ export default function FrequentlyBought() {
               </Typography>
               <br />
               <ColorPicker
-                name='Title Color'
-                defaultValue='#fff'
-                // value={this.state.color} - for controlled component
-                onChange={color => console.log(color)}
+                name="color"
+                defaultValue={previewData.titleColor}
+                value={previewData.titleColor}
+                onChange={color => handleColorChanges(color, "titleColor")}
               />
               <br />
             </Paper>
           </Grid>
+          {/* Preview Block */}
         </Grid>
         <br />
         <Grid container>
@@ -503,7 +714,7 @@ export default function FrequentlyBought() {
                 Button Text
               </Typography><br />
               <form className="customForm" style={{ marginTop: ".6em", width: "100%" }}>
-                <TextField id="outlined-basic" label="Display Text" variant="outlined" />
+                <TextField id="outlined-basic" label="Display Text" variant="outlined" onChange={handlePanelChanges} name="buttonText" value={previewData.buttonText} />
               </form>
               <br />
               <Typography style={{ marginBottom: ".25em" }} variant="Overline">
@@ -511,13 +722,10 @@ export default function FrequentlyBought() {
               </Typography>
               <br />
               <ColorPicker
-                name='Button Background Color'
-                defaultValue='#000'
-                id="outlined-basic"
-                variant="outlined"
-                style={{ color: "black" }}
-                value="#000"
-                onChange={color => console.log(color)}
+                name="color"
+                defaultValue={previewData.buttonBackground}
+                value={previewData.buttonBackground}
+                onChange={color => handleColorChanges(color, "buttonBackground")}
               />
               <br /><br />
               <Typography style={{ marginBottom: ".25em" }} variant="Overline">
@@ -525,13 +733,10 @@ export default function FrequentlyBought() {
               </Typography>
               <br />
               <ColorPicker
-                name='Button Text Color'
-                defaultValue='#fff'
-                style={{ color: "black" }}
-                id="outlined-basic1"
-                variant="outlined"
-                value="#fff"
-                onChange={color => console.log(color)}
+                name="color"
+                defaultValue={previewData.buttonTextColor}
+                value={previewData.buttonTextColor}
+                onChange={color => handleColorChanges(color, "buttonTextColor")}
               />
               <br /><br />
               <Typography style={{ marginBottom: ".25em" }} variant="Overline">
@@ -539,13 +744,10 @@ export default function FrequentlyBought() {
               </Typography>
               <br />
               <ColorPicker
-                name='Button Border Color'
-                defaultValue='#fff'
-                style={{ color: "black" }}
-                id="outlined-basic1"
-                variant="outlined"
-                value="#fff"
-                onChange={color => console.log(color)}
+                name="color"
+                defaultValue={previewData.buttonBorderColor}
+                value={previewData.buttonBorderColor}
+                onChange={color => handleColorChanges(color, "buttonBorderColor")}
               />
               <br />
             </Paper>
@@ -563,13 +765,10 @@ export default function FrequentlyBought() {
               </Typography>
               <br />
               <ColorPicker
-                name='Button Background Color'
-                defaultValue='#fff'
-                id="outlined-basic"
-                variant="outlined"
-                style={{ color: "black" }}
-                value="#fff"
-                onChange={color => console.log(color)}
+                name="color"
+                defaultValue={previewData.buttonHoverBackground}
+                value={previewData.buttonHoverBackground}
+                onChange={color => handleColorChanges(color, "buttonHoverBackground")}
               />
               <br /><br />
               <Typography style={{ marginBottom: ".25em" }} variant="Overline">
@@ -577,13 +776,10 @@ export default function FrequentlyBought() {
               </Typography>
               <br />
               <ColorPicker
-                name='Button Text Color'
-                defaultValue='#000'
-                style={{ color: "black" }}
-                id="outlined-basic1"
-                variant="outlined"
-                value="#000"
-                onChange={color => console.log(color)}
+                name="color"
+                defaultValue={previewData.buttonHoverTextColor}
+                value={previewData.buttonHoverTextColor}
+                onChange={color => handleColorChanges(color, "buttonHoverTextColor")}
               />
               <br /><br />
               <Typography style={{ marginBottom: ".25em" }} variant="Overline">
@@ -591,19 +787,27 @@ export default function FrequentlyBought() {
               </Typography>
               <br />
               <ColorPicker
-                name='Button Border Color'
-                defaultValue='#000'
-                style={{ color: "black" }}
-                id="outlined-basic1"
-                variant="outlined"
-                value="#000"
-                onChange={color => console.log(color)}
+                name="color"
+                defaultValue={previewData.buttonHoverBorderColor}
+                value={previewData.buttonHoverBorderColor}
+                onChange={color => handleColorChanges(color, "buttonHoverBorderColor")}
               />
               <br />
             </Paper>
           </Grid>
         </Grid>
-        <br />
+      </div>
+      <br></br>
+     <Divider />
+     <br></br>
+      <Grid container>
+          <Paper elevation={20} style={{"padding":"2em","textAlign":"center","margin":"0 17%"}}>
+            <Typography variant="h5">Support Our App On Shopify App Store!</Typography>
+            <Typography variant="caption">Your support would mean alot to us, so could you please place a review for our app at Shopify App Store? If you need any other kind of support from our side, we are always ready to help!</Typography>
+            <br/><br/><Button style={{"background":"black","color":"white"}} variant="contained" >Leave A Review</Button>
+          </Paper>
+        </Grid>
+        <br></br><br></br>
       </main>
     </div>
   </NoSsr>

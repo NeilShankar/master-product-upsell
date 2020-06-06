@@ -8,8 +8,15 @@ const schema = new Schema({
      FreeShipEnabled: Boolean,
      FreeShippingThreshold: Number,
      BundleConfigs: {
-          Title: String,
-          Theme: Number,
+          title: String,
+          titleColor: String,
+          buttonText: String,
+          buttonBackground: String,
+          buttonTextColor: String,
+          buttonBorderColor: String,
+          buttonHoverBackground: String,
+          buttonHoverTextColor: String,
+          buttonHoverBorderColor: String,
           Enabled: Boolean
      },
      Metrics: {

@@ -183,7 +183,7 @@ app.prepare().then(() => {
   //             body: JSON.stringify({
   //               "script_tag": {
   //                 "id": 112803676221,
-  //                 "src": "https://7ce22de62ce1.ngrok.io/scripts/cart-snippet.js"
+  //                 "src": "https://8479d5748b7b.ngrok.io/scripts/cart-snippet.js"
   //               }
   //             })
   //         }
@@ -272,8 +272,15 @@ app.prepare().then(() => {
               FreeShipEnabled: false,
               FreeShippingThreshold: 0,
               BundleConfigs: {
-                Title: 'Frequently Bought Together',
-                Theme: 10,
+                title: "Frequently Bought Products",
+                titleColor: "#000",
+                buttonText: "Add Bundle To Cart",
+                buttonBackground: "#000",
+                buttonTextColor: "#fff",
+                buttonBorderColor: "#fff",
+                buttonHoverBackground: "#fff",
+                buttonHoverTextColor: "#000",
+                buttonHoverBorderColor: "#000",
                 Enabled: true
               }, 
               Metrics: {

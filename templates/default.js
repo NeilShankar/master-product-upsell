@@ -14,118 +14,287 @@ const getThemes = async function getThemes(ShopURI, accessT) {
 
     results["themes"].forEach(function(obj) { if (obj["role"] === "main") { themeID = obj["id"] } });
 
-    var uploadFile = `<div id="fbt_container"></div>                
-    <div id="snack" style="display: none;">Added To Cart</div>`
+    var uploadFile = `
+    
+<!--ShopLee App Configuration Code Begin-->
+<div class="container shopLee_container" id="shopLee_snippet">
 
-    uploadFile = `${uploadFile}
-    <script>
-    var xmlhttp = new XMLHttpRequest();  
-    var URL = "${process.env.HOST}/post-product/5ec0c8b74d757a187cd358ad";
-    var gRes = ""
-                      
-    xmlhttp.onreadystatechange=function() {
-      if (this.readyState == 4 && this.status == 200) {
-        var Response = JSON.parse(this.responseText) 
-        gRes = JSON.parse(this.responseText) 
-        var Total = {{product.price | money_without_currency}} + Math.trunc(Response.Price)
-        document.getElementById("fbt_container").innerHTML = 
+</div>
+<!--   Don't modify the App Script, unless you are a developer and know what to do.     -->
+<script>
+  let sourceChangedVariant
+  let selectChangedVariant
+  let addToCartCall
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      var data = JSON.parse(this.responseText)
+      let BundleId = data.BundleId
+      let BundleConfigs = data.BundleConfigs
+      let sourceVariant = 0
+      var selectVariant = 0
+      var DiscountAmount = Math.round((data.Discount / 100) * parseInt(Math.trunc(data.products[0].variants[sourceVariant].price)) + parseInt(Math.trunc(data.products[1].variants[selectVariant].price)))
+      var TotalPrice = parseInt(Math.trunc(data.products[0].variants[sourceVariant].price)) + parseInt(Math.trunc(data.products[1].variants[selectVariant].price))
+      var DiscountedPrice = TotalPrice - DiscountAmount
+
+      let DisplayPriceText 
+
+      if (data.Discount > 0) {
+        DisplayPriceText = \`<span style="color: #1bbf3c;">\${DiscountedPrice} {{ shop.currency }}</span> <span style="text-decoration: line-through; color: gray;">\${TotalPrice} {{ shop.currency }}</span>\`
+      } else {
+        DisplayPriceText = \`<span style="color: #1bbf3c;">\${TotalPrice} {{ shop.currency }}</span>\` 
+      }   
+
+      var sourceVariantId = data.products[0].variants[sourceVariant].id
+      var selectVariantId = data.products[1].variants[selectVariant].id
+
+      var sourceProductVariantText = data.products[0].title + " - " + data.products[0].variants[0].title + " - " + data.products[0].variants[0].price + \` {{ shop.currency }}\`
+      var selectProductVariantText = data.products[1].title + " - " + data.products[1].variants[0].title + " - " + data.products[1].variants[0].price + \` {{ shop.currency }}\`
+
+      var countSource = 0
+      var sourceVariants = data.products[0].variants.map((v, index) => { 
+        if (v.inventory_quantity < 1) {
+          return \`<option disabled value=\${v.id}>\${v.title} - Sold Out</option>\`;
+        } else {
+          if (countSource < 1) {
+            sourceVariant = index
+            countSource = countSource + 1
+          }
+          return \`<option value=\${v.id}>\${v.title}</option>\`;                  
+        }
+      })
+
+      var countSelect = 0
+      var selectVariants = data.products[1].variants.map((v, index) => {                 
+        if (v.inventory_quantity < 1) {
+          return \`<option disabled value=\${v.id}>\${v.title} - Sold Out</option>\`;
+        } else {                  
+          if (countSelect < 1) {
+            selectVariant = index
+            countSelect = countSelect + 1
+          }
+          return \`<option value=\${v.id}>\${v.title}</option>\`;
+        }
+      })
+
+      sourceChangedVariant = (val) => {
+        let i                
+        for (i=0; i < data.products[0].variants.length; i++) {
+          if (data.products[0].variants[i].id === parseInt(val)){
+            sourceVariant = i
+            sourceVariantId = data.products[0].variants[i].id
+          }
+        }
+        document.getElementById('sourceProductVariantTxt').innerHTML = data.products[0].title + " - " + data.products[0].variants[sourceVariant].title + " - " + data.products[0].variants[sourceVariant].price + \` {{ shop.currency }}\`
+        updatePricing()
+      }
+
+      selectChangedVariant = (val) => {
+        let i                
+        for (i=0; i < data.products[1].variants.length; i++) {
+          if (data.products[1].variants[i].id === parseInt(val)){
+            selectVariant = i
+            selectVariantId = data.products[1].variants[i].id
+          }
+        }
+        document.getElementById('selectProductVariantTxt').innerHTML = data.products[1].title + " - " + data.products[1].variants[selectVariant].title + " - " + data.products[1].variants[selectVariant].price + \` {{ shop.currency }}\`
+        updatePricing()
+      }
+
+      updatePricing = () => {
+        DiscountAmount = (data.Discount / 100) * (parseInt(data.products[0].variants[sourceVariant].price) + parseInt(data.products[1].variants[selectVariant].price))
+        TotalPrice = parseInt(Math.trunc(data.products[0].variants[sourceVariant].price)) + parseInt(Math.trunc(data.products[1].variants[selectVariant].price))
+        DiscountedPrice = TotalPrice - DiscountAmount
+
+        if (data.Discount > 0) {
+          DisplayPriceText = \`<span style="color: #1bbf3c;">\${DiscountedPrice} {{ shop.currency }}</span> <span style="text-decoration: line-through; color: gray;">\${TotalPrice} {{ shop.currency }}</span>\`
+        } else {
+          DisplayPriceText = \`<span style="color: #1bbf3c;">\${TotalPrice} {{ shop.currency }}</span>\` 
+        }  
+
+        document.getElementById("shopLee_pricing").innerHTML = DisplayPriceText
+      }
+      
+      addToCartCall = () => {
+        jQuery.ajax({
+          type: 'POST',
+          url: '/cart/add.js',
+          data: { 
+            items: [
+              {
+                quantity: 1,
+                id: sourceVariantId
+              },
+              {
+                quantity: 1,
+                id: selectVariantId
+              },      
+            ]
+          },
+          dataType: 'json',   
+          success: function(res) {
+              document.getElementById("toast_discount_text").innerHTML = \`You have availed \${DiscountAmount} {{ shop.currency }} Off! Discount will be applied automatically when you checkout.\`
+			  document.getElementById("toast_cart").style.display = "Block"
+			  storeCartData()
+
+          }
+        });  
+      }
+
+      function createNewDiscount(array) {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange=function() {
+          if (this.readyState == 4 && this.status == 200) {
+			  var discountData = JSON.parse(this.responseText)
+			  localStorage.setItem("PriceRuleId", discountData.priceRuleId);
+			  localStorage.setItem("TotalDiscountedPrice", discountData.DiscountedPrice)
+			  var url = window.location.hostname
+  			  window.location.href = "https://"+url+"/discount/"+discountData.discountCode+"?redirect=/products/"+data.products[0].handle
+		  }	
+        };
+		xhttp.open("POST", \`\${process.env.HOST}generate-discount/\${BundleId}\`, true);
+        xhttp.setRequestHeader("Content-type", "application/json");
+        xhttp.send(JSON.stringify(array));
+      }
+              
+      function storeCartData() {
+         if (typeof(Storage) !== "undefined") {
+              
+            let BundlesArray = JSON.parse(localStorage.getItem("CartBundles")) || [];
+            var priceRuleId = localStorage.getItem("PriceRuleId") || "NONE"
+              
+          	let bundle = {
+                "BundleId": data.BundleId,
+            	"TotalPrice": TotalPrice,
+            	"DiscountPrice": DiscountedPrice,
+            	"SourceVariant": data.products[0].id,
+            	"SelectVariant": data.products[1].id,
+            	"PriceRuleId": priceRuleId
+            }
+          
+            BundlesArray.push(bundle)
+          
+            localStorage.setItem("CartBundles", JSON.stringify(BundlesArray));
+            createNewDiscount(BundlesArray)
+           
+         } else {
+              console.log("Sorry, your browser does not support Web Storage...")
+         }
+      }
+		
+      document.getElementById("shopLee_snippet").innerHTML = \`
+
+          <h3 class='shopLee_title'>\${BundleConfigs.title}</h3>
+          <div class="shopLee_triple">
+          <div class="shopLee_sideByside shopLee_product">
+          <a href='/products/\${data.products[0].handle}'>
+          <img class="shopLee_productFirstImage" src='\${data.products[0].image.src}' />
+            </a>
+            </div>
+          <div class="shopLee_sideBysideIcon shopLee_icon">
+          <img class="shopLee_plus" src="https://cdn.shopify.com/s/files/1/0278/4611/5389/t/1/assets/plus.svg?v=1591170063" alt="plus-icon" />
+            </div>
+          <div class="shopLee_sideByside shopLee_product">
+          <a href='/products/\${data.products[1].handle}'>
+          <img class="shopLee_productSecondImage" src='\${data.products[1].image.src}' />
+            </a>
+            </div>
+          <br style="clear: left;" />
+            </div>
+          <div class="shopLee_price">
+          <input onClick="disableCheck()" checked type="checkbox" id="productSource" name="productSource" value="SourceProduct">
+          <label id="sourceProductVariantTxt" for="productSource">\${sourceProductVariantText}</label>
+          <select class="shopLee_variantSelect" onChange="sourceChanged(this.value)" name="Variants" id="sourceProductVariants">
+          \${sourceVariants}
+            </select>
+          <br>
+          <input onClick="disableCheck()" checked type="checkbox" id="productSelect" name="productSelect" value="SelectProduct">
+          <label id="selectProductVariantTxt" style="margin-top: 8px;" for="productSelect">\${selectProductVariantText}</label>
+          <select class="shopLee_variantSelect" onChange="selectChanged(this.value)" name="Variants" id="selectProductVariants">
+          \${selectVariants}
+            </select>
+          <br>
+          <p id="shopLee_pricing" class="shopLee_priceText">\${DisplayPriceText}</p>
+			<button onClick="addToCart()" class="shopLee_button">Add Bundle To Cart</button>
+            </div>
+            <!--   Some Styling to give it a gorgeous look!     -->
+            <style>
+              .shopLee_button:hover { background: \${BundleConfigs.buttonHoverBackground}; color: \${BundleConfigs.buttonHoverTextColor}; border: 2px solid \${buttonHoverBorderColor}; }
+              .shopLee_button { padding: 8px 22px; color: \${BundleConfigs.buttonTextColor}; margin-left: auto; transition: .5s; text-transform: uppercase; background: \${BundleConfigs.buttonBackground}; border-radius: 8px; border: 2px solid \${BundleConfigs.buttonBorderColor}; margin-right: auto; display: block; }
+              .shopLee_priceText {text-align: center; margin-bottom: 5px; padding-top: 18px;}
+              .shopLee_variantSelect {padding: 7px 22px 7px 5px; max-width: 7em;}
+              .shopLee_title {text-align: center; color: \${BundleConfigs.titleColor}; }
+              .shopLee_price { text-align: center; }
+              .shopLee_triple {width: 500px; margin: auto;}
+              .shopLee_sideByside {float: left; width: 200px; height: 100px;}
+              .shopLee_sideBysideIcon {float: left; width: 100px; height: 100px;}  
+              .shopLee_productFirstImage {width: 120px; float: right; margin-right: 1em;}
+              .shopLee_productSecondImage {float: left; margin-left: 1em; width: 120px;}
+              .shopLee_icon {position: relative;}
+              #toast_cart {display: none;}
+              .shopLee_plus {margin: 0; position: absolute; top: 50%; width: 28px; left: 50%; -ms-transform: translate(-50%, -50%); transform: translate(-50%, -50%);}
+              .add-margin{ margin-top:20px; } .toast__svg{ fill:#fff; } .toast { text-align:left; padding: 21px 0; background-color:#fff; border-radius:4px; max-width: 500px;top: 22px; position: relative; box-shadow: -2px -1px 20px 0px rgba(0, 0, 0, 0.2); } .toast:before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; border-top-left-radius:4px; border-bottom-left-radius: 4px; } .toast__icon{ position:absolute; top:50%; left:22px; transform:translateY(-50%); width:14px; height:14px; padding: 7px; border-radius:50%; display:inline-block; } .toast__type { color: #3e3e3e; font-weight: 700; margin-top: 0; margin-bottom: 8px; } .toast__message { font-size: 14px; margin-top: 0; margin-bottom: 0; color: #878787; } .toast__content{ padding-left:70px; padding-right:60px; } .toast__close { position: absolute; right: 22px; top: 50%; width: 14px; cursor:pointer; height: 14px; fill:#878787; transform: translateY(-50%); } .toast--green .toast__icon{ background-color:#2BDE3F; } .toast--green:before{ background-color:#2BDE3F; } .toast--blue .toast__icon{ background-color:#1D72F3; } .toast--blue:before{ background-color:#1D72F3; } .toast--yellow .toast__icon{ background-color:#FFC007; } .toast--yellow:before{ background-color:#FFC007; }
+            </style>
+      
+            
+            <div class="toast__cell" id="toast_cart">
+            <div class="toast toast--green">
+              <div class="toast__icon">
+                <svg version="1.1" class="toast__svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve">
+                  <g><g><path d="M504.502,75.496c-9.997-9.998-26.205-9.998-36.204,0L161.594,382.203L43.702,264.311c-9.997-9.998-26.205-9.997-36.204,0    c-9.998,9.997-9.998,26.205,0,36.203l135.994,135.992c9.994,9.997,26.214,9.99,36.204,0L504.502,111.7    C514.5,101.703,514.499,85.494,504.502,75.496z"></path>
+                    </g></g>
+                </svg>
+              </div>
+              <div class="toast__content">
+                <p class="toast__type">Added To Cart!</p>
+                <p class="toast__message" id="toast_discount_text"></p>
+              </div>
+              <div onClick="closeToast(this.event)" class="toast__close">
+                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15.642 15.642" xmlns:xlink="http://www.w3.org/1999/xlink" enable-background="new 0 0 15.642 15.642">
+                  <path fill-rule="evenodd" d="M8.882,7.821l6.541-6.541c0.293-0.293,0.293-0.768,0-1.061  c-0.293-0.293-0.768-0.293-1.061,0L7.821,6.76L1.28,0.22c-0.293-0.293-0.768-0.293-1.061,0c-0.293,0.293-0.293,0.768,0,1.061  l6.541,6.541L0.22,14.362c-0.293,0.293-0.293,0.768,0,1.061c0.147,0.146,0.338,0.22,0.53,0.22s0.384-0.073,0.53-0.22l6.541-6.541  l6.541,6.541c0.147,0.146,0.338,0.22,0.53,0.22c0.192,0,0.384-0.073,0.53-0.22c0.293-0.293,0.293-0.768,0-1.061L8.882,7.821z"></path>
+                </svg>
+              </div>
+            </div>
+            </div>
+
+            <script>
+            function closeToast(e){
+              document.getElementById("toast_cart").style.display = "none"
+            };
+            </script>
+          \`;
+      document.getElementById('sourceProductVariantTxt').innerHTML = data.products[0].title + " - " + data.products[0].variants[sourceVariant].title + " - " + data.products[0].variants[sourceVariant].price + \` {{ shop.currency }}\`                  
+      document.getElementById('selectProductVariantTxt').innerHTML = data.products[1].title + " - " + data.products[1].variants[selectVariant].title + " - " + data.products[1].variants[selectVariant].price + \` {{ shop.currency }}\`                  
+      updatePricing()
+	  sourceVariantId = data.products[0].variants[sourceVariant].id
+      selectVariantId = data.products[1].variants[selectVariant].id
+    }
+  };
+  xhttp.open("GET", \`\${process.env.HOST}post-product/{{ product.id }}\`, true);
+  xhttp.send();
+
+  // Helper Functions
+  function sourceChanged(value) {
+    sourceChangedVariant(value)
+  }
+
+  function selectChanged(value) {
+    selectChangedVariant(value)
+  }
+
+  function disableCheck() {
+    document.getElementById("productSource").checked = true
+    document.getElementById("productSelect").checked = true
+  }
+  
+  function addToCart() {
+    addToCartCall()
+  }
+  
+</script>  
+
+<!--ShopLee Configuration Code End-->
     `
-    uploadFile = `${uploadFile}` + "`" +
-    "<h3 class='text-center text-muted'>${Response.PageTitle}</h3>"   +
-    '<div class="container"> ' + 
-    '<div class="grid-view-item product-card one" style="padding-left: 2%;max-width: 11em; margin: 0;">' +
-    '<a href="{{ product.url }}">' +
-    ' <img src="{{ product | img_url: "200x200" }}" class="grid-view-item__link grid-view-item__image-container" alt="{{ product.title }}">' +
-    ' <h4 class="h4 grid-view-item__title product-card__title">{{ product.title }}</h4>' +
-    ' <p class="price price--listing">{{ product.price | money_without_currency }} {{ shop.currency }}</p>' +
-    ' </a>' +
-    '</div>' +
-    '<img src="https://image.flaticon.com/icons/svg/32/32339.svg" style="height: auto;width: 38px;margin-top: 8%;margin-left: 5%;">' +
-    '<div class="grid-view-item product-card two" style="max-width: 11em; margin: 0;">' +
-    '<a href="${Response.FoundProductUrl}">' +
-    ' <img src="${Response.FoundImageUrl}" class="grid-view-item__link grid-view-item__image-container" alt="{{ product.title }}">' +
-    '<h4 class="h4 grid-view-item__title product-card__title">${Response.FoundProductName}</h4>' +
-    ' <p class="price price--listing">${Response.Price} {{ shop.currency }} </p>' +
-    ' </a>' +
-    '</div>' +
-    '</div>' +
-    '<p style="display: block;min-width:24%;padding-left: 1%;margin-bottom:10px;font-weight: bold;color: #7b6a14;font-size: 13px;" class="price price--listing">${Total} {{ shop.currency }}</p>' +
-
-
-    '<button onClick="addToCart()" style="width: 50%;margin-left: 25%;" class="btn product-form__cart-submit btn--secondary-accent">' +
-    'Add Both To Cart' +
-    ' </button>' +
-
-    '<span id="free-ship-span" class="badge" style="background: bisque;  margin: 0 40%;  border-radius: 18px;    font-size: 12px;    font-family: inherit;    padding: 5px 14px; display: none;">Free Shipping</span>' +
-
-    "`" + ";" + "\n" +
-    "if (Response.FreeShipEnable == true) { " + '\n'+
-    " document.getElementById('free-ship-span').style.display = 'inline-block' " + '\n'+
-    "if (Response.FreeShippingThres >= Total) {" + '\n'+
-      ' document.getElementById("free-ship-span").style.display = "inline-block" ' + '\n' +
-      " } else {" + '\n'+
-        "   var ToGo = Total - Response.FreeShippingThres" + '\n'+
-        '   document.getElementById("free-ship-span").innerHtml = `${ToGo} {{ shop.currency }} More For Free Shipping!`' + '\n'+
-        ' document.getElementById("free-ship-span").style.display = "inline-block"' + '\n'+
-        "  } " + '\n'+
-      
-        " }" + '\n'+
-    
-        " }" + '\n'+
-        "};" + '\n'+
-
-"function addToCart() {  " + '\n'    +                  
-  "jQuery.ajax({" + '\n'+
-    " type: 'POST'," + '\n'+
-    " url: '/cart/add.js'," + '\n'+
-    " data: { " + '\n'+
-      "  items: [" + '\n'+
-        "  {" + '\n'+
-          "    quantity: 1," + '\n'+
-          "  id: {{ product.variants.first.id }}" + '\n'+
-          " }," + '\n'+
-          " {" + '\n'+
-            "  quantity: 1," + '\n'+
-            " id: gRes.FoundVariantID" + '\n'+
-            " },      " + '\n' +                   
-            " ]" + '\n'+
-      
-            " }," + '\n'+
-            " dataType: 'json',   " + '\n'  +     
-            " success: function() {" + '\n'+
-              "  showSnack()" + '\n'+
-              " }," + '\n'+
-              " error: function() {" + '\n'+
-                "  alert('Oops! Something went wrong. Please try to add your product again. If this message persists, the item may not be available.');" + '\n'+
-                " }" + '\n'+
-
-                "});  " + '\n'+
-                "}" + '\n'+
-
-                "function showSnack() {" + '\n'+
-                  "$('#snack').fadeIn(2000);" + '\n'+
-                  "$('#snack').fadeOut(3000);" + '\n'+
-                  "}" + '\n'+
-
-                  "xmlhttp.open('POST', URL);" + '\n'+
-                  "xmlhttp.setRequestHeader('Content-Type', 'application/json');" + '\n'+
-                  "xmlhttp.setRequestHeader('X-Requested-With', 'XMLHttpRequest');" + '\n'+
-"xmlhttp.send(JSON.stringify({" + '\n' +
-'"productID": {{ product.id }}, ' + '\n'+
-'"collectionID": {{ product.collections[0].id }},' + '\n'+
-' "collectionSize": {{ product.collections[0].all_products.size }},' + '\n'+
-'"Shop": `{{ shop.name }}.myshopify.com` ' + '\n'+
-'}));' + '\n' + 
-
-"//DO NOT MODIFY ANYTHING HERE//"+
-"</script>"+
-
-"<style>" + "\n" +
- " .container{width:80%;height:200px;margin:auto;padding:10px}.one{height:200px;float:left}.two{margin-left:15%;height:200px;float:right} #snackbar { visibility: hidden; min-width: 250px; margin-left: -125px; background-color: #333; color: #fff; text-align: center; border-radius: 2px; padding: 16px; position: fixed; z-index: 1; left: 50%; bottom: 30px; font-size: 17px; } #snackbar.show { visibility: visible; -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s; animation: fadein 0.5s, fadeout 0.5s 2.5s; } @-webkit-keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} } @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} } @-webkit-keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} } @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} } #snack{min-width: 250px; margin-left: -125px; background-color: #333; color: #fff; text-align: center; border-radius: 2px; padding: 16px; position: fixed; z-index: 1; left: 50%; font-size: 17px;}" + "\n" +
-"</style>"
-
-
-    
 
     const updateTheme = await fetch(`${ShopURI}/admin/api/2020-04/themes/${themeID}/assets.json`, {
       method: "PUT",
@@ -135,7 +304,7 @@ const getThemes = async function getThemes(ShopURI, accessT) {
       },
       body: JSON.stringify({
         "asset": {
-          "key": "snippets/frequently-bought-products.liquid",
+          "key": "snippets/shoplee-bundles.liquid",
           "value": uploadFile               
         }
       })

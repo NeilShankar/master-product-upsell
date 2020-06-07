@@ -668,6 +668,7 @@ export default function FrequentlyBought() {
         <Grid style={{"position":"absolute","width":"100em","right":"2%","maxWidth":"45%","height":"95em"}} item xs={5}>
           <Paper id="live-preview" style={{"float":"right","padding":"2em","position":"sticky","width":"97%","top":"101px"}} elevation={10}>
             <Typography style={{ marginTop: "-22px" }} variant="h5">Live Preview</Typography>
+            <Typography variant="caption">To view a working preview, you have to visit a product in your store. </Typography>
             <Divider />
             <br />
             <div dangerouslySetInnerHTML={previewBody}></div>

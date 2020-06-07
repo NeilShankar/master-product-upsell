@@ -89,30 +89,6 @@ app.prepare().then(() => {
 
   server.keys = [SHOPIFY_API_SECRET_KEY]; 
 
-  router.get('/dashboard', async (ctx) => {
-    await app.render(ctx.req, ctx.res, '/', ctx.query)
-    ctx.respond = false
-  })
-
-  router.get('/bundles', async (ctx) => {
-    await app.render(ctx.req, ctx.res, '/bundles', ctx.query)
-    ctx.respond = false
-  })
-
-  router.get('/bundle-configuration', async (ctx) => {
-    await app.render(ctx.req, ctx.res, '/bundle-configuration', ctx.query)
-    ctx.respond = false
-  })
-
-  router.get('/', async (ctx) => {
-    if (ctx.session.shop) {
-      await app.render(ctx.req, ctx.res, '/dashboard', ctx.query)
-    } else {
-      return ;
-    }    
-    ctx.respond = false
-  })
-
   router
   .get('/api', ctx => {
     ctx.res.statusCode = 200;  
@@ -402,15 +378,10 @@ app.prepare().then(() => {
     await handle(ctx.req, ctx.res);
     ctx.respond = false;
     ctx.res.statusCode = 200;
-  });
-
-  server.use(async (ctx, next) => {
-    ctx.res.statusCode = 200
-    await next()
   })
 
   function checkOriginAgainstWhitelist(ctx) {
-    const requestOrigin = ctx.accept.headers.origin || process.env.HOST;
+    const requestOrigin = ctx.accept.headers.origin || process.env.HOST || "product-upsell-shopify-obc49zl10.now.sh";
     require('./models/store')
     const storeModel = mongoose.model('Store')
     

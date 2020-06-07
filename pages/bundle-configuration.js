@@ -665,7 +665,7 @@ export default function FrequentlyBought() {
         <Divider />
         <br />
         <div>
-        <Grid style={{"position":"absolute","width":"100em","right":"2%","maxWidth":"45%","height":"89em"}} item xs={5}>
+        <Grid style={{"position":"absolute","width":"100em","right":"2%","maxWidth":"45%","height":"95em"}} item xs={5}>
           <Paper id="live-preview" style={{"float":"right","padding":"2em","position":"sticky","width":"97%","top":"101px"}} elevation={10}>
             <Typography style={{ marginTop: "-22px" }} variant="h5">Live Preview</Typography>
             <Divider />

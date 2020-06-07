@@ -89,6 +89,7 @@
     "react-simple-infinite-loading": "^1.0.0",
     "react-syntax-highlighter": "^12.2.1",
     "react-window": "^1.8.5",
+    "reactcss": "^1.2.3",
     "sass": "^1.26.5",
     "stopcock": "^1.1.0",
     "store-js": "^2.0.4",

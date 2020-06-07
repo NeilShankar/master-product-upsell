@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import { lighten, withStyles, makeStyles, useTheme } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
+import { SketchPicker } from 'react-color';
 import Toolbar from '@material-ui/core/Toolbar';
 import List from '@material-ui/core/List';
 import Skeleton from '@material-ui/lab/Skeleton';
@@ -57,7 +58,7 @@ import Container from '@material-ui/core/Container';
 import Menu from '@material-ui/core/Menu';
 
 import GetProductsLive from '../API-instances/BundleLivePreviewProducts'
-import ColorPicker from "material-ui-color-picker";
+import ColorPicker from "../components/configuration-panel/colorPicker";
 
 const AntSwitch = withStyles((theme) => ({
   root: {
@@ -331,7 +332,7 @@ export default function FrequentlyBought() {
   }, [previewData])
 
   function saveBundleConfigs() {
-    axios.post('https://8479d5748b7b.ngrok.io/api/saveBundleInfo', {
+    axios.post('https://77576360c859.ngrok.io/api/saveBundleInfo', {
       bundleConfigs: previewData
     })
     .then((response) => {
@@ -349,7 +350,7 @@ export default function FrequentlyBought() {
     setPreviewData(obj)
   }
 
-  function handleColorChanges(color, key) {
+  const handleColorChanges = (color, key) =>{
     var value = color
     var obj = Object.assign({}, previewData)
     obj[key] = value
@@ -376,7 +377,7 @@ export default function FrequentlyBought() {
     setTimeout(() => {
       if (loaded === true) {
         loadPreview()
-        axios.get('https://8479d5748b7b.ngrok.io/api/getBundleInfo')
+        axios.get('https://77576360c859.ngrok.io/api/getBundleInfo')
         .then((response) => {
           setPreviewData(response.data)
           setDisplayProgress('none')
@@ -692,12 +693,8 @@ export default function FrequentlyBought() {
                 Title Color
               </Typography>
               <br />
-              <ColorPicker
-                name="color"
-                defaultValue={previewData.titleColor}
-                value={previewData.titleColor}
-                onChange={color => handleColorChanges(color, "titleColor")}
-              />
+              <br />
+              <ColorPicker handleChangeColor={handleColorChanges} name="titleColor" color={previewData.titleColor} />
               <br />
             </Paper>
           </Grid>
@@ -721,34 +718,22 @@ export default function FrequentlyBought() {
                 Button Background Color
               </Typography>
               <br />
-              <ColorPicker
-                name="color"
-                defaultValue={previewData.buttonBackground}
-                value={previewData.buttonBackground}
-                onChange={color => handleColorChanges(color, "buttonBackground")}
-              />
+              <br />
+              <ColorPicker handleChangeColor={handleColorChanges} name="buttonBackground" color={previewData.buttonBackground} />
               <br /><br />
               <Typography style={{ marginBottom: ".25em" }} variant="Overline">
                 Button Text Color
               </Typography>
               <br />
-              <ColorPicker
-                name="color"
-                defaultValue={previewData.buttonTextColor}
-                value={previewData.buttonTextColor}
-                onChange={color => handleColorChanges(color, "buttonTextColor")}
-              />
+              <br />
+              <ColorPicker handleChangeColor={handleColorChanges} name="buttonTextColor" color={previewData.buttonTextColor} />
               <br /><br />
               <Typography style={{ marginBottom: ".25em" }} variant="Overline">
                 Button Border Color
               </Typography>
               <br />
-              <ColorPicker
-                name="color"
-                defaultValue={previewData.buttonBorderColor}
-                value={previewData.buttonBorderColor}
-                onChange={color => handleColorChanges(color, "buttonBorderColor")}
-              />
+              <br />
+              <ColorPicker handleChangeColor={handleColorChanges} name="buttonBorderColor" color={previewData.buttonBorderColor} />
               <br />
             </Paper>
           </Grid>
@@ -764,34 +749,22 @@ export default function FrequentlyBought() {
                 Button Background Color
               </Typography>
               <br />
-              <ColorPicker
-                name="color"
-                defaultValue={previewData.buttonHoverBackground}
-                value={previewData.buttonHoverBackground}
-                onChange={color => handleColorChanges(color, "buttonHoverBackground")}
-              />
+              <br />
+              <ColorPicker handleChangeColor={handleColorChanges} name="buttonHoverBackground" color={previewData.buttonHoverBackground} />
               <br /><br />
               <Typography style={{ marginBottom: ".25em" }} variant="Overline">
                 Button Text Color
               </Typography>
               <br />
-              <ColorPicker
-                name="color"
-                defaultValue={previewData.buttonHoverTextColor}
-                value={previewData.buttonHoverTextColor}
-                onChange={color => handleColorChanges(color, "buttonHoverTextColor")}
-              />
+              <br />
+              <ColorPicker handleChangeColor={handleColorChanges} name="buttonHoverTextColor" color={previewData.buttonHoverTextColor} />
               <br /><br />
               <Typography style={{ marginBottom: ".25em" }} variant="Overline">
                 Button Border Color
               </Typography>
               <br />
-              <ColorPicker
-                name="color"
-                defaultValue={previewData.buttonHoverBorderColor}
-                value={previewData.buttonHoverBorderColor}
-                onChange={color => handleColorChanges(color, "buttonHoverBorderColor")}
-              />
+              <br />
+              <ColorPicker handleChangeColor={handleColorChanges} name="buttonHoverBorderColor" color={previewData.buttonHoverBorderColor} />
               <br />
             </Paper>
           </Grid>

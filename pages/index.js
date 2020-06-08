@@ -256,6 +256,41 @@ export default function Dashboard() {
   })
 
   React.useEffect(() => {
+    if (sessionStorage.getItem('firstTime') !== null) {
+      if (sessionStorage.getItem('firstTime') === true) {
+        setFirstTime(true)
+        localStorage.removeItem('bundlesData')
+        localStorage.removeItem('BundleConfig')
+        localStorage.removeItem('userData')
+        localStorage.removeItem('PreviewRes')
+      } else {
+        setFirstTime(false)
+      }
+    } else {
+      checkBundlesInitialised()
+      setInterval(checkBundlesInitialised, 15000)
+    }
+  }, [])
+
+  async function checkBundlesInitialised() {
+    if (firstTime === true) {
+      console.log("Checking.")
+      axios.get(`${process.env.REACT_APP_HOST}/api/checkFirstTime`)
+      .then((res) => {
+        if (res.data === true) {
+          setFirstTime(true)
+          localStorage.removeItem('bundlesData')
+          localStorage.removeItem('BundleConfig')
+          localStorage.removeItem('PreviewRes')
+          localStorage.removeItem('userData')
+        } else if (res.data === false) {
+          setFirstTime(false)
+        }
+      })
+    }
+  }
+
+  React.useEffect(() => {
     if (localStorage.getItem('userData') === null) {
       GetStoreInfo({
         method: "GET"
@@ -278,25 +313,6 @@ export default function Dashboard() {
   const handleClickUser = (event) => {
     setAnchorEl(event.currentTarget);
   };
-
-  React.useEffect(() => {
-    checkBundlesInitialised()
-    setInterval(checkBundlesInitialised, 15000)
-  }, [])
-
-  async function checkBundlesInitialised() {
-    if (firstTime === true) {
-      console.log("Checking.")
-      axios.get(`${process.env.REACT_APP_HOST}/api/checkFirstTime`)
-      .then((res) => {
-        if (res.data === true) {
-          setFirstTime(true)
-        } else if (res.data === false) {
-          setFirstTime(false)
-        }
-      })
-    }
-  }
 
   const handleCloseUser = () => {
     setAnchorEl(null);
@@ -402,6 +418,7 @@ export default function Dashboard() {
           <IconButton style={{"position":"absolute","right":"33px","fontSize":"2.5em"}} aria-controls="simple-menu" aria-haspopup="true" onClick={handleClickUser}>
            <AccountCircleRoundedIcon style={{ color: "black" }} />
           </IconButton>
+          {/* <Typography style={{"position":"absolute","right":"33px","fontSize":".6em"}} variant="h6"><b>{user.name}</b></Typography> */}
           <Menu
           id="simple-menu"
           anchorEl={anchorEl}

@@ -676,18 +676,43 @@ export default function FrequentlyBought() {
 
 
   React.useEffect(() => {
-    GetAllBundles({
-      method: "GET"
-    }).then((res) => {
-      var arr = []
-      arr = [...res.data]
+    if (localStorage.getItem('bundlesData') === null) {
+      GetAllBundles({
+        method: "GET"
+      }).then((res) => {
+        var arr = []
+        arr = [...res.data]
+        setBundles(arr)
+
+        var array = paginate(res.data, 10, 1)
+        setDisplayBundles(array)
+
+        var rounded = Math.ceil(res.data.length / 10) * 10
+        var distance = res.data.length
+        
+        var pages = rounded / 10
+
+        if (distance > rounded) {
+          pages = pages + 1
+        }
+
+        setTotalPage(pages)
+
+        setDisplayProgress('none')
+        setChecked(true)  
+        setLoaded(true)
+
+        localStorage.setItem('bundlesData', JSON.stringify(res.data))
+      })
+    } else {
+      var arr = JSON.parse(localStorage.getItem('bundlesData'))
       setBundles(arr)
 
-      var array = paginate(res.data, 10, 1)
+      var array = paginate(arr, 10, 1)
       setDisplayBundles(array)
 
-      var rounded = Math.ceil(res.data.length / 10) * 10
-      var distance = res.data.length
+      var rounded = Math.ceil(arr.length / 10) * 10
+      var distance = arr.length
       
       var pages = rounded / 10
 
@@ -700,8 +725,12 @@ export default function FrequentlyBought() {
       setDisplayProgress('none')
       setChecked(true)  
       setLoaded(true)
-    })
+    }
   }, [])
+
+  React.useEffect(() => {
+    localStorage.setItem('bundlesData', JSON.stringify(bundles))
+  }, [bundles])
 
   const SelectProductUpdate = (id, sId) => {
     setDisplayProgress('block')

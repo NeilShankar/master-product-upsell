@@ -359,36 +359,51 @@ export default function FrequentlyBought() {
 
   React.useEffect(() => {
     if (loaded === true) {
+      localStorage.setItem('PreviewRes', JSON.stringify(res.data))
+    }
+  }, [res])
+
+  React.useEffect(() => {
+    if (loaded === true) {
       setSkeletonDisplay('none')
+      localStorage.setItem('BundleConfig', JSON.stringify(previewData))
       loadPreview()
     }
   }, [previewData])
 
   React.useEffect(() => {
-    GetProductsLive({
-      method: "GET"
-    }).then(async (res) => {
-      console.log(res.data)
-      setPreviewRes({ data: await res.data })
+    if (localStorage.getItem('PreviewRes') === null) {
+      GetProductsLive({
+        method: "GET"
+      }).then(async (res) => {
+        setPreviewRes({ data: await res.data })
+        localStorage.setItem('PreviewRes', JSON.stringify(res.data))
+        setLoaded(true)
+      })
+    } else {
+      setPreviewRes({ data: JSON.parse(localStorage.getItem('PreviewRes')) })
       setLoaded(true)
-    })
+    }
   }, [])
 
   React.useEffect(() => {
-    setTimeout(() => {
-      if (loaded === true) {
-        setSkeletonDisplay('none')
-        loadPreview()
+    if (loaded === true) {
+      setSkeletonDisplay('none')
+      loadPreview()
+      if (localStorage.getItem('BundleConfig') === null) {
         axios.get(`${process.env.REACT_APP_HOST}/api/getBundleInfo`)
         .then((response) => {
-          console.log(response.data)
           setPreviewData(response.data)
+          localStorage.setItem('BundleConfig', JSON.stringify(response.data))
           setDisplayProgress('none')
         }, (error) => {
           console.log(error);
         });
-      }      
-    }, 3000);
+      } else {
+        setPreviewData(JSON.parse(localStorage.getItem('BundleConfig')))
+        setDisplayProgress('none')
+      }
+    }      
   }, [loaded])
 
   const loadPreview = () => {

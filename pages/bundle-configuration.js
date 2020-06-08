@@ -332,7 +332,7 @@ export default function FrequentlyBought() {
   }, [previewData])
 
   function saveBundleConfigs() {
-    axios.post('https://77576360c859.ngrok.io/api/saveBundleInfo', {
+    axios.post('https://912288751566.ngrok.io/api/saveBundleInfo', {
       bundleConfigs: previewData
     })
     .then((response) => {
@@ -377,7 +377,7 @@ export default function FrequentlyBought() {
     setTimeout(() => {
       if (loaded === true) {
         loadPreview()
-        axios.get('https://77576360c859.ngrok.io/api/getBundleInfo')
+        axios.get('https://912288751566.ngrok.io/api/getBundleInfo')
         .then((response) => {
           setPreviewData(response.data)
           setDisplayProgress('none')

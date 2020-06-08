@@ -67,15 +67,7 @@ const {
   HOST,
 } = process.env;
 
-var exp = require('express');
-var express = exp();
 var cors = require('koa2-cors');
-
-express.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-});
 
 app.prepare().then(() => {  
 
@@ -169,30 +161,6 @@ app.prepare().then(() => {
       });
     `
   })
-
-  // router
-  // .get('/endpoints/getScripts', async (ctx) => {
-  //     const response = await fetch(
-  //     `https://test-nsn.myshopify.com/admin/api/2020-04/script_tags/112803676221.json`,
-  //         {
-  //             method: "PUT",
-  //             headers: {
-  //             "Content-Type": "application/json",
-  //             "X-Shopify-Access-Token": "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",
-  //             },
-  //             body: JSON.stringify({
-  //               "script_tag": {
-  //                 "id": 112803676221,
-  //                 "src": "https://77576360c859.ngrok.io/scripts/cart-snippet.js"
-  //               }
-  //             })
-  //         }
-  //     );
-
-  //     const responseJson = await response.json();
-
-  //     ctx.body = await responseJson
-  // })
 
   // Sentry
   Sentry.init({ dsn: 'https://4fd23a47916849a1abc8c822cb6d598f@o397020.ingest.sentry.io/5251173' });
@@ -346,31 +314,10 @@ app.prepare().then(() => {
         getThemes(`https://${shop}`, accessToken)
         InitializeBundles(ctx)
 
-
-        const registration = await registerWebhook({
-          address: `${HOST}/webhooks/products/create`,
-          topic: 'PRODUCTS_CREATE',
-          accessToken,
-          shop,
-          apiVersion: ApiVersion.April20
-        });
-
-        if (registration.success) {
-          console.log('Successfully registered webhook!');
-        } else {
-          console.log('Failed to register webhook', registration.result);
-        }
-        await getSubscriptionUrl(ctx, accessToken, shop);
-        // await getProductUrl(ctx, accessToken, shop)        
+        await getSubscriptionUrl(ctx, accessToken, shop);     
       }
     })
   );
-  
-  const webhook = receiveWebhook({ secret: SHOPIFY_API_SECRET_KEY });
-
-  router.post('/webhooks/products/create', webhook, (ctx) => {
-    console.log('received webhook: ', ctx.state.webhook);
-  });
 
   server.use(graphQLProxy({ version: ApiVersion.April19 }));
 

@@ -270,6 +270,9 @@ app.prepare().then(() => {
         require("./models/bundles");
         const bundleModel = mongoose.model("Bundle");
 
+        require("./models/user");
+        const userModel = mongoose.model("User");
+
         const response = await fetch(
         `https://${ctx.session.shop}/admin/api/2020-04/shop.json`,
             {
@@ -283,6 +286,21 @@ app.prepare().then(() => {
   
           const responseJson = await response.json();
           var results = JSON.parse(JSON.stringify(responseJson));
+
+          var user = await userModel.findOne({ email: results.shop.email }, async (err, res) => {
+            if (!res) {
+              var newUser = userModel({
+                name: results.shop.shop_owner,
+                email: results.shop.email,
+                shop: results.shop.name
+              })
+  
+              newUser.save(async function(err, doc) {
+                if (err) return console.error(err);
+                console.log("User saved succussfully!");
+              });
+            }
+          })        
       
           ShopUser = results.shop.shop_owner
           ShopName = results.shop.name

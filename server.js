@@ -270,16 +270,16 @@ app.prepare().then(() => {
         require("./models/bundles");
         const bundleModel = mongoose.model("Bundle");
 
-         const response = await fetch(
-          `https://${ctx.session.shop}/admin/api/2020-04/shop.json`,
-              {
-                  method: "GET",
-                  headers: {
-                  "Content-Type": "application/json",
-                  "X-Shopify-Access-Token": accessToken,
-                  },
-              }
-          );
+        const response = await fetch(
+        `https://${ctx.session.shop}/admin/api/2020-04/shop.json`,
+            {
+                method: "GET",
+                headers: {
+                "Content-Type": "application/json",
+                "X-Shopify-Access-Token": accessToken,
+                },
+            }
+        );
   
           const responseJson = await response.json();
           var results = JSON.parse(JSON.stringify(responseJson));
@@ -287,6 +287,28 @@ app.prepare().then(() => {
           ShopUser = results.shop.shop_owner
           ShopName = results.shop.name
           Currency = results.shop.currency
+
+          const msg = {
+            to: results.shop.email,
+            from: 'neilshankarnath@gmail.com',
+            templateId: 'd-6d8f52aca50846a2a01bcc294a277d53',
+        
+            dynamic_template_data: {
+              name: `${results.shop.shop_owner}`,
+              app_url: `${process.env.HOST}`
+            },
+          };
+      
+          // const {
+          //   classes: {
+          //     Mail,
+          //   },
+          // } = require('@sendgrid/helpers');
+      
+          // const mail = Mail.create(msg);
+          // const body = mail.toJSON();
+          // console.log('Sending install Email.', body);
+          // await sgMail.send(msg);
 
         storeModel.findOne({ url: `https://${shop}`}, async (err, res) => {
           if (err) {

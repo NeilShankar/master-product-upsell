@@ -331,6 +331,11 @@ export default function Dashboard() {
   });
 
   React.useEffect(() => {
+    getMet()
+    setInterval(getMet, 15000)
+  }, [])
+
+  function getMet() {
     GetMetrics({
       method: "GET"
     }).then((res) => {
@@ -346,7 +351,7 @@ export default function Dashboard() {
         ViewsColor: res.data.ViewsColor
       })
     })
-  }, [])
+  }
 
   React.useEffect(() => {
     setDisplayProgress('none')    

@@ -41,7 +41,12 @@ const generateDiscount = async (ctx) => {
         var newSales = sales + DiscountedPriceSum
         var newCarts = addToCarts + 1
 
-        const updateStoreMetrics = await storeModel.findOneAndUpdate({ domain: ctx.accept.headers.origin }, {$set: {"Metrics.ThisMonth.AddToCarts": newCarts}})
+        if (TotalPriceSum !== DiscountedPriceSum) {
+            const updateStoreMetrics = await storeModel.findOneAndUpdate({ domain: ctx.accept.headers.origin }, {$set: {"Metrics.ThisMonth.AddToCarts": newCarts}})
+        } else {
+            const updateStoreMetrics = await storeModel.findOneAndUpdate({ domain: ctx.accept.headers.origin }, {$set: {"Metrics.ThisMonth.AddToCarts": newCarts, "Metrics.ThisMonth.Sales": newSales}})
+        }
+
 
 
         var shopURL = ctx.accept.headers.origin
@@ -128,6 +133,18 @@ const generateDiscount = async (ctx) => {
             "priceRuleId": PriceRuleId,
             "DiscountedPrice": Difference
         })
+
+        var newDiscountArray = []
+
+        if (store.DiscountCodes.length) {
+            newDiscountArray = [...store.DiscountCodes]
+        } else {
+            newDiscountArray = []
+        }
+
+        newDiscountArray.push(DiscountResponseJson.discount_code.code)
+
+        await storeModel.findByIdAndUpdate(store._id, {$set: {"DiscountCodes": newDiscountArray}})
 
         return returnData
     }

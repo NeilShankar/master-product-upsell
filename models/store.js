@@ -38,6 +38,7 @@ const schema = new Schema({
           ShopName: String
      },
      Bundles: Array,
+     DiscountCodes: Array,
      UpdatingEnabled: Boolean,
      ServiceEnabled: Boolean,
      JobInfo: String

@@ -131,63 +131,98 @@ app.prepare().then(() => {
   router
   .get('/scripts/cart-snippet.js', ctx => {
     ctx.body = `
-      jQuery(document).ready(function() {
-        function getCookie(cname) {
-          var name = cname + "=";
-          var ca = document.cookie.split(';');
-          for(var i = 0; i < ca.length; i++) {
-            var c = ca[i];
-            while (c.charAt(0) == ' ') {
-              c = c.substring(1);
-            }
-            if (c.indexOf(name) == 0) {
-              return c.substring(name.length, c.length);
-            }
+    jQuery(document).ready(function() {
+      function removeExistingItem(key) {
+        if (localStorage.getItem(key) === null)
+          return false;
+        localStorage.removeItem(key);
+        return true;
+      }
+
+      function getCookie1(name) {
+        var dc = document.cookie;
+        var prefix = name + "=";
+        var begin = dc.indexOf("; " + prefix);
+        if (begin == -1) {
+          begin = dc.indexOf(prefix);
+          if (begin != 0) return null;
+        }
+        else
+        {
+          begin += 2;
+          var end = document.cookie.indexOf(";", begin);
+          if (end == -1) {
+            end = dc.length;
           }
-          return "";
         }
+        // because unescape has been deprecated, replaced with decodeURI
+        //return unescape(dc.substring(begin + prefix.length, end));
+        return decodeURI(dc.substring(begin + prefix.length, end));
+      } 
+      var cartCookie = getCookie1("cart");
 
-        if (localStorage.getItem("OffPrice") !== null) {
-          var DiscountText = localStorage.getItem("OffPrice")
-          var currency = getCookie("cart_currency")
-          var txt1 = '<div class="shopLee_cartSnippet" style="position: relative; height: 84px; border-left: 6px solid #4ac24a; border-radius: 5px; width: 31%; text-align: center; padding: 10px 0; box-shadow: 0px 0px 27px 0px rgba(122,112,122,0.56); top: 3.5em; margin-bottom: 1em; background: #ffffff;">' +
-          '<h5 style="margin-bottom: 6px;">Bundle Discount</h5>' +
-          '<p style="font-size: 13.5px;">Hooray, you have availed '+ DiscountText + ' ' + currency + ' ' + ' Off on your Bundles!</p>' +
-          '</div>'
+      if (cartCookie == null) {
+        removeExistingItem("CartBundles")
+        removeExistingItem("PriceRuleId")
+        removeExistingItem("TotalDiscountedPrice")
+      } else {
+        console.log("Cart Available.")
+      }
 
-          $("[name=checkout]").after(txt1);
-          $("[name=checkout]").css("position", "absolute");
-          $("[name=checkout]").addClass("shopLee_checkout");
-
-          $(window).resize(function() {
-            var width = $(window).width();
-            if (width < 767){
-              $("[name=checkout]").css("width", "80%");
-              $(".shopLee_cartSnippet").css("width", "100%");
-              $(".shopLee_cartSnippet").css("top", "4.5em");
-              $(".shopLee_cartSnippet").css("margin-bottom", "2em");
-            } else {
-              $("[name=checkout]").css("width", "10%");
-              $(".shopLee_cartSnippet").css("width", "31%");
-              $(".shopLee_cartSnippet").css("top", "3.5em");
-              $(".shopLee_cartSnippet").css("margin-bottom", "1em");
-            }
-          });
-
-          var xhttp = new XMLHttpRequest();
-          xhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-              console.log("New Conversion")
-            }
-          };
-          xhttp.open("POST", "${process.env.HOST}/api/conversions", true);
-          xhttp.setRequestHeader("Content-type", "application/json");
-          xhttp.send(JSON.stringify({
-            sale: localStorage.getItem("TotalDiscountedPrice")
-          })
-          );
+      jQuery.ajax({
+        type: 'GET',
+        url: '/cart.js',
+        dataType: 'json',   
+        success: function(res) {      
+          if (res.item_count <= 0) {
+            console.log("Cleared Bundles")
+            removeExistingItem("CartBundles")
+            removeExistingItem("PriceRuleId")
+            removeExistingItem("TotalDiscountedPrice")
+          }
         }
-      });
+      })
+
+      function getCookie(cname) {
+        var name = cname + "=";
+        var ca = document.cookie.split(';');
+        for(var i = 0; i < ca.length; i++) {
+          var c = ca[i];
+          while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+          }
+          if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+          }
+        }
+        return "";
+      }
+      if (localStorage.getItem("TotalDiscountedPrice") !== null && localStorage.getItem("TotalDiscountedPrice") > 0) {
+        var DiscountText = localStorage.getItem("TotalDiscountedPrice")
+        var currency = getCookie("cart_currency")
+        var txt1 = '<div class="shopLee_cartSnippet" style="position: relative; padding: 10px 42px !important; height: 84px; border-left: 6px solid #4ac24a; border-radius: 5px; width: 31%; text-align: center; padding: 10px 0; box-shadow: 0px 0px 27px 0px rgba(122,112,122,0.56); top: 3.5em; margin-bottom: 1em; background: #ffffff;">' +
+        '<h5 style="margin-bottom: 6px;">Bundle Discount</h5>' +
+        '<p style="font-size: 13.5px;">Hooray, you have availed '+ DiscountText + ' ' + currency + ' ' + ' Off on your Bundles!</p>' +
+        '</div>'
+        $("[name=checkout]").after(txt1);
+        $("[name=checkout]").css("position", "absolute");
+        $("[name=checkout]").addClass("shopLee_checkout");
+        $(window).resize(function() {
+          var width = $(window).width();
+          if (width < 767){
+            $("[name=checkout]").css("width", "80%");
+            $(".shopLee_cartSnippet").css("width", "100%");
+            $(".shopLee_cartSnippet").css("top", "4.5em");
+            $(".shopLee_cartSnippet").css("margin-bottom", "2em");
+          } else {
+            $("[name=checkout]").css("width", "10%");
+            $(".shopLee_cartSnippet").css("width", "31%");
+            $(".shopLee_cartSnippet").css("top", "3.5em");
+            $(".shopLee_cartSnippet").css("margin-bottom", "1em");
+          }
+        });
+      }
+    });
     `
   })
 
@@ -277,7 +312,7 @@ app.prepare().then(() => {
             const reScripts = await scriptTagGet.json()
 
             var scriptsArr = []
-            scriptsArr = [...reScripts]
+            scriptsArr = [...reScripts.script_tags]
 
             scriptsArr.forEach(async (element) => {
               await fetch(
@@ -443,8 +478,22 @@ app.prepare().then(() => {
 
     ctx.body = "Sent."
   })
-  .post('/webhooks/orders/create', webhook, (ctx) => {
-    console.log('received webhook: ', ctx.state.webhook);
+  .post('/webhooks/orders/create', webhook, async (ctx) => {
+    const order = ctx.state.webhook.payload
+    require('./models/store')
+    const storeModel = mongoose.model('Store')
+
+    if (order.discount_codes.length) {
+      const storeMod = await storeModel.findOne({ url: `https://${ctx.state.webhook.domain}` })
+      const discountsArray = await storeMod.DiscountCodes
+
+      for (var i = 0; i < discountsArray.length; i++) {
+        if (discountsArray[i] === order.discount_codes[0].code) {
+          var newSales = storeMod.Metrics.ThisMonth.Sales + Math.trunc(parseInt(order.subtotal_price))
+          const update = await storeModel.findByIdAndUpdate(storeMod._id, {$set: {"Metrics.ThisMonth.Sales": newSales}})
+          } 
+        }
+      }
   })
   .post('/webhooks/shop/redact', webhook, (ctx) => {
     console.log('received webhook: ', ctx.state.webhook);
@@ -459,7 +508,7 @@ app.prepare().then(() => {
   })
 
   function checkOriginAgainstWhitelist(ctx) {
-    const requestOrigin = ctx.accept.headers.origin || process.env.HOST || "product-upsell-shopify-obc49zl10.now.sh";
+    const requestOrigin = ctx.accept.headers.origin || process.env.HOST;
     require('./models/store')
     const storeModel = mongoose.model('Store')
     

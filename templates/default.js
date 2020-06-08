@@ -14,7 +14,9 @@ const getThemes = async function getThemes(ShopURI, accessT) {
 
     results["themes"].forEach(function(obj) { if (obj["role"] === "main") { themeID = obj["id"] } });
 
-    var uploadFile = `   
+
+
+    var uploadFile = `
 
     <!--ShopLee App Configuration Code Begin-->
     <div class="container shopLee_container" id="shopLee_snippet" style="display: none;">
@@ -22,6 +24,49 @@ const getThemes = async function getThemes(ShopURI, accessT) {
     </div>
     <!--   Don't modify the App Script, unless you are a developer and know what to do.     -->
     <script>
+      function removeExistingItem(key) {
+        if (localStorage.getItem(key) === null)
+          return false;
+        localStorage.removeItem(key);
+        return true;
+      }
+
+      function getCookie(name) {
+        var dc = document.cookie;
+        var prefix = name + "=";
+        var begin = dc.indexOf("; " + prefix);
+        if (begin == -1) {
+          begin = dc.indexOf(prefix);
+          if (begin != 0) return null;
+        }
+        else
+        {
+          begin += 2;
+          var end = document.cookie.indexOf(";", begin);
+          if (end == -1) {
+            end = dc.length;
+          }
+        }
+        // because unescape has been deprecated, replaced with decodeURI
+        //return unescape(dc.substring(begin + prefix.length, end));
+        return decodeURI(dc.substring(begin + prefix.length, end));
+      } 
+      var cartCookie = getCookie("cart");
+
+      if (cartCookie == null) {
+        removeExistingItem("CartBundles")
+        removeExistingItem("PriceRuleId")
+        removeExistingItem("TotalDiscountedPrice")
+      } else {
+        console.log("Cart Available.")
+      }
+      
+      if ({{ cart.item_count }} <= 0) {
+        removeExistingItem("CartBundles")
+        removeExistingItem("PriceRuleId")
+        removeExistingItem("TotalDiscountedPrice")
+      }
+      
       let sourceChangedVariant
       let selectChangedVariant
       let addToCartCall
@@ -31,12 +76,13 @@ const getThemes = async function getThemes(ShopURI, accessT) {
           var data = JSON.parse(this.responseText)
           let BundleId = data.BundleId
           let BundleConfigs = data.BundleConfigs
-          console.log(data)
           let sourceVariant = 0
           var selectVariant = 0
           var DiscountAmount = Math.round((data.Discount / 100) * parseInt(Math.trunc(data.products[0].variants[sourceVariant].price)) + parseInt(Math.trunc(data.products[1].variants[selectVariant].price)))
           var TotalPrice = parseInt(Math.trunc(data.products[0].variants[sourceVariant].price)) + parseInt(Math.trunc(data.products[1].variants[selectVariant].price))
           var DiscountedPrice = TotalPrice - DiscountAmount
+
+          var FixedDiscountAmount = DiscountAmount.toFixed(2)
     
           let DisplayPriceText 
     
@@ -105,8 +151,9 @@ const getThemes = async function getThemes(ShopURI, accessT) {
           updatePricing = () => {
             DiscountAmount = (data.Discount / 100) * (parseInt(data.products[0].variants[sourceVariant].price) + parseInt(data.products[1].variants[selectVariant].price))
             TotalPrice = parseInt(Math.trunc(data.products[0].variants[sourceVariant].price)) + parseInt(Math.trunc(data.products[1].variants[selectVariant].price))
-            DiscountedPrice = TotalPrice - DiscountAmount
-    
+            DiscountedPrice = TotalPrice - DiscountAmount    
+
+            FixedDiscountAmount = DiscountAmount.toFixed(2)
             if (data.Discount > 0) {
               DisplayPriceText = \`<span style="color: #1bbf3c;">\${DiscountedPrice} {{ shop.currency }}</span> <span style="text-decoration: line-through; color: gray;">\${TotalPrice} {{ shop.currency }}</span>\`
             } else {
@@ -134,7 +181,11 @@ const getThemes = async function getThemes(ShopURI, accessT) {
               },
               dataType: 'json',   
               success: function(res) {
-                  document.getElementById("toast_discount_text").innerHTML = \`You have availed \${DiscountAmount} {{ shop.currency }} Off! Discount will be applied automatically when you checkout.\`
+                if (TotalPrice !== DiscountedPrice) {
+                  document.getElementById("toast_discount_text").innerHTML = \`You have availed \${FixedDiscountAmount} {{ shop.currency }} Off! Discount will be applied automatically when you checkout.\`
+                } else {
+                  document.getElementById("toast_discount_text").innerHTML = \`Bundle Added To Cart! Thanks for shopping with us!\`
+                }
             document.getElementById("toast_cart").style.display = "Block"
             storeCartData()
     
@@ -147,10 +198,14 @@ const getThemes = async function getThemes(ShopURI, accessT) {
             xhttp.onreadystatechange=function() {
               if (this.readyState == 4 && this.status == 200) {
             var discountData = JSON.parse(this.responseText)
+            var FixDiscount = discountData.DiscountedPrice
+	        	var FixedDiscountP = FixDiscount.toFixed(2)
             localStorage.setItem("PriceRuleId", discountData.priceRuleId);
-            localStorage.setItem("TotalDiscountedPrice", discountData.DiscountedPrice)
+            localStorage.setItem("TotalDiscountedPrice", FixedDiscountP)
             var url = window.location.hostname
+            if (TotalPrice !== DiscountedPrice) {
               window.location.href = "https://"+url+"/discount/"+discountData.discountCode+"?redirect=/products/"+data.products[0].handle
+            }
           }	
             };
         xhttp.open("POST", \`${process.env.HOST}/generate-discount/\${BundleId}\`, true);
@@ -321,10 +376,6 @@ const getThemes = async function getThemes(ShopURI, accessT) {
         }
       })
     });
-
-   console.log(updateTheme.json())
-
-    
   }
 
   module.exports = getThemes

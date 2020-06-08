@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const BundleEnable = axios.create({
-  baseURL: `https://912288751566.ngrok.io/api/bundlesEnabled`
+  baseURL: `${process.env.HOST}/api/bundlesEnabled`
 })
 
 export default BundleEnable

@@ -332,7 +332,7 @@ export default function FrequentlyBought() {
   }, [previewData])
 
   function saveBundleConfigs() {
-    axios.post('https://912288751566.ngrok.io/api/saveBundleInfo', {
+    axios.post('/api/saveBundleInfo', {
       bundleConfigs: previewData
     })
     .then((response) => {
@@ -368,6 +368,7 @@ export default function FrequentlyBought() {
     GetProductsLive({
       method: "GET"
     }).then(async (res) => {
+      console.log(res.data)
       setPreviewRes({ data: await res.data })
       setLoaded(true)
     })
@@ -376,9 +377,11 @@ export default function FrequentlyBought() {
   React.useEffect(() => {
     setTimeout(() => {
       if (loaded === true) {
+        setSkeletonDisplay('none')
         loadPreview()
-        axios.get('https://912288751566.ngrok.io/api/getBundleInfo')
+        axios.get(`${process.env.REACT_APP_HOST}/api/getBundleInfo`)
         .then((response) => {
+          console.log(response.data)
           setPreviewData(response.data)
           setDisplayProgress('none')
         }, (error) => {
@@ -621,15 +624,7 @@ export default function FrequentlyBought() {
           <Link href="/settings" shallow={true}>
             <ListItemText primary={"Settings"} />
           </Link>
-        </ListItem>      
-        <ListItem button key={"Account"}>
-          <Link href="/account" shallow={true}>
-            <ListItemIcon><AccountBoxIcon style={{ color: "white" }} /></ListItemIcon>
-          </Link>
-          <Link href="/account" shallow={true}>
-            <ListItemText primary={"Account"} />
-          </Link>
-        </ListItem>       
+        </ListItem>    
         <ListItem button key={"FAQ"}>
           <Link href="/frequently-asked-questions" shallow={true}>
             <ListItemIcon><LiveHelpIcon style={{ color: "white" }} /></ListItemIcon>

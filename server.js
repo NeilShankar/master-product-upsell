@@ -1,6 +1,5 @@
 require('isomorphic-fetch');
-const dotenv = require('dotenv');
-dotenv.config();
+require('dotenv').config();
 const Koa = require('koa');
 
 const next = require('next');
@@ -13,14 +12,6 @@ const { ApiVersion } = require('@shopify/koa-shopify-graphql-proxy');
 const Router = require('koa-router');
 const { receiveWebhook, registerWebhook } = require('@shopify/koa-shopify-webhooks');
 const getSubscriptionUrl = require('./server/getSubscriptionUrl');
-const puppeteer = require('puppeteer');
-
-const getRawBody = require('raw-body')
-const crypto = require('crypto')
-const secretKey = process.env.SHOPIFY_API_SECRET_KEY
-
-const axios = require('axios');
-const CircularJSON = require('circular-json')
 
 const postFrequentProduct = require('./routes/frequent-bought')
 const port = parseInt(process.env.PORT, 10) || 3000;
@@ -29,6 +20,10 @@ const app = next({ dev });
 const handle = app.getRequestHandler();
 
 const cookie = require('cookie');
+
+// Emailer - Sendgrid :)
+const sgMail = require('@sendgrid/mail');
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // Jobs
 const UpdateRecommendedProducts = require('./Jobs/dailyUpdate')
@@ -55,9 +50,15 @@ const ApplyAllRecommendation = require('./services/ApplyAllRecommendation')
 const EnabledBundles = require('./services/BundlesEnabled')
 const CheckEnabled = require('./services/CheckEnabled')
 const generateDiscount = require('./routes/discounter')
+const EnabledUpdating = require('./services/CheckUpdateEnabled')
+const EnableUpdater = require('./services/EnableUpdater')
+const checkFirstTime = require('./services/checkFirstTime')
 
 // Theme Required Snippets
 // const cartSnippet = require('./scripts/cart-snippet.js')
+
+// Testing Routes
+const getThemes = require('./templates/default')
 
 const schedule = require('node-schedule');
 
@@ -90,7 +91,9 @@ app.prepare().then(() => {
   .get('/api/getBundleInfo', getBundleInfo)
   .get('/api/getProducts', getProducts)
   .get('/api/allProducts', GetAllProduct)
+  .get('/api/checkFirstTime', checkFirstTime)
   .get('/api/resetProducts', ResetProducts)
+  .get('/api/checkUpdatesEnable', EnabledUpdating)
   .get('/api/getStoreInfo', getStoreInfo)
   .get('/api/getAllBundles', getAllBundles)
   .post('/api/bundlesEnabled', EnabledBundles)
@@ -98,6 +101,7 @@ app.prepare().then(() => {
   .get('/api/test', UpdateRecommendedProducts)
   .get('/api/applyAllNewRecommendation', ApplyAllNewRecommendation)
   .get('/api/applyAllRecommendation', ApplyAllRecommendation)
+  .post('/api/updatesEnable', EnableUpdater)
   .post('/api/selectProduct', SelectProduct)
   .post('/api/applyRecommendation', ApplyRecommendation)
   .post('/api/applyNewRecommendation', ApplyNewRecommendation)
@@ -111,6 +115,18 @@ app.prepare().then(() => {
   router
   .get('/post-product/:id', postFrequentProduct)
   .post('/generate-discount/:id', generateDiscount)
+
+  router.post('/api/conversions', async (ctx) => {
+    require('./models/store')
+    const storeModel = mongoose.model('Store')
+
+    const store = await storeModel.findOne({ url: `https://${ctx.session.shop}` })
+
+    const increaseSales = await store.Metrics.ThisMonth.Sales + ctx.request.body.sale
+    const storeUpdate = await storeModel.findOneAndUpdate({ url: `https://${ctx.session.shop}` }, {$set: {"Metrics.ThisMonth.Sales": increaseSales}})
+
+    ctx.body = "Hello."
+  })
 
   router
   .get('/scripts/cart-snippet.js', ctx => {
@@ -131,8 +147,8 @@ app.prepare().then(() => {
           return "";
         }
 
-        if (localStorage.getItem("TotalDiscountedPrice") !== null) {
-          var DiscountText = localStorage.getItem("TotalDiscountedPrice")
+        if (localStorage.getItem("OffPrice") !== null) {
+          var DiscountText = localStorage.getItem("OffPrice")
           var currency = getCookie("cart_currency")
           var txt1 = '<div class="shopLee_cartSnippet" style="position: relative; height: 84px; border-left: 6px solid #4ac24a; border-radius: 5px; width: 31%; text-align: center; padding: 10px 0; box-shadow: 0px 0px 27px 0px rgba(122,112,122,0.56); top: 3.5em; margin-bottom: 1em; background: #ffffff;">' +
           '<h5 style="margin-bottom: 6px;">Bundle Discount</h5>' +
@@ -157,6 +173,19 @@ app.prepare().then(() => {
               $(".shopLee_cartSnippet").css("margin-bottom", "1em");
             }
           });
+
+          var xhttp = new XMLHttpRequest();
+          xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+              console.log("New Conversion")
+            }
+          };
+          xhttp.open("POST", "${process.env.HOST}/api/conversions", true);
+          xhttp.setRequestHeader("Content-type", "application/json");
+          xhttp.send(JSON.stringify({
+            sale: localStorage.getItem("TotalDiscountedPrice")
+          })
+          );
         }
       });
     `
@@ -189,7 +218,7 @@ app.prepare().then(() => {
     createShopifyAuth({
       apiKey: SHOPIFY_API_KEY,
       secret: SHOPIFY_API_SECRET_KEY,
-      scopes: ['read_products', 'write_products', 'read_themes', 'write_themes', 'write_price_rules', 'read_price_rules', 'read_script_tags', 'write_script_tags'],
+      scopes: ['read_products', 'write_products', 'read_themes', 'write_themes', 'write_price_rules', 'read_price_rules', 'read_script_tags', 'write_script_tags', 'read_orders', 'write_orders'],
       accessMode: 'offline',
       async afterAuth(ctx) {
         const { shop, accessToken } = ctx.session;
@@ -225,12 +254,43 @@ app.prepare().then(() => {
           Currency = results.shop.currency
 
         storeModel.findOne({ url: `https://${shop}`}, async (err, res) => {
-          if (!err & res) {
-            await storeModel.findByIdAndUpdate(res._id, { accessToken: accessToken }, (err, res) => {
+          if (err) {
+            console.log(err)
+          }
+
+          if (res) {
+            await storeModel.findByIdAndUpdate(res._id, { accessToken: accessToken, "BundleConfigs.Enabled": true, "ServiceEnabled": true }, async (err, res) => {
               if (err) {
                 console.log(err)
               }
             })
+
+            const scriptTagGet = await fetch(
+              `https://${ctx.session.shop}/admin/api/2020-04/script_tags.json?src=${process.env.HOST}/scripts/cart-snippet.js`, {
+                      method: "GET",
+                      headers: {
+                      "Content-Type": "application/json",
+                      "X-Shopify-Access-Token": accessToken,
+                      }
+            });
+
+            const reScripts = await scriptTagGet.json()
+
+            var scriptsArr = []
+            scriptsArr = [...reScripts]
+
+            scriptsArr.forEach(async (element) => {
+              await fetch(
+                `https://${ctx.session.shop}/admin/api/2020-04/script_tags/${element.id}.json`, {
+                        method: "DELETE",
+                        headers: {
+                        "Content-Type": "application/json",
+                        "X-Shopify-Access-Token": accessToken,
+                        }
+              });
+            });
+
+            console.log("Pre-Initiliazed, so not doing more work...")            
           } else {
             // Saving Store Data to MongoDB
             const storeData = storeModel({
@@ -269,6 +329,8 @@ app.prepare().then(() => {
                 UserName: ShopUser,
                 ShopName: ShopName
               },
+              UpdatingEnabled: true,
+              ServiceEnabled: false,
               JobInfo: `updaterFor${shop}`
             })
 
@@ -277,49 +339,118 @@ app.prepare().then(() => {
               console.log("Document saved succussfully!");
             });
 
-            agenda.define('update products', {priority: 'high'}, async job => {
-              const {shopData, upJobId} = job.attrs.data
-              job.unique({ 'data.id': `updatesFor${shop}` });
-              UpdateRecommendedProducts(shopData)
-            });
-            
-            (async function() {       
-              await agenda.start()
-              await agenda.every('1440 minutes', 'update products', {shopData: `${shop}`, upJobId: `updaterFor${shop}`}, { skipImmediate: true }, { timezone: "UTC"});
-            })();
-
-            var ScriptData = JSON.stringify({
-              "script_tag": {
-                "event": "onload",
-                "src": `${process.env.HOST}scripts/cart-snippet.js`
-              }
-            })
-
-            const scriptTag = await fetch(
-              `https://${ctx.session.shop}/admin/api/2020-04/script_tags.json`,
-                  {
-                      method: "POST",
-                      headers: {
-                      "Content-Type": "application/json",
-                      "X-Shopify-Access-Token": accessToken,
-                      },
-                      body: ScriptData
-                  }
-              );
+            getThemes(`https://${shop}`, accessToken)
+            InitializeBundles(ctx)
           }
         })
 
-        const getThemes = require('./templates/default')
+        agenda.define('update products', {priority: 'high'}, async job => {
+          const {shopData, upJobId} = job.attrs.data
+          job.unique({ 'data.id': `updatesFor${shop}` });
+          UpdateRecommendedProducts(shopData)
+        });
+        
+        (async function() {
+          await agenda.start()
+          await agenda.every('1440 minutes', 'update products', {shopData: `${shop}`, upJobId: `updaterFor${shop}`}, { skipImmediate: true }, { timezone: "UTC"});
+        })();
 
-        getThemes(`https://${shop}`, accessToken)
-        InitializeBundles(ctx)
+        var ScriptData = JSON.stringify({
+          "script_tag": {
+            "event": "onload",
+            "src": `${process.env.HOST}/scripts/cart-snippet.js`
+          }
+        })
+
+        const scriptTag = await fetch(
+          `https://${ctx.session.shop}/admin/api/2020-04/script_tags.json`,
+              {
+                  method: "POST",
+                  headers: {
+                  "Content-Type": "application/json",
+                  "X-Shopify-Access-Token": accessToken,
+                  },
+                  body: ScriptData
+              }
+          );
+
+        const orderWebhook = await registerWebhook({
+          address: `${process.env.HOST}/webhooks/orders/create`,
+          topic: 'ORDERS_CREATE',
+          accessToken,
+          shop,
+          apiVersion: ApiVersion.April20
+        });       
+        
+        const uninstallWebhook = await registerWebhook({
+          address: `${process.env.HOST}/webhooks/app/uninstalled`,
+          topic: 'APP_UNINSTALLED',
+          accessToken,
+          shop,
+          apiVersion: ApiVersion.April20
+        });   
+
+        if (uninstallWebhook.success) {
+          console.log('Successfully registered webhook uninstall hook!');
+        } else {
+          console.log('Failed to register webhook', uninstallWebhook.result);
+        }
+
+        if (orderWebhook.success) {
+          console.log('Successfully registered webhook order hook!');
+        } else {
+          console.log('Failed to register webhook', orderWebhook.result);
+        }
 
         await getSubscriptionUrl(ctx, accessToken, shop);     
       }
     })
   );
 
-  server.use(graphQLProxy({ version: ApiVersion.April19 }));
+  // Webhooks
+
+  const webhook = receiveWebhook({secret: SHOPIFY_API_SECRET_KEY});
+
+  router.post('/webhooks/app/uninstalled', webhook, async (ctx) => {
+    const webhook = ctx.state.webhook
+
+    require('./models/store')
+    const storeModel = mongoose.model('Store')
+    
+    const updateUninstalledState = await storeModel.findOneAndUpdate({ url: `https://${webhook.domain}`}, {$set: {"BundleConfigs.Enabled": false, "ServiceEnabled": false}})
+
+    const msg = {
+      to: webhook.payload.email,
+      from: 'neilshankarnath@gmail.com',
+      templateId: 'd-128559708c5949cf8eb51bac9cca8218',
+  
+      dynamic_template_data: {
+        subject: `Oh, no! We Are Sorry To See You Go ${webhook.payload.shop_owner}!`,
+        name: `${webhook.payload.shop_owner}`
+      },
+    };
+
+    const {
+      classes: {
+        Mail,
+      },
+    } = require('@sendgrid/helpers');
+
+    const mail = Mail.create(msg);
+    const body = mail.toJSON();
+    console.log('Sending Uninstall Email.', body);
+    await sgMail.send(msg);
+
+    ctx.body = "Sent."
+  })
+  .post('/webhooks/orders/create', webhook, (ctx) => {
+    console.log('received webhook: ', ctx.state.webhook);
+  })
+  .post('/webhooks/shop/redact', webhook, (ctx) => {
+    console.log('received webhook: ', ctx.state.webhook);
+  });
+
+  server.use(graphQLProxy({ version: ApiVersion.April20 }));
 
   router.get('*', verifyRequest(), async (ctx) => {
     await handle(ctx.req, ctx.res);

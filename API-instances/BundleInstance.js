@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const BundleInstance = axios.create({
-  baseURL: `https://912288751566.ngrok.io/api/saveBundleInfo`
+  baseURL: `${process.env.HOST}/api/saveBundleInfo`
 })
 
 export default BundleInstance

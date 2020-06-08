@@ -343,7 +343,7 @@ const InitializeBundles = async (ctx) => {
                     BundleIdArray.push(element._id)
                 })
 
-                storeModel.updateOne({ url: `https://${shopURL}`}, { Bundles: BundleIdArray }, (err, res) => {
+                storeModel.updateOne({ url: `https://${shopURL}`}, { Bundles: BundleIdArray, "ServiceEnabled": true}, (err, res) => {
                     if (err) {
                        console.log(err)
                     }

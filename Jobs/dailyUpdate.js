@@ -16,6 +16,10 @@ async function UpdateRecommendedProducts(url) {
     // First we get the StoreModel
     const store = await storeModel.findOne({ url: `https://${shopURL}` })
 
+    if (store.UpdatingEnabled === false) {
+        return ;
+    }
+
     var bundleArr = []
 
     // Then We get the Bundles

@@ -83,6 +83,39 @@ import ApplySingle from '../components/bundles/ApplySingle'
 
 import EnableBundles from '../components/bundles/Enable'
 import { FixedSizeList as ReactList } from 'react-window';
+import Faq from "react-faq-component";
+
+const useData = {
+    title: "Usage & Configuration",
+    rows: [
+        {
+            title: "How do I configure and setup the Bundle Snippet on My Store?",
+            content: `It's Pretty easy, copy and paste {% render 'shoplee-bundles' %} in your product template of your active theme! 
+            We mostly see people put this in sections/product-template.liquid, but if you need any help you can leave us a mail at neilshankarnath@gmail.com
+            or reach us through the chat, and we will try to do the best we can!`,
+        },
+        {
+            title: "Is there a way to configure the styles of the Snippet?",
+            content:
+                `Surely there is! We have made a configuration panel for just for you! So that you can configure the title of the snippet, button colors etc. 
+                We currently don't have much options in our configuration panel, but we promise we will be adding more as soon as we can!`,
+        },
+        {
+            title: "There is a Bug/Error Displaying in The App",
+            content: `If you feel like there is a bug/error, please report it to neilshankarnath@gmail.com or at the live chat. 
+            We will definately help you to fix the bugs/errors you find, and create a better experience for you!`,
+        },
+        {
+            title: "Can you make a custom theme for my store?",
+            content: `Yes, we can make a custom snippet theme for your store, as you describe it to be!
+            Just contact us at neilshankarnath@gmail.com and we will be as quick as possible to deliver the new theme for your snippet!`,
+        },
+        {
+            title: "Where do I change Option To Update Products Regularly?",
+            content: `You can update the option in the Settings Panel, from the gear icon at the left side Navigation!`,
+        },
+    ],
+};
 
 const AntSwitch = withStyles((theme) => ({
   root: {
@@ -222,6 +255,81 @@ const legend = {
 const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
+    
+    "h1": {
+        "fontFamily": "\"Lato\", sans-serif",
+        "fontWeight": "700",
+        "fontStyle": "normal",
+        "color": "#98c23d",
+        "fontSize": "32px"
+    },
+    "content": {
+        "width": "80%",
+        "padding": "0 60px 0 0",
+        "margin": "0 auto"
+    },
+    "centerplease": {
+        "margin": "0 auto",
+        "maxWidth": "270px",
+        "fontSize": "40px"
+    },
+    "question": {
+        "color": "#fff",
+        "position": "relative",
+        "background": "#98c23d",
+        "margin": "0",
+        "padding": "10px 10px 10px 50px",
+        "display": "block",
+        "width": "100%",
+        "cursor": "pointer"
+    },
+    "answers": {
+        "fontWeight": "300",
+        "background": "#f2f2f2",
+        "padding": "0px 15px",
+        "margin": "0px 0",
+        "height": "0",
+        "overflow": "hidden",
+        "zIndex": "-1",
+        "position": "relative",
+        "opacity": "0",
+        "WebkitTransition": ".7s ease",
+        "MozTransition": ".7s ease",
+        "OTransition": ".7s ease",
+        "transition": ".7s ease"
+    },
+    "questions_checked____answers": {
+        "height": "auto",
+        "opacity": "1",
+        "padding": "15px"
+    },
+    "plus": {
+        "color": "#fff",
+        "position": "absolute",
+        "marginLeft": "10px",
+        "marginTop": "5px",
+        "zIndex": "5",
+        "fontSize": "2em",
+        "lineHeight": "100%",
+        "WebkitUserSelect": "none",
+        "MozUserSelect": "none",
+        "MsUserSelect": "none",
+        "OUserSelect": "none",
+        "userSelect": "none",
+        "WebkitTransition": ".3s ease",
+        "MozTransition": ".3s ease",
+        "OTransition": ".3s ease",
+        "transition": ".3s ease"
+    },
+    "questions_checked____plus": {
+        "WebkitTransform": "rotate(45deg)",
+        "MozTransform": "rotate(45deg)",
+        "OTransform": "rotate(45deg)",
+        "transform": "rotate(45deg)"
+    },
+    "questions": {
+        "display": "none"
+    },      
   inputRoot: {
     padding: '2px 4px',
     display: 'flex',
@@ -244,6 +352,8 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexGrow: 1,
   },
+  titleTextColor: "blue",
+  rowTitleColor: "blue",
   margin: {
     margin: theme.spacing(1),
   },
@@ -342,7 +452,6 @@ export default function FrequentlyBought() {
 
   const anchorRef = React.useRef(null);
   const [MenuOpen, setMenuOpen] = React.useState(false);
-  const [SkeletonDisplay, setSkeletonDisplay] = React.useState('block');
   const [PrevDisplay, setPrevDisplay] = React.useState('none');
 
   const [hasMore, setHasMore] = React.useState([true])
@@ -353,7 +462,7 @@ export default function FrequentlyBought() {
   const [page, setPage] = React.useState(1)
   const [totalPage, setTotalPage] = React.useState(1)
 
-  const [displayProgress, setDisplayProgress] = React.useState('block');
+  const [displayProgress, setDisplayProgress] = React.useState('none');
   const bull = <span className={classes.bullet}>•</span>;
   const [save, saveOpen] = React.useState(false);
   const [checked, setChecked] = React.useState(false)
@@ -377,400 +486,11 @@ export default function FrequentlyBought() {
     setAnchorEl(null);
   };
 
-  const discountChangeSing = (Discount, Id) => {
-    var updateArr = []
-    bundles.forEach(element => {
-      var Elem = element
-      if (element._id === Id) {
-        Elem.Discount = Discount
-      }
-      updateArr.push(Elem)
-    });
-    setBundles(updateArr)
-    if (search.searching === true) {
-      searchFunc(search.term)
-    } else {
-      setDisplayBundles(paginate(bundles, 10, page))
-    }
-  }
-
-  const controlSearch = (e) => {
-    if (e.target.value === "" || e.target.value.length < 1) {
-      setTimeout(() => {
-        setPage(1)
-        setSearch({ searching: false })
-        setDisplayBundles(paginate(bundles, 10, page))
-        var rounded = Math.ceil(bundles.length / 10) * 10
-        var distance = bundles.length
-        
-        var pages = rounded / 10
-
-        if (distance > rounded) {
-          pages = pages + 1
-        }
-
-        setTotalPage(pages)
-        setDisplayProgress('none') 
-      }, 3000);
-    }
-  }
-
-  async function handleSearch(e) {
-      setSearch({ 
-        term: e.target.value,
-      })
-      
-      if (searchTimeout) {
-        clearTimeout(searchTimeout);
-      }      
-
-        setDisplayProgress('block')
-        setSearchTimeout({
-          timeout: setTimeout(() => {     
-            if (search.term !== "") {
-              searchFunc(search.term)
-            }            
-          }, 2000)
-        })
-
-        controlSearch(e)
-  }
-
-  React.useEffect(() => {    
-    if (loaded === true)  {
-      setDisplayBundles(paginate(bundles, 10, page))
-      var rounded = Math.ceil(bundles.length / 10) * 10
-      var distance = bundles.length
-      
-      var pages = rounded / 10
-
-      if (distance > rounded) {
-        pages = pages + 1
-      }
-
-      setTotalPage(pages)
-    }
-  }, [bundles])
-
-  const [pageButtons, setPageButtons]  = React.useState({
-    next: true,
-    prev: true
-  })
-
-  React.useEffect(() => {
-      if (page === 1 && totalPage > 1) {
-        setPageButtons({
-          next: false,
-          prev: true
-        })
-      } else if (totalPage === 1) {
-        setPageButtons({
-          next: true,
-          prev: true
-        })
-      }
-  }, [totalPage])
-
-  
-  React.useEffect(() => {
-    if (page === 1 && totalPage > 1) {
-      setPageButtons({
-        next: false,
-        prev: true
-      })
-    } else if (page > 1 && page < totalPage) {
-      setPageButtons({
-        next: false,
-        prev: false
-      })
-    } else if (totalPage === 1){
-      setPageButtons({
-        next: true,
-        prev: true
-      })
-    } else if (page === totalPage) {
-        setPageButtons({
-          next: true,
-          prev: false
-        })
-    }
-  }, [page])
-
-  const [discountChange, setDiscountChange] = React.useState(0)
-
-
-  const discountRef = React.useRef()
-  const sApply = React.useRef()
-
-  function paginate(array, page_size, page_number) {
-    setPage(page_number)
-    return array.slice((page_number - 1) * page_size, page_number * page_size);
-  }
-
-  function searchFunc(nameKey){
-    if (!nameKey){
-      setDisplayBundles(paginate(bundles, 10, 1))
-
-      var rounded = Math.ceil(bundles.length / 10) * 10
-      var distance = bundles.length
-      
-      var pages = rounded / 10
-
-      if (distance > rounded) {
-        pages = pages + 1
-      }
-
-      setTotalPage(pages)
-    } else {
-      var searchArray = []
-      bundles.forEach(element => {
-        var title = element.SourceProduct.Title
-        var searchTerm = nameKey
-        var filteredS = searchTerm.toLowerCase()
-        var filteredT = title.toLowerCase()
-
-        if (filteredT.includes(filteredS)) {
-          searchArray.push(element)                                           
-        }
-      });
-        setDisplayBundles(paginate(searchArray, 10, 1))
-
-        var rounded = Math.ceil(searchArray.length / 10) * 10
-        var distance = searchArray.length
-        
-        var pages = rounded / 10
-
-        if (distance > rounded) {
-          pages = pages + 1
-        }
-
-        setTotalPage(pages)
-        setDisplayProgress('none')  
-        setSearch({ searching: true })  
-    }
-  }
-
-  const nextPage = () => {
-    if (search.searching === true) {
-      if (Array.isArray(search.items)) {
-        setDisplayBundles(paginate(search.items, 10, page+1))
-      } 
-    } else {
-      setDisplayBundles(paginate(bundles, 10, page+1))
-    }
-  }
-
-  const prevPage = () => {
-    if (search.searching === true) {
-      if (Array.isArray(search.items)) {
-        setDisplayBundles(paginate(search.items, 10, page-1))
-      } 
-    } else {
-      setDisplayBundles(paginate(bundles, 10, page-1))
-    }
-  }
-
-  const chSelects = () => {
-    setDisplayProgress('block')
-    var updateArray = []
-
-    var arr = []
-    arr = [...bundles]
-
-    arr.forEach(element => {
-      var Elem = element
-      Elem.SelectedProduct = Elem.RecommendedProduct
-      updateArray.push(Elem)
-    })
-
-    setBundles(updateArray)
-    setDisplayProgress('none')
-  }
-
-  const changeAllNewRecommendations = () => {
-    setDisplayProgress('block')
-    var updateArray = []
-
-    var arr = []
-    arr = [...bundles]
-
-    arr.forEach(element => {
-      var Elem = element
-      if (Elem.NewRecommendedProduct.Id !== "None") {
-        Elem.RecommendedProduct = Elem.NewRecommendedProduct
-      }
-      updateArray.push(Elem)
-    })
-
-    setBundles(updateArray)
-    setDisplayProgress('none')
-  }
-
-  const ChSelectedProd = (bundleId, prodInfo) => {
-    setDisplayProgress('block')
-    var updateArray = []
- 
-    var arr = []
-    arr = [...bundles]
-
-    arr.forEach(element => {
-      var Elem = element
-      if (Elem._id === bundleId) {
-        Elem.SelectedProduct = {
-          "Id": prodInfo.Id,
-          "Title": prodInfo.Title,
-          "ImageSrc": prodInfo.Image
-        }
-      }
-      updateArray.push(Elem)
-    })
-
-  setBundles(updateArray)
-    setDisplayProgress('none')
-  }
-
-  const ChRecomProd = (bundleId, prodInfo) => {
-    setDisplayProgress('block')
-    var updateArray = []
- 
-    var arr = []
-    arr = [...bundles]
-
-    arr.forEach(element => {
-      var Elem = element
-      if (Elem._id === bundleId) {
-        Elem.RecommendedProduct = {
-          "Id": prodInfo.Id,
-          "Title": prodInfo.Title,
-          "ImageSrc": prodInfo.Image
-        }
-      }
-      updateArray.push(Elem)
-    })
-
-    setBundles(updateArray)
-    setDisplayProgress('none')
-  }
-
-
-  function rProducts() {
-    setDisplayProgress('block')
-    ResetProducts({
-      method: "GET",
-    }).then((res) => {
-      renderUpdate()
-    })
-  }
-
-  function renderUpdate() {
-    GetAllBundles({
-      method: "GET"
-    }).then((res) => {
-      var arr = []
-      arr = [...res.data]
-      setBundles(arr)
-      setDisplayProgress('none')
-      setChecked(true)  
-    })
-  }
-
-
-  React.useEffect(() => {
-    GetAllBundles({
-      method: "GET"
-    }).then((res) => {
-      var arr = []
-      arr = [...res.data]
-      setBundles(arr)
-
-      var array = paginate(res.data, 10, 1)
-      setDisplayBundles(array)
-
-      var rounded = Math.ceil(res.data.length / 10) * 10
-      var distance = res.data.length
-      
-      var pages = rounded / 10
-
-      if (distance > rounded) {
-        pages = pages + 1
-      }
-
-      setTotalPage(pages)
-
-      setDisplayProgress('none')
-      setChecked(true)  
-      setLoaded(true)
-    })
-  }, [])
-
-  const SelectProductUpdate = (id, sId) => {
-    setDisplayProgress('block')
-    SelectProduct({
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      data: {
-        "SourceProduct": sId,
-        "SelectedProduct": id,
-      }
-    }).then((res) => {
-      var updateArray = []
- 
-      var arr = []
-      arr = [...bundles]
-      arr.forEach(element => {
-        var Elem = element
-        if (Elem.SourceProduct.Id === res.data.SourceProduct.Id) {
-          Elem.SelectedProduct = {
-            "Id": res.data.SelectedProduct.Id,
-            "Title": res.data.SelectedProduct.Title,
-            "ImageSrc": res.data.SelectedProduct.ImageSrc
-          }
-        }
-        updateArray.push(Elem)
-      });
-      
-      setBundles(updateArray)
-      setDisplayProgress('none')
-    })
-  }
 
   const saveSuccess = () => {
     saveOpen(true);
   };
 
-  const saveClose = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-
-    saveOpen(false);
-  };
-
-  const handleToggle = () => {
-    setMenuOpen((prevOpen) => !prevOpen);
-  };
-
-  const changeTitle = (e) => {
-    setBundleTitle(e.target.value);
-  }
-
-  const changeTheme = (e) => {
-    setBundleTheme(e.target.value);
-  }
-
-  const changeDiscountAll = (e) => {
-    setDiscountAll(e.target.value)
-  }
-
-  const handleClose = (event) => {
-    if (anchorRef.current && anchorRef.current.contains(event.target)) {
-      return;
-    }
-
-    setMenuOpen(false);
-  };
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -786,24 +506,6 @@ export default function FrequentlyBought() {
       setMenuOpen(false);
     }
   }
-
-  function saveBundleInfo(e) {
-    setDisplayProgress('block')
-    e.preventDefault()
-    BundleInstance({
-      method: 'POST',
-      data: {
-        Title: bundleTitle,
-        Theme: designTheme
-      }
-    }).then((response) => {
-      console.log("Updated")
-      setDisplayProgress('none')
-      saveSuccess()
-    })
-  }  
-
-  function createLiveMarkup() { return {__html: DefaultLivePreview(bundleTitle, ProductTitle, ProductPrice, ProductImage, Product1Title, Product1Price, Product1Image, TotalPrice)}; };
 
   // return focus to the button when we transitioned from !open -> open
   const prevOpen = React.useRef(MenuOpen);
@@ -827,36 +529,14 @@ export default function FrequentlyBought() {
     setChecked(false)
   }
 
+  const styles = {
+    // bgColor: 'white',
+    titleTextColor: "blue",
+    rowTitleColor: "blue",
+    // rowContentColor: 'grey',
+    // arrowColor: "red",
+};
   const sProd = React.useRef()
-
-  function selectProd(prodID) {
-    sProd.current.handleClickOpen(prodID)
-  }
-
-  function applySingleOpen(slProd, rProd, bunId, newRec) {
-    // console.log(slProd, newRec)
-    sApply.current.openApplySingle(slProd, rProd, bunId, newRec)
-  }
-
-  function handleUpdate(value) {
-    let newArr = [...bundles];
-    var newAr = []
-
-    newArr.forEach(element => {
-      var Elem = element
-      Elem.Discount = value
-      newAr.push(Elem)
-    });
-
-    setBundles(newAr);
-    setChecked(true)
-    setDisplayProgress('none') 
-  }
-
-  const changedDiscAll = (discountValue) => {
-    handleUpdate(discountValue)      
-  }
-
   return (
   
     <NoSsr>
@@ -882,7 +562,7 @@ export default function FrequentlyBought() {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap>
-            All Bundles
+            FAQ
           </Typography>
           <IconButton style={{"position":"absolute","right":"33px","fontSize":"2.5em"}} aria-controls="simple-menu" aria-haspopup="true" onClick={handleClickUser}>
            <AccountCircleRoundedIcon style={{ color: "black" }} />
@@ -975,107 +655,13 @@ export default function FrequentlyBought() {
       <main className={classes.content}>
         <div className={classes.toolbar} />       
         <Typography variant="h5">
-            Bundles
+            Frequently Asked Questions
         </Typography>  
-        <Typography variant="caption">
-          We know that machines aren't perfect in picking the best bundles ever, so we gave an option to choose any other product you like with any product!
-        </Typography>
-        <br /><br />
-        <EnableBundles />
         <br></br>
-        <Divider></Divider>
+        <div>
+            <Faq data={useData} styles={styles} />
+        </div>
         <br></br>
-        <Grid style={{ display: "flex" }}>
-            <Grid item xs style={{ textAlign: "center", padding: "10px 0" }}>
-                <Typography variant="h6">
-                    Source Product
-                    <Tooltip TransitionComponent={Zoom} title="This is the main product which appears first in the bundle, the one which the customer is currently viewing." aria-label="add" arrow interactive>
-                    <InfoIcon style={{"width":"14px","margin":"3px 4px"}} />
-                </Tooltip>
-                </Typography>
-            </Grid>
-
-            <Grid item xs style={{ textAlign: "center", padding: "10px 0"}}>
-                <Typography variant="h6">
-                    Auto Recommended
-                    <Tooltip TransitionComponent={Zoom} title="The Products in this row are auto generated by our software, according to your orders and customer activity. They will be displayed with the Source Product as a bundle, unless you specify a selected product yourself." aria-label="add" arrow interactive>
-                        <InfoIcon style={{"width":"14px","margin":"3px 4px"}} />
-                    </Tooltip>
-                </Typography>                
-            </Grid>
-            
-            <Grid item xs style={{ textAlign: "center", padding: "10px 0"}}>
-                <Typography variant="h6">
-                    Selected Product
-                    <Tooltip TransitionComponent={Zoom} title="The Products shown here are the ones which will be displayed in the store side, with the source product as a bundle. You can select the product which will Display as a bundle of the Source Product too!" aria-label="add" arrow interactive>
-                    <InfoIcon style={{"width":"14px","margin":"3px 4px"}} />
-                </Tooltip>
-                </Typography>                
-            </Grid>
-
-            <Grid item xs style={{ textAlign: "center", padding: "10px 0"}}>
-                <Typography variant="h6">
-                    Discount
-                    <Tooltip TransitionComponent={Zoom} title="Specify How much discount will be added to the customer's cart when They add a bundle to the cart, leave the field empty for no discount." aria-label="add" arrow interactive>
-                    <InfoIcon style={{"width":"14px","margin":"3px 4px"}} />
-                </Tooltip>
-                </Typography>
-                
-            </Grid>
-        </Grid>
-        <Grid  style={{ display: "flex" }}>
-            <Grid item xs style={{ textAlign: "center", padding: "10px 0"}}>
-            </Grid>
-
-            <Grid item xs style={{ textAlign: "center", padding: "10px 0"}}>
-                <RPhandler ChangeSelects={chSelects} ChangeAllNewRecoms={changeAllNewRecommendations} bundlesArray={bundles} />
-            </Grid>
-
-            <Grid item xs style={{ textAlign: "center", padding: "10px 0"}}>
-                <SPhandler resetProducts={rProducts} />
-            </Grid>
-
-            <Grid item xs style={{ textAlign: "center", padding: "10px 0"}}>
-              <DiscountHandler changeDiscountAll={changeDiscAll} Discount={""} />
-            </Grid>
-        </Grid><br></br><Divider /> <br />
-
-          <Paper component="form" className={classes.inputRoot} style={{ boxShadow: "1px 0px 10px 4px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 1px 3px 0px rgba(0,0,0,0.12)"}}>
-            <InputBase
-            className={classes.input}
-            value={search.term}
-            onChange={handleSearch}
-            placeholder="Search Any Of Your Products"
-            inputProps={{ 'aria-label': 'Search Any Of Your Products' }}
-            />
-              <Divider className={classes.divider} orientation="vertical" />
-            <IconButton className={classes.iconButton} aria-label="search">
-              <SearchIcon />
-            </IconButton>
-          </Paper>
-
-        {/* Pagination Here */}
-          <Grid style={{"width":"fit-content","border":"1px solid #ccbdbd", "marginBottom": "1em","borderRadius":"12px","background":"#dbdbdb","float":"right"}} container alignItems="center">
-              <IconButton onClick={prevPage} aria-label="Next Page" disabled={pageButtons.prev}>
-                <NavigateBeforeIcon />
-              </IconButton>
-            <Divider orientation="vertical" flexItem />
-              <IconButton onClick={nextPage} disabled={pageButtons.next} aria-label="Next Page">
-                <NavigateNextIcon />
-              </IconButton>
-          </Grid>          
-
-          {DisplayBundles.map((d) =>
-                <div>
-                  <BundleCard applyS={applySingleOpen} NewRecom={d.NewRecommendedProduct} selectProduct={selectProd} Id={d._id} changedDiscAll={changedDiscAll} ref={discountRef} discountChangeSingle={discountChangeSing} key={d._id} SelectedID={d.SelectedProduct.Id} RecommendedID={d.RecommendedProduct.Id} SourceProduct={d.SourceProduct.Title} RecommendedProduct={d.RecommendedProduct.Title} SelectedProduct={d.SelectedProduct.Title} SourceProductImage={d.SourceProduct.ImageSrc} RecommendedProductImage={d.RecommendedProduct.ImageSrc} SelectedProductImage={d.SelectedProduct.ImageSrc} Discount={d.Discount} prod_id={d.SourceProduct.Id}/><br/>
-                </div>   
-          )}
-
-      <SelectProductComp ref={sProd} UpdateSelectProduct={SelectProductUpdate} />
-      <ApplySingle ChangeRecommendedProduct={ChRecomProd} ChangeSelectedProduct={ChSelectedProd} ref={sApply} />
-     <br></br>
-     <Divider />
-     <br></br>
       <Grid container>
           <Paper elevation={20} style={{"padding":"2em","textAlign":"center","margin":"0 17%"}}>
             <Typography variant="h5">Support Our App On Shopify App Store!</Typography>

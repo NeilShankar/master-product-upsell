@@ -4,6 +4,8 @@ import { lighten, withStyles, makeStyles, useTheme } from '@material-ui/core/sty
 import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
+
+import GetStoreInfo from '../API-instances/StoreInfo'
 import List from '@material-ui/core/List';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Link from 'next/link';
@@ -49,7 +51,7 @@ import TuneIcon from '@material-ui/icons/Tune';
 import { Line, Bar } from "react-chartjs-2";
 import NoSsr from '@material-ui/core/NoSsr';
 
-
+import Grow from '@material-ui/core/Grow';
 import NextNprogress from 'nextjs-progressbar';
 import GetMetrics from '../API-instances/StoreMetrics'
 
@@ -246,10 +248,55 @@ export default function Dashboard() {
   const [displayProgress, setDisplayProgress] = React.useState('block');
   const bull = <span className={classes.bullet}>•</span>;
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [firstTime, setFirstTime] = React.useState(true)
+  const [checkTimer, setCheckTimer] = React.useState(0)
+  const [user, setUser] = React.useState({
+    name: "",
+    store: "",
+  })
+
+  React.useEffect(() => {
+    if (localStorage.getItem('userData') === null) {
+      GetStoreInfo({
+        method: "GET"
+      }).then((response) => {
+        setUser({
+          name: response.data.User,
+          store: response.data.Shop
+        })
+        localStorage.setItem('userData', JSON.stringify({
+          name: response.data.User,
+          store: response.data.Shop
+        }));
+      })
+    } else {
+      var userData = JSON.parse(localStorage.getItem('userData'))
+      setUser(userData)
+    }
+  }, []);
 
   const handleClickUser = (event) => {
     setAnchorEl(event.currentTarget);
   };
+
+  React.useEffect(() => {
+    checkBundlesInitialised()
+    setInterval(checkBundlesInitialised, 15000)
+  }, [])
+
+  async function checkBundlesInitialised() {
+    if (firstTime === true) {
+      console.log("Checking.")
+      axios.get(`${process.env.REACT_APP_HOST}/api/checkFirstTime`)
+      .then((res) => {
+        if (res.data === true) {
+          setFirstTime(true)
+        } else if (res.data === false) {
+          setFirstTime(false)
+        }
+      })
+    }
+  }
 
   const handleCloseUser = () => {
     setAnchorEl(null);
@@ -403,7 +450,7 @@ export default function Dashboard() {
             </Link>
           </ListItem>     
            
-          <ListItem button key={"Configurations"}>
+          <ListItem button key={"Configurations"} style={{ display: (firstTime === true) ? 'none' : 'flex' }}>
             <Link href="/bundle-configuration" shallow={true}>
               <ListItemIcon><TuneIcon style={{ color: "white" }} /></ListItemIcon>
             </Link>
@@ -412,7 +459,7 @@ export default function Dashboard() {
             </Link>
           </ListItem>     
 
-          <ListItem button key={"Bundles"}>
+          <ListItem button key={"Bundles"} style={{ display: (firstTime === true) ? 'none' : 'flex' }}>
             <Link href="/bundles" shallow={true}>
               <ListItemIcon><AddShoppingCartIcon style={{ color: "white" }} /></ListItemIcon>
             </Link>
@@ -430,17 +477,9 @@ export default function Dashboard() {
           <Link href="/settings" shallow={true}>
             <ListItemText primary={"Settings"} />
           </Link>
-        </ListItem>      
-        <ListItem button key={"Account"}>
-          <Link href="/account" shallow={true}>
-            <ListItemIcon><AccountBoxIcon style={{ color: "white" }} /></ListItemIcon>
-          </Link>
-          <Link href="/account" shallow={true}>
-            <ListItemText primary={"Account"} />
-          </Link>
         </ListItem>       
         <ListItem button key={"FAQ"}>
-          <Link href="/frequently-asked-questions" shallow={true}>
+          <Link disabled={firstTime} href="/frequently-asked-questions" shallow={true}>
             <ListItemIcon><LiveHelpIcon style={{ color: "white" }} /></ListItemIcon>
           </Link>
           <Link href="/frequently-asked-questions" shallow={true}>
@@ -451,10 +490,21 @@ export default function Dashboard() {
       </Drawer>
       <main className={classes.content}>
         <div className={classes.toolbar} />  
-        <Paper style={{"marginBottom":"24px","position":"relative","marginTop":"-24px","padding":"14px"}}>
-        <Typography variant="h5">Welcome To ShopLee!</Typography>
-        <Typography variant="caption">If you need any help to get started, you may leave us a message in the chat or mail us to neilshankarnath@gmail.com</Typography>
-      </Paper>     
+        <Paper style={{"marginBottom":"24px","position":"relative","marginTop":"-24px","padding":"14px", display: (firstTime === false) ? 'block' : 'none' }}>
+          <Typography variant="h5">Welcome To ShopLee!</Typography>
+          <Typography variant="caption">You are All Setup, and ready to roll! You may view the options on the left navigation, to customize the styles or configure any of your bundles! If you need any help to get started, you may leave us a message in the chat or mail us to neilshankarnath@gmail.com</Typography>
+        </Paper> 
+      <Grow in={firstTime}>
+        <Grid container style={{"margin":"auto","width":"70%", display: (firstTime === true) ? 'block' : 'none' }}>
+            <Paper elevation={5} style={{ padding: "2em" }}>
+              <Typography variant="h5">Making Bundles - One Time Setup</Typography>
+              <br/>
+              <Typography style={{"display":"inline-block","maxWidth":"60%"}} variant="caption">Our App is making the perfect combinations of bundles, that will sell a lot! As making a good choice takes a bit of time, our app needs some times (Less than you think). Check back here after a cup of coffee and we will be ready!</Typography>
+              <img style={{"width":"196px","height":"auto","position":"absolute","float":"right","right":"21%","top":"14%"}} src="https://i.stack.imgur.com/i6NG3.gif" alt="" />
+            </Paper>
+          </Grid>
+      </Grow>
+        <br />
         <HeaderBar />
         <br />
         <Divider />
@@ -496,30 +546,6 @@ export default function Dashboard() {
         </Grid>
       </Grid>
       <br></br><br></br>
-       <Typography variant="h5">
-          Breakdown Performance
-        </Typography>
-        <Typography variant="caption" display="block">
-        Choose from a range of analysis options for your store!
-        </Typography>
-        <br></br>
-        <DropdownMenu />
-        <DateRange style={{ float: "right" }}/>
-        <br></br>
-        <Grid container spacing={3}>
-          <Grid item xs={6}>
-            <Paper elevation={20} style={{ background: "#fff" }} className={classes.paper}>
-              <Line data={data} options={options} legend={legend}/>
-            </Paper>
-          </Grid>
-          <Grid item xs={6}>
-            <Paper elevation={20} style={{ background: "#fff" }} className={classes.paper}>
-              <Bar data={data2} options={options2} legend={legend}/>
-            </Paper>
-          </Grid>
-        </Grid>
-        <br></br><br></br>
-        <br></br><br></br>
         <Divider />
         <br></br><br></br>
         <Grid container>

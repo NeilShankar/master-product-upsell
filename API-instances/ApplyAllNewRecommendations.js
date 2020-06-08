@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const ApplyAllNewRecommendation = axios.create({
-  baseURL: `https://912288751566.ngrok.io/api/applyAllNewRecommendation`
+  baseURL: `${process.env.HOST}/api/applyAllNewRecommendation`
 })
 
 export default ApplyAllNewRecommendation

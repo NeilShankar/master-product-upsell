@@ -5,7 +5,7 @@ import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
-import GetStoreInfo from '../../API-instances/StoreInfo'
+import GetStoreInfo from '../API-instances/StoreInfo'
 
 const useStyles = makeStyles({
   root: {
@@ -59,7 +59,7 @@ export default function HeaderBar() {
     <Card style={{ background: "#e1dfdf", borderColor: "#767373" }} className={classes.root} variant="outlined">
       <CardContent>
         <Typography className={classes.title} color="textSecondary" gutterBottom>
-          Hello {Store.User}, this is your Dashboard.
+          Hello {Store.User}, this is your Settings Panel.
         </Typography>
         <br></br>
         <Typography variant="h5" style={{ textTransform: "uppercase" }} component="h2">
@@ -73,7 +73,7 @@ export default function HeaderBar() {
         </Typography>
       </CardContent>
       <CardActions>
-        <Button size="small" href="/bundles">Configure App</Button> 
+        <Button size="small" href="/bundle-configuration">Configure App</Button> 
         <Button size="small" href="/frequently-asked-questions">Support</Button>
       </CardActions>
     </Card>

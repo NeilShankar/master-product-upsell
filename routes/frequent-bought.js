@@ -40,6 +40,7 @@ const postFrequentProduct = async (ctx) => {
     const productInfoJson = await productsInfo.json();
     productInfoJson.Discount = await bundleProduct.Discount
     productInfoJson.BundleId = await bundleProduct._id
+    productInfoJson.BundleConfigs = await store.BundleConfigs
 
     return JSON.stringify(productInfoJson)
   }

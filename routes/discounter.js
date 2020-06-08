@@ -41,7 +41,7 @@ const generateDiscount = async (ctx) => {
         var newSales = sales + DiscountedPriceSum
         var newCarts = addToCarts + 1
 
-        const updateStoreMetrics = await storeModel.findOneAndUpdate({ domain: ctx.accept.headers.origin }, {$set: {"Metrics.ThisMonth.Sales": newSales, "Metrics.ThisMonth.AddToCarts": newCarts}})
+        const updateStoreMetrics = await storeModel.findOneAndUpdate({ domain: ctx.accept.headers.origin }, {$set: {"Metrics.ThisMonth.AddToCarts": newCarts}})
 
 
         var shopURL = ctx.accept.headers.origin

@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const BundleDiscount = axios.create({
-  baseURL: `https://912288751566.ngrok.io/api/discountBundle`
+  baseURL: `${process.env.HOST}/api/discountBundle`
 })
 
 export default BundleDiscount

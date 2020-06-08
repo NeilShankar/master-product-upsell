@@ -1,7 +1,9 @@
 import axios from 'axios'
 
+const url = process.env.HOST + '/api/getProducts'
+
 const GetProductsLive = axios.create({
-  baseURL: `https://912288751566.ngrok.io/api/getProducts`
+  baseURL: url
 })
 
 export default GetProductsLive

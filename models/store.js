@@ -38,6 +38,8 @@ const schema = new Schema({
           ShopName: String
      },
      Bundles: Array,
+     UpdatingEnabled: Boolean,
+     ServiceEnabled: Boolean,
      JobInfo: String
 });
 

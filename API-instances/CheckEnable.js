@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const CheckBundleEnabled = axios.create({
-  baseURL: `${process.env.HOST}/api/enabledCheck`
+  baseURL: `https://shoplee-bundles.herokuapp.com/api/enabledCheck`
 })
 
 export default CheckBundleEnabled

@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const ResetProducts = axios.create({
-  baseURL: `${process.env.HOST}/api/resetProducts`
+  baseURL: `https://shoplee-bundles.herokuapp.com/api/resetProducts`
 })
 
 export default ResetProducts

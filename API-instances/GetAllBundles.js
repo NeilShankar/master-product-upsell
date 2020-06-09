@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const GetAllBundles = axios.create({
-  baseURL: `${process.env.HOST}/api/getAllBundles`
+  baseURL: `https://shoplee-bundles.herokuapp.com/api/getAllBundles`
 })
 
 export default GetAllBundles

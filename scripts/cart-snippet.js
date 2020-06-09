@@ -91,7 +91,7 @@ async function cartSnippet(ctx) {
         }
         }	
         };
-        xhttp.open("POST", "https://912288751566.ngrok.io/generate-discount/"+bundId, true);
+        xhttp.open("POST", "https://shoplee-bundles-v2.herokuapp.com/generate-discount/"+bundId, true);
         xhttp.setRequestHeader("Content-type", "application/json");
         xhttp.send(JSON.stringify(array));
       }

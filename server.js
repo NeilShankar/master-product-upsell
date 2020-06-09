@@ -271,7 +271,7 @@ app.prepare().then(() => {
               });
             });
 
-            console.log("Pre-Initiliazed, so not doing more work...")            
+            console.log("Pre-Initiliazed, so not doing more work...")          
           } else {
             // Saving Store Data to MongoDB
             const storeData = storeModel({

@@ -139,36 +139,6 @@ app.prepare().then(() => {
         return true;
       }
 
-      function getCookie1(name) {
-        var dc = document.cookie;
-        var prefix = name + "=";
-        var begin = dc.indexOf("; " + prefix);
-        if (begin == -1) {
-          begin = dc.indexOf(prefix);
-          if (begin != 0) return null;
-        }
-        else
-        {
-          begin += 2;
-          var end = document.cookie.indexOf(";", begin);
-          if (end == -1) {
-            end = dc.length;
-          }
-        }
-        // because unescape has been deprecated, replaced with decodeURI
-        //return unescape(dc.substring(begin + prefix.length, end));
-        return decodeURI(dc.substring(begin + prefix.length, end));
-      } 
-      var cartCookie = getCookie1("cart");
-
-      if (cartCookie == null) {
-        removeExistingItem("CartBundles")
-        removeExistingItem("PriceRuleId")
-        removeExistingItem("TotalDiscountedPrice")
-      } else {
-        console.log("Cart Available.")
-      }
-
       jQuery.ajax({
         type: 'GET',
         url: '/cart.js',
@@ -182,6 +152,80 @@ app.prepare().then(() => {
           }
         }
       })
+
+      setInterval(() => {
+        var cartItems = []
+        var bundles = JSON.parse(localStorage.getItem("CartBundles")) || []
+        var BundlesMatched = []
+
+        if (!bundles.length) { return ; }
+
+        jQuery.ajax({
+          type: 'GET',
+          url: '/cart.js',
+          dataType: 'json',   
+          success: function(res) {      
+            if (res.item_count <= 0) {
+              return ;
+            } else {
+              cartItems = [...res.items]
+              checkValidator()
+            }
+          }
+        })
+         function checkValidator() {
+            for (i=0; i < bundles.length; i++) {
+                var matchSource = false
+                var matchSelect = false
+                for (c=0; c < cartItems.length; c++) {
+                    if (bundles[i].SelectedVariantSource === cartItems[c].variant_id) {
+                        matchSource = true
+                        break ;
+                    }
+                }
+                for (c=0; c < cartItems.length; c++) {
+                    if (bundles[i].SelectedVariantSelect === cartItems[c].variant_id) {
+                        matchSelect = true
+                        break ;
+                    }
+                }
+                if (matchSource === true && matchSelect === true) {
+                    BundlesMatched.push(bundles[i])
+                }                
+          }
+
+          if (!BundlesMatched.length) {
+            return;
+          }
+
+          localStorage.setItem("CartBundles", JSON.stringify(BundlesMatched))
+
+          if (JSON.stringify(bundles) !== JSON.stringify(BundlesMatched)) {
+               createNewDiscount(BundlesMatched, BundlesMatched[0].BundleId)
+          }
+         }
+      }, 5000);
+
+      function createNewDiscount(array, bundId) {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange=function() {
+        if (this.readyState == 4 && this.status == 200) {
+          var discountData = JSON.parse(this.responseText)
+          var FixDiscount = discountData.DiscountedPrice
+          var FixedDiscountP = FixDiscount.toFixed(2)
+          localStorage.setItem("PriceRuleId", discountData.priceRuleId);
+          localStorage.setItem("TotalDiscountedPrice", FixedDiscountP)
+          var url = window.location.hostname
+          var redirect = window.location.pathname
+        if (FixedDiscountP !== 0) {
+          window.location.href = "https://"+url+"/discount/"+discountData.discountCode+"?redirect="+redirect
+        }
+        }	
+        };
+        xhttp.open("POST", "https://912288751566.ngrok.io/generate-discount/"+bundId, true);
+        xhttp.setRequestHeader("Content-type", "application/json");
+        xhttp.send(JSON.stringify(array));
+      }
 
       function getCookie(cname) {
         var name = cname + "=";

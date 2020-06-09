@@ -225,7 +225,9 @@ const getThemes = async function getThemes(ShopURI, accessT) {
                   "DiscountPrice": DiscountedPrice,
                   "SourceVariant": data.products[0].id,
                   "SelectVariant": data.products[1].id,
-                  "PriceRuleId": priceRuleId
+                  "PriceRuleId": priceRuleId,
+                  "SelectedVariantSource": sourceVariantId,
+                  "SelectedVariantSelect": selectVariantId
                 }
               
                 BundlesArray.push(bundle)

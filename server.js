@@ -215,7 +215,7 @@ app.prepare().then(() => {
           const msg = {
             to: results.shop.email,
             from: 'neilshankarnath@gmail.com',
-            templateId: 'd-6d8f52aca50846a2a01bcc294a277d53',
+            templateId: 'd-6d457b5b28ac4fb18ac0cb012724b908',
         
             dynamic_template_data: {
               name: `${results.shop.shop_owner}`,
@@ -393,6 +393,7 @@ app.prepare().then(() => {
   const webhook = receiveWebhook({secret: SHOPIFY_API_SECRET_KEY});
 
   router.post('/webhooks/app/uninstalled', webhook, async (ctx) => {
+    ctx.res.statusCode = 200;
     const webhook = ctx.state.webhook
 
     require('./models/store')
@@ -425,6 +426,7 @@ app.prepare().then(() => {
     ctx.body = "Sent."
   })
   .post('/webhooks/orders/create', webhook, async (ctx) => {
+    ctx.res.statusCode = 200;
     const order = ctx.state.webhook.payload
     require('./models/store')
     const storeModel = mongoose.model('Store')
@@ -442,7 +444,54 @@ app.prepare().then(() => {
       }
   })
   .post('/webhooks/shop/redact', webhook, (ctx) => {
-    console.log('received webhook: ', ctx.state.webhook);
+    ctx.res.statusCode = 200;
+    const payload = ctx.state.webhook.payload
+
+    require('./models/store')
+    const storeModel = mongoose.model('Store')
+
+    require("./models/bundles");
+    const bundleModel = mongoose.model("Bundle");
+
+    var BundleArr = []
+
+    var store = await storeModel.findOne({ url: `https://${payload.shop_domain}` }, async (err, res) => {
+      BundleArr = [...res.Bundles]
+    })
+
+    var deleteStore = await storeModel.deleteOne(store._id)
+
+    var deleteBundles = await bundleModel.deleteMany({ _id: { $in: [...BundleArr] }})
+  })
+  .post('/webhooks/customers/redact', webhook, async (ctx) => {
+    ctx.res.statusCode = 200;
+    const payload = ctx.state.webhook.payload
+
+    const msg = {
+      to: 'neilshankarnath@gmail.com',
+      from: 'neilshankarnath@gmail.com',
+      subject: `New Customer Data RedAct From ${payload.shop_domain}`,
+      text: `${payload}`,
+    };
+
+    await sgMail.send(msg);
+
+    ctx.body = "New Customer Redact."
+  })
+  .post('/webhooks/customers/data_request', webhook, async (ctx) => {
+    ctx.res.statusCode = 200;
+    const payload = ctx.state.webhook.payload
+
+    const msg = {
+      to: 'neilshankarnath@gmail.com',
+      from: 'neilshankarnath@gmail.com',
+      subject: `New Customer Data Request From ${payload.shop_domain}`,
+      text: `${payload}`,
+    };
+
+    await sgMail.send(msg);
+
+    ctx.body = "New Customer Data Request."
   });
 
   server.use(graphQLProxy({ version: ApiVersion.April20 }));
